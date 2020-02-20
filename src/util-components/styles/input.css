@@ -1,0 +1,46 @@
+.input-text-line {
+  display: inline-block;
+  position: relative;
+  padding-top: 0.75rem;
+  border-width: 0 0 0.0625rem 0;
+  border-style: solid;
+  border-color: #ccc;
+}
+
+.input-text-line label {
+  position: absolute;
+  top: 0.625rem;
+  left: 0;
+  font-size: 1rem;
+  color: #777;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.input-text-line input {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  background-color: transparent;
+  border-width: 0 0 0.125rem 0;
+  border-style: solid;
+  border-color: transparent;
+}
+
+.input-text-line input:focus {
+  outline: 0;
+  border-color: #4285f4;
+}
+
+.input-text-line input:focus ~ label {
+  color: #4285f4;
+  top: -0.5rem;
+  font-size: 0.75rem;
+}
+
+.input-text-line input.active ~ label {
+  color: #4285f4;
+  top: -0.5rem;
+  font-size: 0.75rem;
+}
+/*# sourceMappingURL=input.css.map */

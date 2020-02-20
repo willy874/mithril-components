@@ -1,0 +1,237 @@
+.material.switch {
+  position: relative;
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.material.switch.success {
+  --input-border-color: var(--status);
+}
+
+.material.switch.error {
+  --input-border-color: var(--status);
+  --text-color: var(--status);
+  --shadow-color: var(--status);
+}
+
+.material.switch.disabled {
+  opacity: 0.6;
+}
+
+.material.switch input {
+  border: 0;
+  opacity: 0;
+  margin: -1px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  outline: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.material.switch input:disabled, .material.switch input .disabled {
+  cursor: auto;
+}
+
+.material.switch label {
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.material.switch label::after {
+  display: none;
+}
+
+.material.switch label::before {
+  display: none;
+}
+
+.material.switch label div {
+  position: relative;
+  background-color: var(--input-bg-color);
+  width: 1.6rem;
+  height: 0.8rem;
+  border-radius: 0.4rem;
+  margin-right: 0.5rem;
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  -webkit-box-shadow: -0.0625rem 0 0.25rem 0.0625rem var(--shadow-color) inset;
+          box-shadow: -0.0625rem 0 0.25rem 0.0625rem var(--shadow-color) inset;
+}
+
+.material.switch label div::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-120%, -50%) scale(1.4);
+          transform: translate(-120%, -50%) scale(1.4);
+  background-color: #fff;
+  border-radius: 50%;
+  -webkit-box-shadow: -0.0625rem 0.0625rem 0.125rem 0.0625rem #00000022;
+          box-shadow: -0.0625rem 0.0625rem 0.125rem 0.0625rem #00000022;
+  width: 0.8rem;
+  height: 0.8rem;
+  -webkit-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.material.switch label div::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: var(--status);
+  -webkit-transform: translate(-120%, -50%) scale(0);
+          transform: translate(-120%, -50%) scale(0);
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.material.switch label span {
+  color: var(--text-color);
+}
+
+.material.switch input:active + label div::before {
+  opacity: 0.15;
+  background-color: #00000077;
+  -webkit-transform: translate(-100%, -50%) scale(2.5);
+          transform: translate(-100%, -50%) scale(2.5);
+}
+
+.material.switch input:checked + label div {
+  -webkit-box-shadow: -0.0625rem 0 0.25rem 0.0625rem var(--status) inset;
+          box-shadow: -0.0625rem 0 0.25rem 0.0625rem var(--status) inset;
+  background-color: var(--status);
+}
+
+.material.switch input:checked + label div::after {
+  -webkit-transform: translate(20%, -50%) scale(1.4);
+          transform: translate(20%, -50%) scale(1.4);
+  -webkit-box-shadow: 0.0625rem 0.0625rem 0.125rem 0.0625rem #00000022;
+          box-shadow: 0.0625rem 0.0625rem 0.125rem 0.0625rem #00000022;
+}
+
+.material.switch input:checked:active + label div::before {
+  opacity: 0.15;
+  background-color: var(--status);
+  -webkit-transform: translate(0, -50%) scale(2.5);
+          transform: translate(0, -50%) scale(2.5);
+}
+
+.switch-wave-effect-on::before {
+  -webkit-animation: switch-wave-effect-on 0.3s;
+          animation: switch-wave-effect-on 0.3s;
+}
+
+.switch-wave-effect-off::before {
+  -webkit-animation: switch-wave-effect-off 0.3s;
+          animation: switch-wave-effect-off 0.3s;
+}
+
+@-webkit-keyframes switch-wave-effect-on {
+  0% {
+    background-color: var(--input-bg-color);
+    opacity: 0.15;
+    -webkit-transform: translate(-100%, -50%) scale(0);
+            transform: translate(-100%, -50%) scale(0);
+  }
+  50% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(-70%, -50%) scale(2.5);
+            transform: translate(-70%, -50%) scale(2.5);
+  }
+  100% {
+    background-color: var(--status);
+    opacity: 0;
+    -webkit-transform: translate(0%, -50%) scale(2.5);
+            transform: translate(0%, -50%) scale(2.5);
+  }
+}
+
+@keyframes switch-wave-effect-on {
+  0% {
+    background-color: var(--input-bg-color);
+    opacity: 0.15;
+    -webkit-transform: translate(-100%, -50%) scale(0);
+            transform: translate(-100%, -50%) scale(0);
+  }
+  50% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(-70%, -50%) scale(2.5);
+            transform: translate(-70%, -50%) scale(2.5);
+  }
+  100% {
+    background-color: var(--status);
+    opacity: 0;
+    -webkit-transform: translate(0%, -50%) scale(2.5);
+            transform: translate(0%, -50%) scale(2.5);
+  }
+}
+
+@-webkit-keyframes switch-wave-effect-off {
+  0% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(0%, -50%) scale(0);
+            transform: translate(0%, -50%) scale(0);
+  }
+  50% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(-70%, -50%) scale(2.5);
+            transform: translate(-70%, -50%) scale(2.5);
+  }
+  100% {
+    background-color: var(--input-bg-color);
+    opacity: 0;
+    -webkit-transform: translate(-100%, -50%) scale(2.5);
+            transform: translate(-100%, -50%) scale(2.5);
+  }
+}
+
+@keyframes switch-wave-effect-off {
+  0% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(0%, -50%) scale(0);
+            transform: translate(0%, -50%) scale(0);
+  }
+  50% {
+    background-color: var(--status);
+    opacity: 0.15;
+    -webkit-transform: translate(-70%, -50%) scale(2.5);
+            transform: translate(-70%, -50%) scale(2.5);
+  }
+  100% {
+    background-color: var(--input-bg-color);
+    opacity: 0;
+    -webkit-transform: translate(-100%, -50%) scale(2.5);
+            transform: translate(-100%, -50%) scale(2.5);
+  }
+}
+/*# sourceMappingURL=switch.css.map */

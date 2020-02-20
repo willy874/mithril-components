@@ -1,0 +1,85 @@
+// 含變數的值直接調整變數，不然會造成破版或無法對齊
+$input-padding-top: 0.5rem;
+$input-padding-bottom: 0.5rem;
+$input-font-size: 1rem;
+
+// 可以使用變數調整顏色
+// :root{
+//     --status: var(--primary);
+//     --text-color: #333;
+//     --input-text-color: #222;
+//     --input-border-color: #00000077;
+//     --input-bg-color: #ccc;
+// }    
+
+
+@import 'input-outline';
+@import 'input-bottomline';
+
+.disabled.input-outline{
+    opacity: 0.6
+}
+.disabled.input-bottomline{
+    opacity: 0.6
+}
+
+
+.click-wave-effect-on {
+    &::before {
+        animation: click-wave-effect-on 0.4s;
+    }
+}
+
+.click-wave-effect-off {
+    &::before {
+        animation: click-wave-effect-off 0.3s;
+    }
+}
+
+@keyframes click-wave-effect-on {
+    0% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    50% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    100% {
+        background-color: var(--status);
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes click-wave-effect-off {
+    0% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    33% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    66% {
+        background-color: #000;
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    100% {
+        background-color: #000;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+

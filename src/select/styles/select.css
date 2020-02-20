@@ -1,0 +1,168 @@
+.select {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.select label {
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+  font-size: 1rem;
+  color: var(--text-color);
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+
+.select select {
+  background-color: transparent;
+}
+
+.select.material.success {
+  --input-border-color: var(--status);
+}
+
+.select.material.error {
+  --input-border-color: var(--status);
+  --text-color: var(--status);
+}
+
+.select.material.disabled {
+  opacity: 0.6;
+}
+
+.select.material.disabled .select-dropdown {
+  cursor: auto;
+}
+
+.select.material .select-dropdown {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.select.material .select-dropdown .select-btn {
+  padding: 0.5rem;
+}
+
+.select.material .select-dropdown .select-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  -webkit-transform: translateY(-50%) rotate(0deg);
+          transform: translateY(-50%) rotate(0deg);
+  border-width: 0.5rem 0.3535rem 0 0.3535rem;
+  border-style: solid;
+  border-color: var(--status) transparent transparent transparent;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.select.material .select-dropdown .select-panel {
+  background-color: var(--select-bg-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  z-index: 11;
+  -webkit-transform: scale(1, 0);
+          transform: scale(1, 0);
+  -webkit-transform-origin: top center;
+          transform-origin: top center;
+  -webkit-box-shadow: 0 0.125rem 0.25rem 0.125rem #00000011,0 -0.125rem 0.25rem 0.125rem #00000011;
+          box-shadow: 0 0.125rem 0.25rem 0.125rem #00000011,0 -0.125rem 0.25rem 0.125rem #00000011;
+  border-radius: 0.5rem;
+}
+
+.select.material .select-dropdown .select-panel span {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  display: inline-block;
+  padding: 0.5rem;
+}
+
+.select.material .select-dropdown .select-line {
+  z-index: 12;
+  width: 100%;
+}
+
+.select.material .select-dropdown .select-line::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.0625rem;
+  opacity: 0.5;
+  background-color: var(--input-border-color);
+}
+
+.select.material .select-dropdown .select-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 0.125rem;
+  background-color: var(--status);
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  z-index: 12;
+}
+
+.select.material .select-dropdown .select-option {
+  overflow: hidden;
+  background-color: var(--select-bg-color);
+}
+
+.select.material .select-dropdown .select-option:first-of-type {
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.select.material .select-dropdown .select-option:last-of-type {
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.select.material .select-dropdown .select-option:hover {
+  background-color: var(--hover-color);
+}
+
+.select.material .select-dropdown .select-option.active {
+  background-color: var(--hover-color);
+}
+
+.select.material .select-dropdown .select-option.disabled {
+  background-color: var(--select-bg-color);
+  opacity: 0.6;
+  cursor: auto;
+}
+
+.select.material .select-dropdown.active .select-btn::after {
+  -webkit-transform: translateY(-50%) rotate(180deg);
+          transform: translateY(-50%) rotate(180deg);
+  z-index: 12;
+}
+
+.select.material .select-dropdown.active .select-line::after {
+  left: 0;
+  right: 0;
+}
+
+.select.material .select-dropdown.active .select-panel {
+  -webkit-transform: scale(1, 1);
+          transform: scale(1, 1);
+}
+/*# sourceMappingURL=select.css.map */

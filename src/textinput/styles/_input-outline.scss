@@ -1,0 +1,247 @@
+.input-outline{
+    display: inline-flex;
+    width: 100%;
+
+    &:focus-within{
+        .input-outline-label{
+            transform: translate(0,-33%) scale(0.7);
+            color: var( --status);
+        }
+        .input-outline-fieldset{
+            border-color: var( --status);
+            border-width: 0.125rem;
+        }
+        .input-outline-legend{
+            width: 80%;
+        }
+    }
+    &.input-effect-active{
+        .input-outline-label{
+            transform: translate(0,-33%) scale(0.7);
+            color: var( --input-border-color);
+        }
+        .input-outline-fieldset{
+            border-color: var( --input-border-color);
+            border-width: 0.0625rem;
+        }
+        .input-outline-legend{
+            width: 80%;
+        }
+    }
+    &:focus-within.input-effect-active{
+        .input-outline-label{
+            color: var( --status);
+        }
+        .input-outline-fieldset{
+            border-color: var( --status);
+            border-width: 0.125rem;
+        }
+    }
+    &:hover .input-outline-fieldset{
+        border-width: 0.125rem;
+    }
+
+    i{
+        margin-top: $input-padding-top;
+        width: 1rem;
+        height: 1rem;
+        font-size: 1rem;
+        line-height: 1rem;
+        margin: {
+            right: 0.5rem;
+            left: 0.5rem;
+        }
+        color: var(--text-color);
+
+        svg{
+            width: $input-font-size;
+            height: $input-font-size;
+            fill: var(--text-color);
+        }
+    }
+    
+    input,textarea{
+        display: block;
+        flex-grow: 1;
+        font-size: $input-font-size;
+        padding: {
+            top: $input-padding-top;
+            bottom: $input-padding-bottom;
+            left: 0.5rem;
+            right: 0.5rem;
+        }
+        width: 100%;
+        border: 0;
+        margin: 0;
+        min-width: 0;
+        background-color: transparent !important;
+        box-sizing: content-box;
+        color: var(--input-text-color);
+        &:focus {
+            outline: 0;
+            box-shadow: none;
+            border: 0;
+            background-color: transparent !important;
+        }
+    }
+    input{
+        height: $input-font-size * 1.25;
+        line-height: $input-font-size * 1.25;
+        
+        &.form-control.is-invalid{
+            background-image: none;
+            &:focus{
+                border-color: 0;
+                box-shadow: none;
+                
+            }
+        }
+        
+    }
+    
+}
+
+.input-outline-text{
+    display: inline-block;
+    padding-top: $input-padding-top;
+    padding-bottom: $input-padding-bottom;
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.25rem;
+    color: var(--text-color);
+}
+
+.input-outline-box{
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    vertical-align: top;
+    min-width: 0;
+}
+
+.input-outline-base{
+    cursor: text;
+    display: inline-flex;
+    position: relative;
+    box-sizing: border-box;
+    align-items: center;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    position: relative;
+    border-radius: 0.375rem;
+}
+
+.input-outline-prefix{
+    i{
+        margin-right: 0;
+    }
+    padding-right: 0;
+}
+
+.input-outline-suffix{
+    i{
+        margin: 0;
+    }
+    padding-left: 0;
+    margin-right: 0.5rem;
+
+    .input-outline-lockView{
+        cursor: pointer;
+        position: relative;
+        
+
+        i{
+            position: relative;
+            display: block;
+            margin: 0;
+            z-index: 5;
+        }
+
+        
+        &::before{
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 1;
+            transition: all 0.3s;
+        }
+        &:hover{
+            &::before{
+                background-color: rgba(125, 125, 125, 0.3);
+                transform: translate(-50%, -50%) scale(1);
+            }
+            
+        }
+    }
+}
+
+
+
+
+.input-outline-feedback{
+    font-size: 0.75rem;
+    line-height: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    margin: 0;
+
+    small.invalid-feedback{
+        display: block;
+        margin: 0;
+        color: var( --status);
+    }
+}
+
+
+.input-outline-label{
+
+    display: block;
+    font-size: $input-font-size;
+    line-height: ( $input-font-size * 1.25 ) + $input-padding-top + $input-padding-bottom;
+    font-weight: lighter;
+    color: var(--text-color);
+    position: absolute;
+    top: 0;
+    left: 0.75rem;
+    margin: 0;
+    padding: 0;
+    transform-origin: top left;
+    transition: transform 0.3s;
+    z-index: 1;
+    pointer-events: none;
+}
+.input-outline-fieldset{
+    border: {
+        color: var(--input-border-color);
+        style: solid;
+        width: 0.0625rem;
+        radius: inherit;
+    }
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    transition: all 0.3s;
+    pointer-events: none;
+    padding-left: 0.5rem;
+}
+
+.input-outline-legend{
+    padding: 0;
+    text-align: left;
+    line-height: $input-font-size;
+    width: 0;
+    transition: width 0.4s linear;
+}

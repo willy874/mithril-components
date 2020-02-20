@@ -1,0 +1,184 @@
+.success{
+    --input-border-color: var()
+}
+
+
+.material.checkbox {
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    &.success,.error{
+        --input-border-color: var(--status);
+    }
+    &.disabled{
+        opacity: 0.6;
+    }
+
+    input {
+        border: 0;
+        opacity: 0;
+        margin: -1px;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        outline: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        pointer-events: auto;
+        cursor: pointer;
+        -webkit-appearance: none;
+        &:disabled,.disabled{
+            cursor: auto;
+        }
+    }
+
+    label {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+
+        .select-option,.select-btn{
+            color: var(--text-color);
+        }
+
+        &::after {
+            display: none
+        }
+
+        &::before {
+            display: none
+        }
+
+        div {
+            position: relative;
+            background-color: transparent;
+            border: 0.125rem solid var(--input-border-color);
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+            border-radius: 0.125rem;
+            transition: all 0.1s ease-out;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -60%) rotate(45deg);
+                background-color: transparent;
+
+                border: {
+                    style: solid;
+                    color: #fff;
+                    width: 0 0.125rem 0.125rem 0;
+                }
+
+                width: 0.4rem;
+                height: 0.75rem;
+                clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+                transition: all 0.2s ease-out;
+            }
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                width: 1rem;
+                height: 1rem;
+                border-radius: 50%;
+                opacity: 0;
+                transition: all 0.2s ease-out;
+            }
+        }
+
+    }
+
+    input:active+label {
+        div {
+            &::before {
+                background-color: var(--status);
+                opacity: 0.15;
+                transform: translate(-50%, -50%) scale(2.5);
+            }
+        }
+    }
+
+    input:checked+label {
+        div {
+            border: 0.125rem solid var(--status);
+            background-color: var(--status);
+
+            &::after {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
+        }
+    }
+}
+
+.checkbox-wave-effect-on {
+    &::before {
+        animation: checkbox-wave-effect-on 0.4s;
+    }
+}
+
+.checkbox-wave-effect-off {
+    &::before {
+        animation: checkbox-wave-effect-off 0.3s;
+    }
+}
+
+@keyframes checkbox-wave-effect-on {
+    0% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    50% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    100% {
+        background-color: var(--status);
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+}
+
+@keyframes checkbox-wave-effect-off {
+    0% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    33% {
+        background-color: var(--status);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    66% {
+        background-color: #000;
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    100% {
+        background-color: #000;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+}

@@ -1,0 +1,33 @@
+:root{
+    --status: var(--primary);
+    --text-color: #333;
+    --input-text-color: #222;
+    --input-border-color: #00000077;
+    --input-bg-color: #ccc;
+    --hover-color: #eee;
+    --shadow-color: #00000022;
+    --select-bg-color: #fafafa;
+}    
+
+.error{
+    --status: var(--danger);
+    --text-color: var(--danger);
+    --input-border-color: var(--danger);
+}
+.success{
+    --status: var(--success);
+    --text-color: var(--success);
+    --input-border-color: var(--success);
+}
+.disabled{
+    --status: var(--secondary);
+}
+
+form:valid{
+    --status: var(--success);
+    --normal: var(--success);
+}
+form:invalid{
+    --status: var(--danger);
+    --normal: var(--danger);
+}

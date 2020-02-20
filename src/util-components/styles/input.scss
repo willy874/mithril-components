@@ -1,0 +1,56 @@
+.input-text-line {
+    display: inline-block;
+    position: relative;
+    padding-top: 0.75rem;
+
+    label {
+        position: absolute;
+        top: 0.625rem;
+        left: 0;
+        font-size: 1rem;
+        color: #777;
+        transition: all 0.3s;
+        pointer-events: none;
+    }
+
+    input {
+        transition: all 0.3s;
+        background-color: transparent;
+
+        border: {
+            width: 0 0 0.125rem 0;
+            style: solid;
+            color: transparent;
+        }
+
+        &:focus {
+            outline: 0;
+            border-color: #4285f4;
+
+        }
+
+        &:focus~label {
+            color: #4285f4;
+            top: -0.5rem;
+            font-size: 0.75rem;
+        }
+
+        &.active~label {
+            color: #4285f4;
+            top: -0.5rem;
+            font-size: 0.75rem;
+        }
+
+        // &:not(:placeholder-shown)~label {
+        //     color: #4285f4;
+        //     top: -0.5rem;
+        //     font-size: 0.75rem;
+        // }
+    }
+
+    border: {
+        width: 0 0 0.0625rem 0;
+        style: solid;
+        color: #ccc;
+    }
+}
