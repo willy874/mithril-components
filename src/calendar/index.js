@@ -18,7 +18,8 @@ export default class Calendar {
         let {
             selectedDate
         } = vnode.attrs
-        this.selectedDate = stream(moment('2019-01-02'))
+        selectedDate = selectedDate || moment()
+        this.selectedDate = stream(selectedDate)
         const firstDate = moment(this.selectedDate()).set('date', 1)
         this.months = [firstDate]
         this.changeDirection = null
@@ -30,7 +31,6 @@ export default class Calendar {
             const calendar = vnode.dom.querySelector(`.${cx('calendar')}`)
             calendar.classList.add(`${cx('show')}`)
         }
-
     }
     handleChange(currentMonth, direction) {
         if (this.months.length > 1) {

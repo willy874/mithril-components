@@ -37,7 +37,8 @@
   -webkit-appearance: none;
 }
 
-.material.radio input:disabled, .material.radio input .disabled {
+.material.radio input:disabled,
+.material.radio input .disabled {
   cursor: auto;
 }
 
@@ -129,11 +130,6 @@
 .radio-wave-effect-on::before {
   -webkit-animation: radio-wave-effect-on 0.4s;
           animation: radio-wave-effect-on 0.4s;
-}
-
-.radio-wave-effect-off::before {
-  -webkit-animation: radio-wave-effect-off 0.4s;
-          animation: radio-wave-effect-off 0.4s;
 }
 
 @-webkit-keyframes radio-wave-effect-on {

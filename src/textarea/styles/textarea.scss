@@ -1,85 +1,77 @@
-// 含變數的值直接調整變數，不然會造成破版或無法對齊
-$input-padding-top: 0.5rem;
-$input-padding-bottom: 0.5rem;
-$input-font-size: 1rem;
+@import 'bottomline';
+@import 'outline';
 
-// 可以使用變數調整顏色
-// :root{
-//     --status: var(--primary);
-//     --text-color: #333;
-//     --input-text-color: #222;
-//     --input-border-color: #00000077;
-//     --input-bg-color: #ccc;
-// }    
-
-
-@import 'input-outline';
-@import 'input-bottomline';
-
-.disabled.input-outline{
-    opacity: 0.6
-}
-.disabled.input-bottomline{
-    opacity: 0.6
+:global(.textarea-line) {
+    --textarea-line-color: #000;
+    --textarea-line-focus-color: var(--primary);
+    --textarea-label-color: rgba(0, 0, 0, 0.54);
+    --textarea-disabled: rgba(0, 0, 0, 0.4);
 }
 
-
-.click-wave-effect-on {
-    &::before {
-        animation: click-wave-effect-on 0.4s;
+textarea.password-reveal {
+    &::-ms-clear {
+        display: none;
     }
+
+    &::-ms-reveal {
+        display: none;
+    }
+
+    padding-right: 2rem;
+
+
+    &:global(.is-invalid) {
+        background-image: none;
+
+        &+button {
+            color: var(--danger);
+        }
+
+    }
+
+    &:global(.is-valid) {
+        background-image: none;
+
+        &+button {
+            color: var(--success);
+        }
+    }
+
 }
 
-.click-wave-effect-off {
-    &::before {
-        animation: click-wave-effect-off 0.3s;
-    }
-}
+.icon-btn {
+    margin-left: -2rem;
+    width: 2rem;
+    background: transparent;
+    color: inherit;
+    border: 0;
+    align-self: center !important;
+    outline: none !important;
+    opacity: 0.6;
 
-@keyframes click-wave-effect-on {
-    0% {
-        background-color: var(--status);
-        opacity: 0.15;
-        transform: translate(-50%, -50%) scale(0);
-    }
-
-    50% {
-        background-color: var(--status);
-        opacity: 0.15;
-        transform: translate(-50%, -50%) scale(1.5);
-    }
-
-    100% {
-        background-color: var(--status);
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.5);
-    }
-}
-
-@keyframes click-wave-effect-off {
-    0% {
-        background-color: var(--status);
-        opacity: 0.15;
-        transform: translate(-50%, -50%) scale(0);
-    }
-
-    33% {
-        background-color: var(--status);
-        opacity: 0.15;
-        transform: translate(-50%, -50%) scale(1.5);
-    }
-
-    66% {
-        background-color: #000;
-        opacity: 0.15;
-        transform: translate(-50%, -50%) scale(1.5);
-    }
-
-    100% {
-        background-color: #000;
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.5);
+    svg {
+        fill: currentColor;
+        width: 1.2rem;
+        height: 1.2rem;
     }
 }
 
+.prefix {
+    flex-shrink: 1;
+    padding: 0.25rem 0.375rem;
+    align-self: flex-end;
 
+    svg {
+        fill: currentColor;
+    }
+}
+
+.suffix {
+    flex-shrink: 1;
+    padding: 0.25rem 0.375rem;
+    align-self: flex-end;
+
+    svg {
+        fill: currentColor;
+    }
+}

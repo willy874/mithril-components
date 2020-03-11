@@ -26,15 +26,15 @@ module.exports = Merge(CommonConfig, {
             test: /\.css$/i,
             // include: /node_modules/,
             use: [{
-                    loader: 'style-loader'
-                },
-                {
-                    loader: 'css-loader',
-                    options: {
-                        modules: 'global'
-                    }
+                loader: 'style-loader'
+            },
+            {
+                loader: 'css-loader',
+                options: {
+                    modules: 'global'
+                    // modules: true
                 }
-            ],
+            }]
         }]
     }
 })

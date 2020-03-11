@@ -1,7 +1,11 @@
-import SvgPage from './svgPage'
-import InputPage from './inputPage'
+import SvgPage from './svg'
+import InputPage from './textbox'
+import ButtonPage from './button'
+import TextAreaPage from './textarea'
 
 export {
     SvgPage,
-    InputPage
+    InputPage,
+    ButtonPage,
+    TextAreaPage
 }

@@ -1,4 +1,4 @@
-.waves-effect {
+.gi-waves-effect {
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -9,18 +9,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.waves-effect.waves-light .waves-ripple {
-  background: radial-gradient(rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.3) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
-}
-
-.waves-effect .waves-ripple {
+.gi-waves-ripple {
   position: absolute;
   width: 100px;
   height: 100px;
   margin-top: -50px;
   margin-left: -50px;
   pointer-events: none;
-  background: radial-gradient(rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background-color: currentColor;
   border-radius: 50%;
   opacity: 0;
   transition-property: opacity, -webkit-transform;
@@ -31,5 +27,10 @@
   transition: all 0.5s ease-out;
   -webkit-transform: scale(0) translate(0, 0);
           transform: scale(0) translate(0, 0);
+}
+
+.gi-waves-notransition {
+  -webkit-transition: none !important;
+  transition: none !important;
 }
 /*# sourceMappingURL=wave-effect.css.map */

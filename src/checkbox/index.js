@@ -42,7 +42,7 @@ export default class Checkbox {
                 m('div', {
                     class: cx({
                         'checkbox-wave-effect-on': checked,
-                        'checkbox-wave-effect-off': !checked,
+                        //'checkbox-wave-effect-off': !checked,
                     })
                 }),
                 m('span', label)

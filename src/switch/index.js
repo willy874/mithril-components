@@ -35,7 +35,7 @@ export default class Switch {
                 m('div', {
                     class: cx({
                         'switch-wave-effect-on': checked,
-                        'switch-wave-effect-off': !checked,
+                        //'switch-wave-effect-off': !checked,
                     })
                 }),
                 m('span', label)

@@ -1,4 +1,3 @@
-import m from 'mithril'
 import classNames from 'classnames/bind'
 import styles from './styles/wave-effect.css'
 const cx = classNames.bind(styles)
@@ -44,7 +43,7 @@ function offset(elem) {
     };
 }
 
-function attachWave(element, velocity, e) {
+function attachWave(element, center, e) {
 
     if (e.button === 2) {
         return false;
@@ -54,10 +53,11 @@ function attachWave(element, velocity, e) {
 
     // Create ripple
     const ripple = document.createElement('div')
-    ripple.classList.add(`${cx('waves-ripple')}`, `${cx('waves-rippling')}`)
+    ripple.classList.add(`${cx('gi-waves-ripple')}`, `${cx('waves-rippling')}`)
     element.appendChild(ripple)
 
     const pos = offset(element);
+
     let relativeY = 0,
         relativeX = 0
 
@@ -75,36 +75,56 @@ function attachWave(element, velocity, e) {
     relativeX = relativeX >= 0 ? relativeX : 0
     relativeY = relativeY >= 0 ? relativeY : 0
 
-    const scale = 'scale(' + ((element.clientWidth / 100) * 3) + ')'
+    let scale = 'scale(' + ((element.clientWidth / 100) * 2) + ')'
+
+    if (center) {
+        scale = 'scale(1)'
+    }
+
     const translate = 'translate(0,0)'
 
-    if (velocity) {
-        translate = 'translate(' + (velocity.x) + 'px, ' + (velocity.y) + 'px)'
+    let top = relativeY + 'px',
+        left = relativeX + 'px',
+        width,
+        height
+
+    if (center) {
+        top = (element.clientHeight / 2) + 'px'
+        left = (element.clientWidth / 2) + 'px'
+        width = element.clientWidth
+        height = element.clientWidth
     }
 
     // Attach data to element
     ripple.setAttribute('data-hold', Date.now());
-    ripple.setAttribute('data-x', relativeX);
-    ripple.setAttribute('data-y', relativeY);
+    ripple.setAttribute('data-x', left);
+    ripple.setAttribute('data-y', top);
     ripple.setAttribute('data-scale', scale);
     ripple.setAttribute('data-translate', translate);
 
     // Set ripple position
-    const rippleStyle = {
-        top: relativeY + 'px',
-        left: relativeX + 'px'
+    let rippleStyle = {
+        top,
+        left
     };
 
-    ripple.classList.add(`${cx('waves-notransition')}`);
+    if (width && height) {
+        ripple.setAttribute('data-width', width);
+        ripple.setAttribute('data-height', height);
+        rippleStyle.width = width
+        rippleStyle.height = height
+    }
+
+    ripple.classList.add(`${cx('gi-waves-notransition')}`);
     ripple.setAttribute('style', convertStyle(rippleStyle));
-    ripple.classList.remove(`${cx('waves-notransition')}`);
+    ripple.classList.remove(`${cx('gi-waves-notransition')}`);
 
     rippleStyle['-webkit-transform'] = scale + ' ' + translate;
     rippleStyle['-moz-transform'] = scale + ' ' + translate;
     rippleStyle['-ms-transform'] = scale + ' ' + translate;
     rippleStyle['-o-transform'] = scale + ' ' + translate;
     rippleStyle.transform = scale + ' ' + translate;
-    rippleStyle.opacity = '1';
+    rippleStyle.opacity = '0.3';
 
     const duration = e.type === 'mousemove' ? 2500 : WaveEffect.duration;
 
@@ -114,8 +134,6 @@ function attachWave(element, velocity, e) {
     rippleStyle['transition-duration'] = duration + 'ms';
 
     ripple.setAttribute('style', convertStyle(rippleStyle));
-
-
 }
 
 function removeWave(element, e) {
@@ -155,12 +173,12 @@ function removeRipple(e, el, ripple) {
     }
 
     // Fade out ripple after delay
-    const duration = e.type === 'mousemove' ? 2500 : WaveEffect.duration;
+    const duration = e.type === 'mousemove' ? 250 : WaveEffect.duration;
 
     setTimeout(function () {
         let style = {
-            top: relativeY + 'px',
-            left: relativeX + 'px',
+            top: relativeY,
+            left: relativeX,
             opacity: '0',
 
             // Duration
@@ -177,7 +195,6 @@ function removeRipple(e, el, ripple) {
 
         ripple.setAttribute('style', convertStyle(style));
 
-
         setTimeout(function () {
             try {
                 el.removeChild(ripple);
@@ -193,16 +210,17 @@ function removeRipple(e, el, ripple) {
  */
 const WaveEffect = {
     // Effect duration
-    duration: 750,
+    duration: 500,
     // Effect delay (check for scroll before showing effect)
     delay: 200,
-    attach: (target, velocity) => {
+    attach: (target, center) => {
         // Disable right click
-        target.classList.add(`${cx('waves-effect')}`, `${cx('waves-light')}`)
-        target.addEventListener('mousedown', attachWave.bind(null, target, velocity), false)
+        target.classList.add(`${cx('gi-waves-effect')}`)
+        target.addEventListener('mousedown', attachWave.bind(null, target, center), false)
         target.addEventListener('mouseup', removeWave.bind(null, target), false)
+        target.addEventListener('mouseout', removeWave.bind(null, target), false)
     },
-    destory: (target) => {
+    destory: (target, center) => {
         if (isTouchAvailable) {
             element.removeEventListener('touchend', removeWave);
             element.removeEventListener('touchcancel', removeWave);

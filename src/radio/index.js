@@ -6,6 +6,9 @@ import styles from './styles/radio.css'
 const cx = classNames.bind(styles)
 
 export default class Radio {
+    constructor() {
+        this.id = uuid()
+    }
     view(vnode) {
         const {
             theme,
@@ -19,7 +22,7 @@ export default class Radio {
         } = vnode.attrs
 
         const classes = vnode.attrs.class
-        const id = uuid()
+
         const _theme = theme ? theme : Config.theme
 
         return m('.custom-control.custom-radio', {
@@ -27,7 +30,7 @@ export default class Radio {
             style
         }, [
             m('input.custom-control-input[type="radio"]', {
-                id,
+                id: this.id,
                 onclick,
                 checked,
                 disabled,
@@ -35,12 +38,12 @@ export default class Radio {
                 required
             }),
             m('label.custom-control-label', {
-                for: id
+                for: this.id
             }, [
                 m('div', {
                     class: cx({
                         'radio-wave-effect-on': checked,
-                        'radio-wave-effect-off': !checked,
+                        //'radio-wave-effect-off': !checked,
                     })
                 }),
                 m('span', label)

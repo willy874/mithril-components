@@ -1,14 +1,3 @@
-:root{
-    --status: var(--primary);
-    --text-color: #333;
-    --input-text-color: #222;
-    --input-border-color: #00000077;
-    --input-bg-color: #ccc;
-    --hover-color: #eee;
-    --shadow-color: #00000022;
-    --select-bg-color: #fafafa;
-}    
-
 .error{
     --status: var(--danger);
     --text-color: var(--danger);

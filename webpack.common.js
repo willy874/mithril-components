@@ -29,7 +29,8 @@ let CommonConfig = {
     resolve: {
         extensions: ['.js', '.json', '.css'],
         alias: {
-            '@src': path.resolve(__dirname, 'src/')
+            '@src': path.resolve(__dirname, 'src/'),
+            '@base': path.resolve(__dirname, './src')
         },
         modules: [
             'node_modules'
