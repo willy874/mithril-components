@@ -1,0 +1,77 @@
+@import 'bottomline';
+@import 'outline';
+
+:global(.textbox-line) {
+    --textbox-line-color: #000;
+    --textbox-line-focus-color: var(--primary);
+    --textbox-label-color: rgba(0, 0, 0, 0.54);
+    --textbox-disabled: rgba(0, 0, 0, 0.4);
+}
+
+input.password-reveal {
+    &::-ms-clear {
+        display: none;
+    }
+
+    &::-ms-reveal {
+        display: none;
+    }
+
+    padding-right: 2rem;
+
+
+    &:global(.is-invalid) {
+        background-image: none;
+
+        &+button {
+            color: var(--danger);
+        }
+
+    }
+
+    &:global(.is-valid) {
+        background-image: none;
+
+        &+button {
+            color: var(--success);
+        }
+    }
+
+}
+
+.icon-btn {
+    margin-left: -2rem;
+    width: 2rem;
+    background: transparent;
+    color: inherit;
+    border: 0;
+    align-self: center !important;
+    outline: none !important;
+    opacity: 0.6;
+
+    svg {
+        fill: currentColor;
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+}
+
+.prefix {
+    flex: 1 1 0;
+    padding: 0.25rem 0.375rem;
+    align-self: flex-end;
+
+    svg {
+        fill: currentColor;
+    }
+}
+
+.suffix {
+    flex: 1 1 0;
+    padding: 0.25rem 0.375rem;
+    align-self: flex-end;
+
+    svg {
+        fill: currentColor;
+    }
+}
