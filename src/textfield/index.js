@@ -48,7 +48,7 @@ export default class TextField {
         this.hasError = options.hasError || stream(vnode.attrs.error)
         this.hasValue = options.hasValue || stream(vnode.attrs.value)
         //顯示bootstrap valid
-        this.showValid = options.showValid === true ? stream(true) : stream(false)
+        this.showValid = options && options.showValid === true ? stream(true) : stream(false)
 
         //初始化
         this.init(options)

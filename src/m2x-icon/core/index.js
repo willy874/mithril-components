@@ -26,8 +26,24 @@ import Dashboard from './path/dashboard'
 import Erase from './path/erase'
 import Envelope from './path/envelope'
 import FirstIndent from './path/first-indent'
+import FileType from './path/file-type'
+import FileOther from './path/file-other'
+import FileDOC from './path/file-doc'
+import FileDOCX from './path/file-docx'
+import FileODT from './path/file-odt'
+import FileXLS from './path/file-xls'
+import FileXLSX from './path/file-xlsx'
+import FileODS from './path/file-ods'
+import FilePPT from './path/file-ppt'
+import FilePPTX from './path/file-pptx'
+import FileODP from './path/file-odp'
+import FilePDF from './path/file-pdf'
+import FileRAR from './path/file-rar'
+import RAR from './path/rar'
+import FileZIP from './path/file-zip'
 import Grid01 from './path/grid-01'
 import Grid02 from './path/grid-02'
+import Global from './path/global'
 import GlobalBold from './path/global-bold'
 import GlobalFill from './path/global-fill'
 import Gallery from './path/gallery'
@@ -81,11 +97,19 @@ import ViewFill from './path/view-fill'
 import Write from './path/write'
 import Warning from './path/warning'
 import YoutubeSymbol from './path/youtube-symbol'
+import Page from './path/page'
+import Folder from './path/folder'
+import FolderOpen from './path/folder-open'
+import Copy from './path/copy'
+import Bars from './path/bars'
+import Save from './path/save'
+import SaveSolid from './path/save-solid'
+import CalendarAlt from './path/calendar-alt'
+import CloudDownload from './path/cloud-download'
 
 export {
     Icon,
     Accessibility,
-    AccessibilityFill,
     AccountCircle,
     Apartment,
     AddFile,
@@ -93,6 +117,7 @@ export {
     Alert,
     BackArrow,
     BackArrowMirro,
+    Bars,
     BooksStack,
     BlockQuote,
     BlockHR,
@@ -105,14 +130,16 @@ export {
     Chat,
     ColorText,
     CodeInterfaceSymbol,
+    CalendarAlt,
+    CloudDownload,
     Dashboard,
     DropFill,
     Delete,
     Erase,
     Envelope,
     FirstIndent,
-    GlobalBold,
-    GlobalFill,
+    FileType,
+    Global,
     Grid01,
     Grid02,
     ImageCenter,
@@ -138,6 +165,7 @@ export {
     PowerSupply,
     Question,
     QuestionMark,
+    RAR,
     ReloadSymbol,
     Report,
     RubbishBin,
@@ -158,6 +186,7 @@ export {
     Redo,
     Select,
     Send,
+    Save,
     Gallery,
     Upload,
     Trash,
@@ -166,4 +195,28 @@ export {
     ViewFill,
     Write,
     Warning,
+    Page,
+    Folder,
+    FolderOpen,
+    Copy,
+
+
+    //以下已製做theme
+    AccessibilityFill,
+    GlobalBold,
+    GlobalFill,
+    SaveSolid,
+    FileOther,
+    FileDOC,
+    FileDOCX,
+    FileODT,
+    FileXLS,
+    FileXLSX,
+    FileODS,
+    FilePPT,
+    FilePPTX,
+    FileODP,
+    FilePDF,
+    FileRAR,
+    FileZIP,
 }

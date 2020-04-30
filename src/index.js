@@ -11,6 +11,7 @@ import Button from './button'
 import IconButton from './button/icon'
 import Pagination from './paged/pagination'
 import PageItemCount from './paged/page_item_count'
+import Attach from './attach'
 import './styles/layout.css'
 
 export {
@@ -26,5 +27,6 @@ export {
     PageItemCount,
     TextArea,
     TextBox,
-    TextField
+    TextField,
+    Attach
 }

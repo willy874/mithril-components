@@ -16,6 +16,7 @@ const wave = {
 
 export default class Button {
     constructor(vnode) {
+        this.type = vnode.attrs.type || 'button'
         this.effect = {
             light: true
         }
@@ -32,7 +33,10 @@ export default class Button {
 
 
         let attrs = {
+            type: this.type,
             class: classNames('btn', vnode.attrs.class),
+            accept: this.type === 'file' ? vnode.attrs.accept : undefined,
+            multiple: this.type === 'file' ? (vnode.attrs.multiple ? true : undefined) : undefined,
             disabled,
             style,
             onclick
@@ -45,6 +49,6 @@ export default class Button {
             }
         }
 
-        return m('button[type="button"]', attrs, vnode.children)
+        return m('button', attrs, vnode.children)
     }
 }

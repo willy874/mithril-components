@@ -31,7 +31,7 @@ export default class IconButton {
 
 
         let attrs = {
-            class: classNames('btn', vnode.attrs.class, cx('icon-wave-button')),
+            class: classNames(vnode.attrs.class, cx('icon-wave-button')),
             disabled,
             style,
             onclick
