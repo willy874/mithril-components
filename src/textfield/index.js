@@ -1,8 +1,8 @@
 import m from 'mithril'
 import stream from 'mithril/stream'
 import classNames from 'classnames/bind'
-import * as Icon from '../m2x-icon/core'
 import styles from '../textbox/styles/textbox.css'
+import * as Icon from './iconPassword'
 const cx = classNames.bind(styles)
 
 //css 部份要補
@@ -132,8 +132,8 @@ export default class TextField {
                             this.type = 'text'
                             this.reveal = 'visible'
                         } else {
-                            this.reveal = 'hidden'
                             this.type = 'password'
+                            this.reveal = 'hidden'
                         }
                     }
                 }, [

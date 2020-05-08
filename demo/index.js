@@ -1,25 +1,13 @@
 import m from 'mithril'
 import * as Components from '@src'
-import * as Icon from '@src/m2x-icon/core'
 import * as Page from './pages'
 
-import {
-    TextField
-} from '@base'
 
 export default class Demo {
     constructor() {
         this.toggle = false
         this.error = ''
         this.value = 'abc@abc.com.tw'
-        this.IconArray = []
-        for (let path in Icon) {
-            if (path != 'Icon')
-                this.IconArray.push({
-                    path: Icon[path],
-                    name: path
-                })
-        }
     }
 
 
@@ -60,17 +48,6 @@ export default class Demo {
                     ]),
                     m('.col-3.py-3', [
                         m('.card', [
-                            m('.card-header', 'TextInput'),
-                            m('.card-body', [
-                                m('.card-text'),
-                                m('a.btn.btn-primary', {
-                                    href: '#!/inputPage'
-                                }, '看範例')
-                            ])
-                        ])
-                    ]),
-                    m('.col-3.py-3', [
-                        m('.card', [
                             m('.card-header', 'Button'),
                             m('.card-body', [
                                 m('.card-text'),
@@ -82,7 +59,18 @@ export default class Demo {
                     ]),
                     m('.col-3.py-3', [
                         m('.card', [
-                            m('.card-header', 'textarea'),
+                            m('.card-header', 'TextBox'),
+                            m('.card-body', [
+                                m('.card-text'),
+                                m('a.btn.btn-primary', {
+                                    href: '#!/inputPage'
+                                }, '看範例')
+                            ])
+                        ])
+                    ]),
+                    m('.col-3.py-3', [
+                        m('.card', [
+                            m('.card-header', 'TextArea'),
                             m('.card-body', [
                                 m('.card-text'),
                                 m('a.btn.btn-primary', {
@@ -148,11 +136,11 @@ export default class Demo {
                     ]),
                     m('.col-3.py-3', [
                         m('.card', [
-                            m('.card-header', 'XXX'),
+                            m('.card-header', 'Carousel'),
                             m('.card-body', [
                                 m('.card-text'),
                                 m('a.btn.btn-primary', {
-                                    href: '#!/svgPage'
+                                    href: '#!/carousel'
                                 }, '看範例')
                             ])
                         ])
@@ -174,5 +162,6 @@ m.route(document.body, '/', {
     '/button': Page.ButtonPage,
     '/textarea': Page.TextAreaPage,
     '/attach': Page.AttachPage,
-    '/select': Page.SelectPage
+    '/select': Page.SelectPage,
+    '/carousel': Page.CarouselPage
 })

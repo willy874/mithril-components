@@ -12,6 +12,7 @@ import IconButton from './button/icon'
 import Pagination from './paged/pagination'
 import PageItemCount from './paged/page_item_count'
 import Attach from './attach'
+import Carousel from './carousel'
 import './styles/layout.css'
 
 export {
@@ -28,5 +29,6 @@ export {
     TextArea,
     TextBox,
     TextField,
-    Attach
+    Attach,
+    Carousel
 }

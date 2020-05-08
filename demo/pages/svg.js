@@ -1,5 +1,5 @@
 import m from 'mithril'
-import * as Icon from '@src/m2x-icon/core'
+import * as Icon from 'miix-icon'
 
 export default class{
     constructor(vnode) {

@@ -1,0 +1,140 @@
+.carousel {
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-panel {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.carousel-panel-item {
+  overflow: hidden;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+
+.carousel-panel-item img {
+  width: 100%;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  min-width: 3rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  cursor: pointer;
+}
+
+.carousel-arrow:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.carousel-arrow-icon {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+  position: relative;
+}
+
+.carousel-arrow-icon::before {
+  content: '';
+  position: absolute;
+  display: block;
+  background-color: #fff;
+  width: 1.5rem;
+  height: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.carousel-arrow-icon::after {
+  content: '';
+  position: absolute;
+  display: block;
+  background-color: #fff;
+  width: 1.5rem;
+  height: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.carousel-arrow-left {
+  left: 0;
+}
+
+.carousel-arrow-left .carousel-arrow-icon {
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+}
+
+.carousel-arrow-left .carousel-arrow-icon::before {
+  left: 66.666%;
+  -webkit-transform: translate(-33%, 50%) rotate(45deg);
+          transform: translate(-33%, 50%) rotate(45deg);
+  bottom: 16.666%;
+}
+
+.carousel-arrow-left .carousel-arrow-icon::after {
+  left: 66.666%;
+  -webkit-transform: translate(-33%, -50%) rotate(-45deg);
+          transform: translate(-33%, -50%) rotate(-45deg);
+  top: 16.666%;
+}
+
+.carousel-arrow-right {
+  right: 0;
+}
+
+.carousel-arrow-right .carousel-arrow-icon {
+  -webkit-transform: translateX(50%);
+          transform: translateX(50%);
+}
+
+.carousel-arrow-right .carousel-arrow-icon::before {
+  right: 0;
+  -webkit-transform: translate(-33%, 50%) rotate(-45deg);
+          transform: translate(-33%, 50%) rotate(-45deg);
+  bottom: 16.666%;
+}
+
+.carousel-arrow-right .carousel-arrow-icon::after {
+  right: 0;
+  -webkit-transform: translate(-33%, -50%) rotate(45deg);
+          transform: translate(-33%, -50%) rotate(45deg);
+  top: 16.666%;
+}
+
+.carousel-dots {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+}
+
+.carousel-dots-item {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: #fff;
+  margin: 0.5rem 0.25rem;
+  cursor: pointer;
+}
+
+.carousel-dots-item:hover {
+  opacity: 0.5;
+}
+/*# sourceMappingURL=carousel.css.map */

@@ -97,7 +97,6 @@
         }
     }
 
-
 }
 
 .textarea-outline-grid {
@@ -114,6 +113,13 @@
     box-sizing: border-box;
     align-items: center;
     line-height: 1.1875em;
+
+    &:focus-within{
+        legend {
+            max-width: 1000px;
+            transition: max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms;
+        }
+    }
 }
 
 .textarea-outline-form-control {
@@ -164,15 +170,30 @@
         }
 
     }
-
-
+    
+    
 }
-
-.textarea-outline-fieldset {
-    &.flying {
-        legend {
-            max-width: 1000px;
-            transition: max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms;
+.textarea-outline{
+    .textarea-outline-fieldset {
+        &.flying {
+            legend {
+                max-width: 1000px;
+                transition: max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms;
+            }
+        }
+        
+        
+    }
+    &:hover{
+        .textarea-outline-fieldset {
+            border-width: 2px;
+            border-color: var(--textarea-label-color);
+        }
+    }
+    &:focus-within{
+        .textarea-outline-fieldset {
+            border-width: 2px;
+            border-color: var(--textarea-line-focus-color);
         }
     }
 }

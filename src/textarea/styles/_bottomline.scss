@@ -146,6 +146,15 @@
             opacity: 0.87;
         }
     }
+    
+}
+
+.textarea-bottomline{
+    &:focus-within {
+        .textarea-bottomline-wrapper::after {
+            transform: scaleX(1);
+        }
+    }
 }
 
 .textarea-bottomline-form-control {

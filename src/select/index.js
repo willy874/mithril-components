@@ -1,6 +1,7 @@
 import m from 'mithril'
 import stream from 'mithril/stream'
 import classNames from 'classnames/bind'
+import {Component} from '../util-components'
 import styles from './styles/select.css'
 import NativeSelectComponent from './native'
 import MaterialSelectComponent from './material'
@@ -9,11 +10,12 @@ const cx = classNames.bind(styles)
 
 /**
  * @param Select
- * 如果要傳遞model，selected這參數必須是object，否則資料只進不出。
- * 如果要使用 new Object 或 new Class 等方式，則將selected參數傳進value來達到傳遞物件之效用。
+ * 如果要傳遞model，將selected之物件傳進value。
+ * 可使用options.textKey、options.valueKey參數來修改model的參數KeyName
  */
-export default class Select {
+export default class Select extends Component  {
     constructor(vnode) {
+        super()
         const {
             childrens,
             selected
@@ -22,52 +24,22 @@ export default class Select {
         this.hasValue = stream(vnode.attrs.value)
 
         //判斷childrens是否有正確填寫
-        if(Array.isArray(childrens)){
-            for(let i = 0; i < childrens.length; i++){
-                if (!childrens[i].hasOwnProperty('text') && !childrens[i].hasOwnProperty('value')){
-                    throw new Error('childrens裡面每個object最少要有text或value這個key')
-                }
-            }
-        }else{
-            if (childrens){
+        if (childrens){
+            if(!Array.isArray(childrens)){
                 throw new Error('childrens必須是個陣列')
             }
         }
         //判斷selected是否有正確填寫
-        if(typeof selected ==='object'){
-            if (selected && !selected.hasOwnProperty('text') && !selected.hasOwnProperty('value')){
-                throw new Error('selected這個object最少要有text或value這個key')
-            }
-        }else if(selected){
-            if (typeof selected !== 'string' && typeof this.hasValue() !== 'string') {
-                throw new Error('selected應該是一個object或string')
+        if(selected){
+            if (typeof selected !== 'object' && typeof this.hasValue() !== 'object') {
+                throw new Error('selected應該是一個object')
             }
         }
         //判斷value是否有正確填寫
-        if(typeof this.hasValue()  === 'object'){
-            if (this.hasValue() && !this.hasValue().hasOwnProperty('text') && !this.hasValue().hasOwnProperty('value')){
-                throw new Error('value這個object最少要有text或value這個key')
+        if(this.hasValue()){
+            if (typeof selected !== 'object' && typeof this.hasValue() !== 'object') {
+                throw new Error('value應該是一個object')
             }
-        }else if(this.hasValue()){
-            if (typeof selected !== 'string' && typeof this.hasValue() !== 'string') {
-                throw new Error('value應該是一個object或string')
-            }
-        }
-
-        
-    }
-    handleComponent(component,tag = 'div',attrs = {}) {
-        if (!component) {
-            return
-        }
-        if (typeof component === 'string') {
-            return m(tag,attrs,component)
-        }
-        if (typeof component === 'object') {
-            return component
-        }
-        if (typeof component === 'function') {
-            return m(component)
         }
     }
     view(vnode) {
@@ -83,7 +55,6 @@ export default class Select {
             hasError,
             showError
         } = vnode.attrs
-        const classname = vnode.attrs.class
         const _theme = theme || 'native'
         
         showError = (showError === false) ? false : true
@@ -102,7 +73,7 @@ export default class Select {
         }
         
         return m('div', {
-            class: classNames(classname,{
+            class: classNames(vnode.attrs.class,{
                 'success': success,
                 'error': error,
                 'disabled': disabled
@@ -138,8 +109,8 @@ export default class Select {
                 m('.input-group',[
                     (options && options.groupPrepend)?
                     m('.input-group-prepend',[
-                        this.handleComponent(options.label,'label',{
-                            class: 'label.input-group-text'
+                        this.handleComponent(options.groupPrepend,'div',{
+                            class: 'input-group-text'
                         })
                     ]): null,
                     m(NativeSelectComponent, {
@@ -147,8 +118,8 @@ export default class Select {
                     }),
                     (options && options.groupAppend)?
                     m('.input-group-append',[
-                        this.handleComponent(options.label,'label',{
-                            class: 'label.input-group-text'
+                        this.handleComponent(options.groupAppend,'div',{
+                            class: 'input-group-text'
                         })
                     ]): null,
                 ]),

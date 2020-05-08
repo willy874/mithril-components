@@ -46,6 +46,12 @@
   position: relative;
 }
 
+.select.material .select-dropdown.active .select-btn::after {
+  -webkit-transform: translateY(-50%) rotate(180deg);
+          transform: translateY(-50%) rotate(180deg);
+  border-color: var(--status) transparent transparent transparent;
+}
+
 .select.material .select-btn {
   padding: 0;
 }
@@ -59,22 +65,22 @@
           transform: translateY(-50%) rotate(0deg);
   border-width: 0.5rem 0.3535rem 0 0.3535rem;
   border-style: solid;
-  border-color: var(--status) transparent transparent transparent;
+  border-color: var(--select-line-color) transparent transparent transparent;
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
 
-.select.material .select-btn input, .select.material .select-btn button {
+.select.material .select-btn input, .select.material .select-btn button, .select.material .select-btn .select-btn-input, .select.material .select-btn .select-btn-button {
   text-align: left;
   border-color: var(--select-border-color);
   border-style: solid;
   background-color: var(--select-btn-bg-color);
-  padding: 0.25rem 0.75rem;
+  padding: 0.25rem 1.5rem 0.25rem 0.75rem;
   width: 100%;
   cursor: pointer;
 }
 
-.select.material .select-btn input:focus, .select.material .select-btn button:focus {
+.select.material .select-btn input:focus, .select.material .select-btn button:focus, .select.material .select-btn .select-btn-input:focus, .select.material .select-btn .select-btn-button:focus {
   -webkit-box-shadow: none;
           box-shadow: none;
   outline: 0;

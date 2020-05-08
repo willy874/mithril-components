@@ -1,5 +1,4 @@
 import m from 'mithril'
-import {} from '@src'
 
 export default class{
     constructor(vnode) {

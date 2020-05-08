@@ -1,0 +1,105 @@
+.carousel{
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-panel{
+    display: flex;
+}
+
+.carousel-panel-item{
+    overflow: hidden;
+    flex-shrink: 0;
+    img{
+        width: 100%;
+    }
+}
+
+.carousel-arrow{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    min-width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+.carousel-arrow-icon{
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    position: relative;
+    &::before{
+        content: '';
+        position: absolute;
+        display: block;
+        background-color: #fff;
+        width: 1.5rem;
+        height: 0.25rem;
+        border-radius: 0.25rem;
+    }
+    &::after{
+        content: '';
+        position: absolute;
+        display: block;
+        background-color: #fff;
+        width: 1.5rem;
+        height: 0.25rem;
+        border-radius: 0.25rem;
+    }
+}
+.carousel-arrow-left{
+    left: 0;
+    .carousel-arrow-icon{
+        transform: translateX(-50%);
+        &::before{
+            left: 66.666%;
+            transform: translate(-33%, 50%) rotate(45deg);
+            bottom: 16.666%;
+        }
+        &::after{
+            left: 66.666%;
+            transform: translate(-33%, -50%) rotate(-45deg);
+            top: 16.666%;
+        }
+    }
+}
+.carousel-arrow-right{
+    right: 0;
+    .carousel-arrow-icon{
+        transform: translateX(50%);
+        &::before{
+            right: 0;
+            transform: translate(-33%, 50%) rotate(-45deg);
+            bottom: 16.666%;
+        }
+        &::after{
+            right: 0;
+            transform: translate(-33%, -50%) rotate(45deg);
+            top: 16.666%;
+        }
+    }
+}
+.carousel-dots{
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.carousel-dots-item{
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    margin: 0.5rem 0.25rem;
+    cursor: pointer;
+    &:hover{
+        opacity: 0.5;
+    }
+}

@@ -44,9 +44,19 @@
     .select-dropdown{
         width: 100%;
         position: relative;
+
+        &.active{
+            .select-btn{
+                &::after{
+                    transform: translateY(-50%) rotate(180deg);
+                    border-color: var(--status) transparent transparent transparent;
+                }
+            }
+        }
     }
     .select-btn{
         padding: 0;
+
 
         &::after{
             content: '';
@@ -56,15 +66,15 @@
             transform: translateY(-50%) rotate(0deg);
             border-width: 0.5rem 0.5rem*0.707 0 0.5rem*0.707;
             border-style: solid;
-            border-color: var(--status) transparent transparent transparent;
+            border-color: var(--select-line-color) transparent transparent transparent;
             transition: all 0.3s ease-in-out;
         }
-        input,button {
+        input,button,.select-btn-input,.select-btn-button {
             text-align: left;
             border-color: var(--select-border-color);
             border-style: solid;
             background-color: var(--select-btn-bg-color);
-            padding: 0.25rem 0.75rem;
+            padding: 0.25rem 1.5rem 0.25rem 0.75rem;
             width: 100%;
             cursor: pointer;
             &:focus{
