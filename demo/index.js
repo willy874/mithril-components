@@ -2,7 +2,6 @@ import m from 'mithril'
 import * as Components from '@src'
 import * as Page from './pages'
 
-
 export default class Demo {
     constructor() {
         this.toggle = false
@@ -103,33 +102,11 @@ export default class Demo {
                     ]),
                     m('.col-3.py-3', [
                         m('.card', [
-                            m('.card-header', 'XXX'),
+                            m('.card-header', 'DateTool'),
                             m('.card-body', [
                                 m('.card-text'),
                                 m('a.btn.btn-primary', {
-                                    href: '#!/svgPage'
-                                }, '看範例')
-                            ])
-                        ])
-                    ]),
-                    m('.col-3.py-3', [
-                        m('.card', [
-                            m('.card-header', 'XXX'),
-                            m('.card-body', [
-                                m('.card-text'),
-                                m('a.btn.btn-primary', {
-                                    href: '#!/svgPage'
-                                }, '看範例')
-                            ])
-                        ])
-                    ]),
-                    m('.col-3.py-3', [
-                        m('.card', [
-                            m('.card-header', 'XXX '),
-                            m('.card-body', [
-                                m('.card-text'),
-                                m('a.btn.btn-primary', {
-                                    href: '#!/svgPage'
+                                    href: '#!/datetool'
                                 }, '看範例')
                             ])
                         ])
@@ -141,6 +118,19 @@ export default class Demo {
                                 m('.card-text'),
                                 m('a.btn.btn-primary', {
                                     href: '#!/carousel'
+                                }, '看範例')
+                            ])
+                        ])
+                    ]),
+
+                    
+                    m('.col-3.py-3', [
+                        m('.card', [
+                            m('.card-header', 'XXX'),
+                            m('.card-body', [
+                                m('.card-text'),
+                                m('a.btn.btn-primary', {
+                                    href: '#!/svgPage'
                                 }, '看範例')
                             ])
                         ])
@@ -163,5 +153,6 @@ m.route(document.body, '/', {
     '/textarea': Page.TextAreaPage,
     '/attach': Page.AttachPage,
     '/select': Page.SelectPage,
-    '/carousel': Page.CarouselPage
+    '/carousel': Page.CarouselPage,
+    '/datetool': Page.DateTool,
 })

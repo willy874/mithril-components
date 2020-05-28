@@ -10,7 +10,12 @@
     --select-hover-text-color: #fff;
     --select-disabled-bg-color: #666;
 }
-
+.success{
+    --status: var(--success);
+}
+.error{
+    --status: var(--danger);
+}
 
 
 
@@ -145,6 +150,10 @@
                 color: var(--select-hover-text-color);
                 opacity: 1;
             }
+            &.disabled{
+                background-color: var(--select-btn-bg-color);
+                color: var(--text-color);
+            }
             
         }
     }    
@@ -207,6 +216,5 @@
             box-shadow:  0 0.125rem 0.25rem 0.125rem #00000011,0 -0.125rem 0.25rem 0.125rem #00000011;
         }
         
-    }    
-    
+    }
 }

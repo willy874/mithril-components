@@ -192,14 +192,14 @@ TableRow(['class'                ,'string'        ,'default'        ,'all'      
 TableRow(['disabled'             ,'boolen'        ,'false'          ,'all'          ,'組件是否為禁用狀態']),
 TableRow(['error'                ,'boolen'        ,'false'          ,'all'          ,'組件是否為錯誤狀態']),
 TableRow(['success'              ,'boolen'        ,'false'          ,'all'          ,'組件是否為通過狀態']),
-TableRow(['validate'             ,'function'      ,'default'        ,'all'          ,'驗證函式：() => { return error || validateText }']),
+TableRow(['options.validate'     ,'function'      ,'default'        ,'all'          ,'驗證函式：() => { return error || validateText }']),
 TableRow(['options.groupPrepend' ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，前置樣式']),
 TableRow(['options.groupAppend'  ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，後置樣式']),
 TableRow(['options.panelHeight'  ,'number'        ,'320'            ,'material'　   ,'下拉選單的最大高度(單位:px)']),
 TableRow(['options.panelPrefix'  ,'string mithril','undefined'      ,'all'          ,'下拉選單前置項目']),
 TableRow(['options.panelSuffix'  ,'string mithril','undefined'      ,'all'          ,'下拉選單後置項目']),
-TableRow(['options.textKey'      ,'string mithril','undefined'      ,'text'         ,'value物件使用的文字Key名']),
-TableRow(['options.valueKey'     ,'string mithril','undefined'      ,'value'        ,'value物件使用的參數Key名']),
+TableRow(['options.textKey'      ,'string mithril','text'           ,'all'         ,'value物件使用的文字Key名']),
+TableRow(['options.valueKey'     ,'string mithril','value'          ,'all'        ,'value物件使用的參數Key名']),
 TableRow(['options.input'        ,'boolen'        ,'false'          ,'material'　   ,'是否可以用輸入文字的方式選取']),
 TableRow(['options.label'        ,'string mithril','undefined'      ,'all'          ,'選取框上方的文字']),
 TableRow(['options.validateText' ,'string'        ,'"選擇的內容有誤"' ,'all'          ,'驗證回饋的文字']),
@@ -224,11 +224,3 @@ TableRow(['childrens.class'      ,'string'        ,'default'        ,'all'      
         ])
     }
 }
-//#c188bb 語法紅
-//#cb917b 字串橘
-//#96d8fb 變數藍
-//#579cd5 語法藍
-//#50c8af 類別綠
-//#dadbaf 函式黃
-//#59714f 註解綠
-//#af9660 樣式黃

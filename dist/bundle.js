@@ -1090,10 +1090,31 @@ const WaveEffect = {
     }
 };
 
+/**
+ * @param {Function} stream 管理資料流，以保存物件在Component空間。
+ * @param {Function} checkAttrs 建立物件空間，防止找不到key而產生錯誤。
+ * @param {Function} filterAttrs 排除為設定的屬性，以保護不傳入多餘屬性。
+ * @param {Function} handleComponent 判斷組件為何種類型，以正確讀取。
+ * @param {Function} checkError 傳入hasError物件參數判斷當中的[error]是否錯誤。
+ * @param {Function} addEventListenerTouch 建立一個觸控裝置滑動事件，可監聽四個方向的滑動。
+ */
 class Component {
     constructor(){
         this.stream = stream;
     }
+/**
+ * 管理資料流，以保存物件在Component空間。
+ * @param {*} value any 任何要進行資料管理的變數
+ */
+    stream(value){
+        return stream(value)
+    }
+/**
+ * 建立物件空間，防止找不到key而產生錯誤。
+ * @param {*} ops Object 進行處理的物件
+ * @param {*} allows Array 要被建立的屬性
+ * @return {*} Object
+ */
     checkAttrs(ops,allows) {
         if(!ops){
             return false
@@ -1105,6 +1126,12 @@ class Component {
         });
         return ops
     }
+/**
+ * 排除為設定的屬性，以保護不傳入多餘屬性。
+ * @param {*} ops Object 進行篩選的物件
+ * @param {*} allows Array 要被列入的屬性
+ * @return {*} Object
+ */
     filterAttrs(ops,allows) {
         return Object.keys(ops)
         .filter(key => allows.includes(key))
@@ -1115,23 +1142,100 @@ class Component {
             };
         }, {});
     }
+/**
+ * 判斷組件為何種類型，以正確讀取。
+ * @param {*} cpo string vnode class 要傳入的組件
+ * @param {string} tag 需要被mithril格式化的字串
+ * @param {*} attrs Object 傳入組件的參數
+ * @return {*} vnode
+ */
     handleComponent(cpo , tag = 'div',attrs = {}) {
         if (!cpo) {
             return
         }
         if (typeof cpo === 'string') {
-            return m(tag,attrs,cpo)
+            return m(tag,attrs,m.trust(cpo))
         }
         if (typeof cpo === 'object') {
             return cpo
         }
-        if (typeof cpo === 'function') {
+        if (typeof cpo === 'function' && cpo.hasOwnProperty('view')) {
             return m(cpo)
         }
     }
+
+/**
+ * 傳入hasError物件參數判斷當中的[error]是否錯誤。
+ * @param {*} attrs Object
+ */    
     checkError(attrs) {
         if (attrs.hasOwnProperty('error')) {
             this.hasError(attrs.error);
+        }
+    }
+
+/**
+ * 建立一個觸控裝置滑動事件，可監聽四個方向的滑動。
+ * @param {HTMLElement} dom HTMLElement 要被加入事件的元素
+ * @param {*} event Object 可傳入事件的物件
+ * @param {Function} event.topEvent function
+ * @param {Function} event.leftEvent function
+ * @param {Function} event.rightEvent function
+ * @param {Function} event.bottomEvent function
+ */
+    addEventListenerTouch(dom,event = {}){
+        if (typeof event != 'object') {
+            throw new Error('傳入的event參數必須是個object')
+        }
+        const {
+            topEvent,
+            leftEvent,
+            rightEvent,
+            bottomEvent
+        } = event;
+        if (dom instanceof HTMLElement) {
+            dom.addEventListener('touchstart',(e)=>{
+                this.startX = e.touches[0].pageX;
+                this.startY = e.touches[0].pageY;
+            }, false);
+            dom.addEventListener('touchend',(e)=>{
+                this.endX = e.changedTouches[0].pageX;
+                this.endY = e.changedTouches[0].pageY;
+                const direction = (function (startX, startY, endX, endY){
+                    const dy = startY - endY;
+                    const dx = endX - startX;
+                    let result = 0;
+                    if(Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+                        return result;
+                    }
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    if(angle >= -45 && angle < 45) {
+                        result = 4;
+                    }else if (angle >= 45 && angle < 135) {
+                        result = 1;
+                    }else if (angle >= -135 && angle < -45) {
+                        result = 2;
+                    }
+                    else if ((angle >= 135 && angle <= 180) || (angle >= -180 && angle < -135)) {
+                        result = 3;
+                    }
+                    return result;
+                })(this.startX, this.startY, this.endX, this.endY);
+                switch(direction) {
+                    case 0: 
+                    break;
+                    case 1: if(topEvent) topEvent(e);
+                        break;
+                    case 2: if(bottomEvent) bottomEvent(e);
+                        break;
+                    case 3: if(leftEvent) leftEvent(e);
+                        break;
+                    case 4: if(rightEvent) rightEvent(e);
+                        break;
+                }
+            }, false);
+        }else{
+            throw new Error('傳入的dom參數必須是個HTMLElement')
         }
     }
 }
@@ -1417,11 +1521,8 @@ class MaterialSelectComponent extends Component  {
         const textKey = this.options.textKey || 'text';
         const valueKey = this.options.valueKey || 'value';
         //判斷panel要避開window邊界的變數
-        const maxPanelHeight = panelHeight || 320;
-        const _panelHeight = this.panel && this.panel.offsetHeight;
-        const btnOffsetHeight = this.btn && this.btn.offsetHeight || 0;
-        const panelBottom = window.innerHeight - this.clientY < _panelHeight + btnOffsetHeight;
-        const panelTop = this.clientY < _panelHeight + btnOffsetHeight;
+        
+        
 
         return m('div', {
             class: cx$8('select-dropdown', {
@@ -1448,6 +1549,7 @@ class MaterialSelectComponent extends Component  {
                         }
                         // this.clientY 紀錄滑鼠點擊的位置，判斷panel要往上或往下來打開
                         this.clientY = e.clientY;
+                        
                         // v 將value傳遞給自定義onclick事件
                         const v =  this.selected;
                         if(onclick){
@@ -1536,16 +1638,19 @@ class MaterialSelectComponent extends Component  {
             
             (this.active)? m('div',{
                 class: cx$8('select-panel'),
-                style: {
-                    //判斷panel要避開window邊界
-                    maxHeight: `${maxPanelHeight}px`,
-                    bottom: (panelBottom && !panelTop)?'100%':null,
-                    top: (panelTop)?'100%':null
-                },
                 oncreate: (vd)=>{
-                    //執行打開panel的動畫
-                    this.panel = vd.dom;//.querySelectorAll(`.${cx('select-panel')}`)[0]
+                    this.panel = vd.dom;
                     const clientHeight = this.panel.clientHeight;
+                    const maxPanelHeight = panelHeight || 320;
+                    //判斷panel要避開window邊界
+                    const _panelHeight = this.panel && Math.min(maxPanelHeight,this.panel.offsetHeight);
+                    const btnOffsetHeight = this.btn && this.btn.offsetHeight || 0;
+                    const panelBottom = window.innerHeight - this.clientY < _panelHeight + btnOffsetHeight;
+                    const panelTop = this.clientY < _panelHeight + btnOffsetHeight;
+                    this.panel.style.maxHeight = `${maxPanelHeight}px`,
+                    this.panel.style.bottom = (panelBottom && !panelTop)?'100%':null,
+                    this.panel.style.top = (panelTop)?'100%':null;
+                    //執行打開panel的動畫
                     this.panel.style.height = 0;
                     this.panel.classList.add(cx$8('transition-3'));
                     window.requestAnimationFrame(()=>{
@@ -5067,7 +5172,135 @@ class Attachs {
     }
 }
 
-var styles$8 = {"carousel":"_1TU4e","carousel-panel":"_34jyM","carousel-panel-item":"_32ZPT"};
+class ArrowComponent extends Component{
+    constructor(vnode){
+        super();
+        this.arrow = this.filterAttrs(vnode.attrs,[
+            'children','onChangeEvent','changeEvent','arrowClass','arrowIcon','onclick'
+        ]);
+    }
+    view(vnode){
+        const {
+            //內部參數
+            onChangeEvent,
+            changeEvent,
+            arrowClass,
+            arrowIcon,
+            //外部參數 arrows
+            children,
+            onclick,
+        } = this.arrow;
+        return m('div',{
+            class: classNames$1(arrowClass),
+            onclick: (e)=>{
+                if (onclick) {
+                    onclick({
+                        state: changeEvent.state,
+                        onclickEvent: e
+                    });
+                }
+                onChangeEvent(e);
+            }
+        },[
+            this.handleComponent(children || arrowIcon)
+        ])
+    }
+}
+
+var settings = {
+    initIndex:  0,
+    order:  1,
+    autoplaySpeed:  5000,
+    autoplay: false,
+    playDirection: true,
+    cssEase: 'linear',
+    carouselScroll: 1,
+    carouselShow: 1,
+    speed: 300,
+    arrows: true,
+    dots: true,
+    touch: true,
+};
+
+/**
+ * @param {*} e 事件參數
+ * @param {*} goToList Number 指定onChangeEvent至哪一張幻燈片，goToList === null 為第一次初始化行為。
+*/
+function onChangeEvent (e , goToList = null){
+    const {
+        panel,
+        panelItem,
+        childrens,
+        cssEase,
+        speed,
+        autoplay,
+        autoplaySpeed,
+        carouselScroll,
+        carouselShow,
+        playDirection
+    } = e.state;
+    //判斷輪播動畫中不可執行 onChangeEvent()
+    if (e.state.animation) {
+        return
+    }
+    //執行 beforeChange()
+    if(e.events.beforeChange){
+        e.events.beforeChange(e);
+    }
+    //重置定時器
+    if(autoplay){
+        window.clearTimeout(e.state.timer);
+    }
+    //禁止動畫中觸發 onChangeEvent()
+    e.state.animation = true;
+    //計算 translateX 執行動畫播放
+    panel.style.transition = (goToList === null)?'null':`${speed/1000}s transform ${cssEase}`;
+    const translateX = (e.state.order - goToList) * (100/carouselShow);
+    panel.style.transform = `translateX(${translateX}%)`;
+    //要執行的完成動畫事件
+    const transitionEndEnent = ()=>{
+        panel.style.transition = null;
+        panel.style.transform = `translateX(0)`;
+        const scroll = Math.abs(e.state.order - goToList);
+        for (let i = scroll;i--;){
+            if(e.state.order - goToList < 0){
+                panelItem.push(panelItem.shift());
+            }else{
+                panelItem.unshift(panelItem.pop());
+            }
+        }
+        panel.removeEventListener('transitionend',transitionEndEnent);
+        m.redraw();
+        if(goToList >= childrens.length){
+            e.state.order = goToList - childrens.length;
+        }else if(goToList < 0){
+            e.state.order = goToList + childrens.length;
+        }else if(goToList === null){
+            e.state.order = 0;
+        }else{
+            e.state.order = goToList;
+        }
+        
+        e.state.animation = false;
+        //判斷是否自動撥放
+        if(autoplay){
+            const nextChange = (playDirection)?e.state.order + carouselScroll:e.state.order - carouselScroll;
+            e.state.timer = setTimeout(e.onChangeEvent , autoplaySpeed, e,nextChange);
+        }
+        //執行 afterChange()
+        if(e.events.afterChange){
+            e.events.afterChange(e);
+        }    
+        
+    };
+    if(goToList === null){
+        transitionEndEnent();
+    }else{
+        panel.addEventListener('transitionend',transitionEndEnent);
+    }
+}
+
+var styles$8 = {"carousel":"_1TU4e","carousel-panel":"_34jyM","carousel-panel-item":"_32ZPT","carousel-arrow":"_2AcBZ","carousel-arrow-icon":"zX_RK","carousel-arrow-left":"uALmQ","carousel-arrow-right":"pxLns","carousel-dots":"_2mFq5","carousel-dots-item":"_3qPHy","active":"_2g7vW"};
 
 const cx$f = classNames.bind(styles$8);
 
@@ -5077,148 +5310,193 @@ class Carousel extends Component {
         const {
             events,
             options,
-            childrens
+            childrens,
         } = vnode.attrs;
+        this.method = {};
         this.events = this.checkAttrs(events, ['beforeChange','afterChange']);
-        this.options = this.checkAttrs(options, [
-            'initIndex','autoplay','autoplaySpeed','playDirection','cssEase','infinite','carouselScroll','carouselShow','speed'
-        ]);
+        this.options = options;
         this.childrens = this.checkAttrs(childrens,['component','disabled']);
-        this.panelItem = this.childrens.slice();
-        // this.childrens.unshift(this.childrens[this.childrens.length-1])
-        // this.childrens.push(this.childrens[0])
-        console.log('this.childrens',this.childrens);
-        this.state = {
-            order: this.options.initIndex || 0,
-            autoplaySpeed: this.options.autoplaySpeed || 5000,
-            autoplay: this.options.autoplay || false,
-            playDirection: (this.options.playDirection)? this.options.playDirection : true,
-            infinite: (this.options.infinite)? this.options.infinite : true,
-            cssEase: this.options.cssEase || 'linear',
-            carouselScroll: this.options.carouselScroll || 1,
-            carouselShow: this.options.carouselShow || 1,
-            speed: this.options.speed || 600,
-            childrens: this.childrens || [],
-            panelItem: this.panelItem || []
-        };
-        const changeEvent = {
+        //置入預設設定
+        this.state = Object.assign({},settings,this.options);
+        //建立panelItem
+        this.state.panelItem = [];
+        this.state.childrens = this.childrens;
+        this.state.childrens.forEach((el,i) => {
+            el.order = i;
+        });
+        this.state.childrens.forEach(el => {
+            this.state.panelItem.push(new Object({
+                key: this.state.panelItem.length,
+                order: el.order,
+                component: el.component
+            }));
+        });
+        //追加 panelItem 陣列數以供顯示
+        this.childrens.forEach(el => {
+            this.state.panelItem.push(new Object({
+                key: this.state.panelItem.length,
+                order: el.order,
+                component: el.component
+            }));
+        });
+        const unshiftItem = [];
+        this.childrens.forEach(el => unshiftItem.push(el));
+        unshiftItem.reverse().forEach(el => {
+            this.state.panelItem.unshift(new Object({
+                key: this.state.panelItem.length,
+                order: el.order,
+                component: el.component
+            }));
+        });
+        if(this.state.panelItem.length < this.state.carouselShow + this.state.carouselScroll + this.state.initIndex){
+            throw new Error('childrens的設定數量太少')
+        }
+        //設定 panelItem 的 key
+        this.state.panelItem.forEach((el,i) => {
+            el.key = i;
+        });
+        //設定 panelItem 的排序
+        this.state.panelItem.push(this.state.panelItem.shift());
+        //要進入 onChangeEvent 的參數
+        this.changeEvent = {
             state: this.state,
             events: this.events,
-            goToList: null,
-            timer: this.timer,
-            noChangeEvent: this.noChangeEvent
+            onChangeEvent: onChangeEvent
         };
-        
-        if(this.state.autoplay){
-            this.timer = setTimeout(this.noChangeEvent , this.state.autoplaySpeed,changeEvent);
-        }
-        this.init = true;
+        //執行初始化定位
+        this.state.timer = setTimeout(onChangeEvent,0,this.changeEvent);
     }
-    noChangeEvent(e){
-            
-        if(e.events.beforeChange){
-            e.events.beforeChange(e);
-        }
-        if(this.timer){
-            window.clearTimeout(e.timer);
-        }
-        console.log('noChangeEvent',e);
-        
-        if(e.state.playDirection){
-            e.state.order++;
-            if(e.state.order > e.state.panelItem.length - 1){
-                e.state.order = 0;
-            }
-            m.redraw();
-        }else{
-            e.state.order--;
-            if(e.state.order < 0){
-                e.state.order = e.state.panelItem.length - 1;
-            }
-            
-            m.redraw();
-        }
-        console.log(e.state.order);
-        if(e.state.autoplay){
-            e.timer = setTimeout(e.noChangeEvent , e.state.autoplaySpeed,e);
-        }
-        if(e.events.afterChange){
-            e.events.afterChange(e);
-        }
-    }
-
     oncreate (vnode){
-        this.init = false;
-        this.state.target = vnode.dom;
-        this.state.target.noChangeEvent = this.noChangeEvent;
-        this.state.panel = vnode.dom.querySelectorAll(`.${cx$f('carousel-panel')}`)[0];
-        this.state.bannerWidth = this.state.target.offsetWidth;
-        const carouselItem = vnode.dom.querySelectorAll(`.${cx$f('carousel-panel-item')}`);
+        const dom = vnode.dom;
+        dom.state = this.state;
+        this.state.target = dom;
+        this.method.onChangeEvent = (goToList)=>{
+            onChangeEvent(this.changeEvent,goToList);
+        };
+        dom.onChangeEvent = (goToList)=>{
+            onChangeEvent(this.changeEvent,goToList);
+        };
+        this.state.panel = dom.querySelector(`.${cx$f('carousel-panel')}`);
+        this.state.bannerWidth = dom.offsetWidth;
+        const carouselItem = dom.querySelectorAll(`.${cx$f('carousel-panel-item')}`);
         for (let i = 0; i < carouselItem.length; i++) {
             carouselItem[i].style.width = `${this.state.bannerWidth}px`;
+        }
+        //觸控滑動事件
+        if(this.state.touch){
+            this.addEventListenerTouch(dom,{
+                leftEvent: (e)=>{
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        touchEvent: e
+                    },this.state.order + this.state.carouselScroll);
+                },
+                rightEvent: (e)=>{
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        touchEvent: e
+                    },this.state.order - this.state.carouselScroll);
+                }
+            });
         }
     }
     view(vnode){
         const {
-            order,
-            autoplaySpeed,
-            autoplay,
-            playDirection,
-            infinite,
-            cssEase,
             carouselScroll,
             carouselShow,
-            speed,
             childrens,
             panelItem,
-            bannerWidth
+            bannerWidth,
+            initIndex,
+            arrows,
+            dots
         } = this.state;
+        
+        const orderList = initIndex%panelItem.length;
+        this.state.orderKey = panelItem[carouselScroll + orderList].key;
         return m('div',{
             class: cx$f('carousel'),
+            'data-order': this.state.order,
+            'data-orderkey': this.state.orderKey,
         },[
             m('div',{
                 class: cx$f('carousel-panel')
             },[
                 panelItem.map((item, index , array)=>{
-                    const prev = (order -1 < 0)?array.length -1:order -1;
-                    const next = (order +1 > array.length -1)? 0:order +1;
-                    console.log(prev,order,next);
-                    return (/*prev === index ||*/ order === index || next === index)? m('div',{
+                    
+                    return m('div',{
                         style: {
                             width: `${bannerWidth}px`,
-                            transform: `translateX(0)`,
-                            order: (order === index)? 2 : 3
+                            transform: `translateX(-${childrens.length + orderList}00%)`,
+                            maxWidth: `${100/carouselShow}%`,
                         },
                         class: cx$f('carousel-panel-item'),
+                        key: item.key,
+                        'data-key': item.key,
+                        'data-order': item.order,
                         oncreate: (vd)=>{
-                            const dom = vd.dom;
-                            panelItem[index].dom = dom;
+                            panelItem[index].dom = vd.dom;
                         },
-                        onbeforeremove: (vd)=>{
-                            const dom = vd.dom;
-                            panelItem[index].dom = null;
-                            const panel = this.state.panel;
-                            panel.style.transition = `${speed/1000}s transform ${cssEase}`;
-                            dom.style.order = 1;
-                            window.requestAnimationFrame(()=>{
-                                this.animation = true;
-                                panel.style.transform = `translateX(-100%)`;
-                            });
-                            return new Promise((resolve)=> {
-                                panel.addEventListener('transitionend',()=>{
-                                    this.animation = false;
-                                    panel.style.transition = null;
-                                    panel.style.transform = `translateX(0)`;
-                                    resolve();
-                                });
-                            })
-                        }
-                    },item.component) :null
+                    },this.handleComponent(item.component))
                 })
-            ])
+            ]),
+
+            (arrows)? m(ArrowComponent,{
+                ...arrows,
+                arrowIcon: arrows.children || m('i',{class: cx$f('carousel-arrow-icon')}),
+                arrowClass: cx$f('carousel-arrow','carousel-arrow-left'),
+                changeEvent: this.changeEvent,
+                onChangeEvent:  (e) => {
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        onclickEvent: e
+                    },this.state.order - carouselScroll);
+                },
+            }):'',
+
+            (arrows)? m(ArrowComponent,{
+                ...arrows,
+                arrowIcon: m('i',{class: cx$f('carousel-arrow-icon')}),
+                arrowClass: cx$f('carousel-arrow','carousel-arrow-right'),
+                changeEvent: this.changeEvent,
+                onChangeEvent:  (e) => {
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        onclickEvent: e
+                    },this.state.order + carouselScroll);
+                },
+            }):'',
+
+            (dots)? m('div',{
+                class: cx$f('carousel-dots')
+            },[
+                childrens.map((item, index) =>{
+                    const {
+                        dots,
+                        dotsClass
+                    } = item;
+                    return m('div',{
+                        class: classNames(dotsClass,cx$f('carousel-dots-item',{
+                            active: index == this.state.order
+                        })),
+                        onclick: (e) => {
+                            onChangeEvent({
+                                ...this.changeEvent,
+                                onclickEvent: e
+                            },index);
+                        }
+                    },this.handleComponent(dots))
+                })
+            ]):''
         ])
     }
 }
+
+/**
+ * 待製作功能:
+ * 1.RWD
+ * 2.滑動
+ */
 
 exports.Attach = Attachs;
 exports.Button = Button;

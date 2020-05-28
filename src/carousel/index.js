@@ -1,6 +1,9 @@
 import m from 'mithril'
-import classNames from 'classnames/bind'
 import {Component} from '../util-components'
+import ArrowComponent from './arrows'
+import settings from './default'
+import onChangeEvent from './onChangeEvent'
+import classNames from 'classnames/bind'
 import styles from './styles/carousel.css'
 const cx = classNames.bind(styles)
 
@@ -10,38 +13,27 @@ export default class Carousel extends Component {
         const {
             events,
             options,
-            childrens
+            childrens,
         } = vnode.attrs
+        this.method = {}
         this.events = this.checkAttrs(events, ['beforeChange','afterChange'])
-        this.options = this.checkAttrs(options, [
-            'initIndex','autoplay','autoplaySpeed','playDirection','cssEase','infinite','carouselScroll','carouselShow','speed'
-        ])
+        this.options = options
         this.childrens = this.checkAttrs(childrens,['component','disabled'])
-        this.panelItem = []
-        this.childrens.forEach((el,i) => {
+        //置入預設設定
+        this.state = Object.assign({},settings,this.options)
+        //建立panelItem
+        this.state.panelItem = []
+        this.state.childrens = this.childrens
+        this.state.childrens.forEach((el,i) => {
             el.order = i
         })
-        this.childrens.forEach(el => {
-            this.panelItem.push(new Object({
-                key: this.panelItem.length,
+        this.state.childrens.forEach(el => {
+            this.state.panelItem.push(new Object({
+                key: this.state.panelItem.length,
                 order: el.order,
                 component: el.component
             }))
         })
-        this.state = {
-            initIndex: this.options.initIndex || 1,
-            order: this.options.initIndex || 1,
-            autoplaySpeed: this.options.autoplaySpeed || 5000,
-            autoplay: this.options.autoplay || false,
-            playDirection: this.options.playDirection,
-            infinite: (this.options.infinite)? this.options.infinite : true,
-            cssEase: this.options.cssEase || 'linear',
-            carouselScroll: this.options.carouselScroll || 1,
-            carouselShow: this.options.carouselShow || 1,
-            speed: this.options.speed || 600,
-            childrens: this.childrens || [],
-            panelItem: this.panelItem || []
-        }
         //追加 panelItem 陣列數以供顯示
         this.childrens.forEach(el => {
             this.state.panelItem.push(new Object({
@@ -60,7 +52,7 @@ export default class Carousel extends Component {
             }))
         })
         if(this.state.panelItem.length < this.state.carouselShow + this.state.carouselScroll + this.state.initIndex){
-            throw new Error('carouselShow的設定數量過多')
+            throw new Error('childrens的設定數量太少')
         }
         //設定 panelItem 的 key
         this.state.panelItem.forEach((el,i) => {
@@ -68,108 +60,54 @@ export default class Carousel extends Component {
         })
         //設定 panelItem 的排序
         this.state.panelItem.push(this.state.panelItem.shift())
-        //要進入 noChangeEvent 的參數
+        //要進入 onChangeEvent 的參數
         this.changeEvent = {
             state: this.state,
             events: this.events,
-            noChangeEvent: this.noChangeEvent
+            onChangeEvent: onChangeEvent
         }
-        //執行第一次循環播放
-        if(this.state.autoplay){
-            this.state.timer = setTimeout(this.noChangeEvent , this.state.autoplaySpeed,this.changeEvent)
-        }
+        //執行初始化定位
+        this.state.timer = setTimeout(onChangeEvent,0,this.changeEvent)
     }
-    /**
-     * @param {noChangeEvent(goToList)}
-     * goToList === true，下一張；
-     * goToList === false，上一張；
-     * goToList 指定至哪一張；
-    */
-    noChangeEvent(e , goToList = null){
-        const {
-            panel,
-            panelItem,
-            childrens,
-            cssEase,
-            speed,
-            autoplay,
-            autoplaySpeed,
-            carouselScroll,
-            carouselShow,
-            playDirection
-        } = e.state
-        //判斷方向或使用goToList
-        const direction = (goToList === null)? playDirection : goToList
-        //判斷輪播動畫中不可執行 noChangeEvent()
-        if (e.state.animation) {
-            return
-        }
-        //執行 beforeChange()
-        if(e.events.beforeChange){
-            e.events.beforeChange(e)
-        }
-        //重置定時器
-        if(autoplay){
-            window.clearTimeout(e.state.timer)
-        }
-        //禁止動畫中觸發 noChangeEvent()
-        e.state.animation = true
-        //計算 translateX 執行動畫播放
-        panel.style.transition = `${speed/1000}s transform ${cssEase}`
-        const translateX = (goToList && typeof goToList!=='boolean')
-        ? (e.state.order - goToList) * (100/carouselShow)
-        : carouselScroll * (100 / carouselShow)
-        panel.style.transform = `translateX(${(direction?-1:1) * translateX}%)`
-        //要執行的完成動畫事件
-        const transitionEndEnent = ()=>{
-            panel.style.transition = null
-            panel.style.transform = `translateX(0)`
-            if(goToList && typeof goToList!=='boolean'){
-                console.log('goToList',goToList,'order',e.state.order);
-                const scroll = Math.abs(e.state.order - goToList)
-                for (let i = scroll;i--;){
-                    if(e.state.order - goToList > 0){
-                        panelItem.push(panelItem.shift())
-                    }else{
-                        panelItem.unshift(panelItem.pop())
-                    }
-                }
-            }else{
-                for (let i = carouselScroll;i--;){
-                    if(direction){
-                        panelItem.push(panelItem.shift())
-                    }else{
-                        panelItem.unshift(panelItem.pop())
-                    }
-                }
-            }
-            panel.removeEventListener('transitionend',transitionEndEnent)
-            m.redraw()
-            if(goToList && goToList<childrens.length){
-                e.state.order = (goToList !== true)? goToList : e.state.order
-            }
-            e.state.animation = false
-            //判斷是否自動撥放
-            if(autoplay){
-                e.state.timer = setTimeout(e.noChangeEvent , autoplaySpeed, e)
-            }
-            //執行 afterChange()
-            if(e.events.afterChange){
-                e.events.afterChange(e)
-            }    
-            
-        }
-        panel.addEventListener('transitionend',transitionEndEnent)
-    }
-
     oncreate (vnode){
         const dom = vnode.dom
         dom.state = this.state
         this.state.target = dom
-        dom.noChangeEvent = (goToList)=>{
-            this.noChangeEvent(this.changeEvent,goToList)
+        this.method.onChangeEvent = (goToList)=>{
+            onChangeEvent(this.changeEvent,goToList)
         }
-        this.state.panel = dom.querySelectorAll(`.${cx('carousel-panel')}`)[0]
+        dom.onChangeEvent = (goToList)=>{
+            onChangeEvent(this.changeEvent,goToList)
+        }
+        this.state.panel = dom.querySelector(`.${cx('carousel-panel')}`)
+        this.state.bannerWidth = dom.offsetWidth
+        const carouselItem = dom.querySelectorAll(`.${cx('carousel-panel-item')}`)
+        for (let i = 0; i < carouselItem.length; i++) {
+            carouselItem[i].style.width = `${this.state.bannerWidth}px`
+        }
+        //觸控滑動事件
+        if(this.state.touch){
+            this.addEventListenerTouch(dom,{
+                leftEvent: (e)=>{
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        touchEvent: e
+                    },this.state.order + this.state.carouselScroll)
+                },
+                rightEvent: (e)=>{
+                    onChangeEvent({
+                        ...this.changeEvent,
+                        touchEvent: e
+                    },this.state.order - this.state.carouselScroll)
+                }
+            })
+        }
+    }
+    onbeforeupdate(vnode){
+        this.state = Object.assign(this.state,vnode.attrs.state)
+    }
+    onupdate(vnode){
+        const dom = vnode.dom
         this.state.bannerWidth = dom.offsetWidth
         const carouselItem = dom.querySelectorAll(`.${cx('carousel-panel-item')}`)
         for (let i = 0; i < carouselItem.length; i++) {
@@ -183,10 +121,12 @@ export default class Carousel extends Component {
             childrens,
             panelItem,
             bannerWidth,
-            initIndex
+            initIndex,
+            arrows,
+            dots
         } = this.state
+        
         const orderList = initIndex%panelItem.length
-        this.state.order = panelItem[carouselScroll + orderList].order
         this.state.orderKey = panelItem[carouselScroll + orderList].key
         return m('div',{
             class: cx('carousel'),
@@ -201,7 +141,8 @@ export default class Carousel extends Component {
                     return m('div',{
                         style: {
                             width: `${bannerWidth}px`,
-                            transform: `translateX(-${carouselScroll + orderList}00%)`,
+                            transform: `translateX(-${childrens.length + orderList}00%)`,
+                            maxWidth: `${100/carouselShow}%`,
                         },
                         class: cx('carousel-panel-item'),
                         key: item.key,
@@ -210,52 +151,63 @@ export default class Carousel extends Component {
                         oncreate: (vd)=>{
                             panelItem[index].dom = vd.dom
                         },
-                    },item.component)
+                    },this.handleComponent(item.component))
                 })
             ]),
-            m('div',{
-                class: cx('carousel-arrow','carousel-arrow-left'),
-                onclick: (e) => {
-                    this.noChangeEvent({
+
+            (arrows)? m(ArrowComponent,{
+                ...arrows,
+                arrowIcon: arrows.children || m('i',{class: cx('carousel-arrow-icon')}),
+                arrowClass: cx('carousel-arrow','carousel-arrow-left'),
+                changeEvent: this.changeEvent,
+                onChangeEvent:  (e) => {
+                    onChangeEvent({
                         ...this.changeEvent,
                         onclickEvent: e
-                    },false)
-                }
-            },[
-                m('i',{
-                    class: cx('carousel-arrow-icon'),
-                })
-            ]),
-            m('div',{
-                class: cx('carousel-arrow','carousel-arrow-right'),
-                onclick: (e) => {
-                    this.noChangeEvent({
+                    },this.state.order - carouselScroll)
+                },
+            }):'',
+
+            (arrows)? m(ArrowComponent,{
+                ...arrows,
+                arrowIcon: m('i',{class: cx('carousel-arrow-icon')}),
+                arrowClass: cx('carousel-arrow','carousel-arrow-right'),
+                changeEvent: this.changeEvent,
+                onChangeEvent:  (e) => {
+                    onChangeEvent({
                         ...this.changeEvent,
                         onclickEvent: e
-                    },true)
-                }
-            },[
-                m('i',{
-                    class: cx('carousel-arrow-icon'),
-                })
-            ]),
-            m('div',{
+                    },this.state.order + carouselScroll)
+                },
+            }):'',
+
+            (dots)? m('div',{
                 class: cx('carousel-dots')
             },[
                 childrens.map((item, index) =>{
+                    const {
+                        dots,
+                        dotsClass
+                    } = item
                     return m('div',{
-                        class: cx('carousel-dots-item',{
+                        class: classNames(dotsClass,cx('carousel-dots-item',{
                             active: index == this.state.order
-                        }),
+                        })),
                         onclick: (e) => {
-                            this.noChangeEvent({
+                            onChangeEvent({
                                 ...this.changeEvent,
                                 onclickEvent: e
                             },index)
                         }
-                    })
+                    },this.handleComponent(dots))
                 })
-            ])
+            ]):''
         ])
     }
 }
+
+/**
+ * 待製作功能:
+ * 1.RWD
+ * 2.滑動
+ */

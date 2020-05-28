@@ -4,9 +4,10 @@ import classNames from 'classnames/bind'
 import {Component} from '../util-components'
 import styles from './styles/select.css'
 import NativeSelectComponent from './native'
+import GroupSelectComponent from './group'
 import MaterialSelectComponent from './material'
+import createSelect from './component'
 const cx = classNames.bind(styles)
-
 
 /**
  * @param Select
@@ -17,16 +18,22 @@ export default class Select extends Component  {
     constructor(vnode) {
         super()
         const {
+            options,
+            selected,
             childrens,
-            selected
+            events
         } = vnode.attrs
+        this.theme = vnode.attrs.theme
         this.hasError = stream(vnode.attrs.error)
         this.hasValue = stream(vnode.attrs.value)
-
+        
         //判斷childrens是否有正確填寫
         if (childrens){
             if(!Array.isArray(childrens)){
                 throw new Error('childrens必須是個陣列')
+            }
+            if(!childrens){
+                throw new Error('childrens為必填參數')
             }
         }
         //判斷selected是否有正確填寫
@@ -41,144 +48,90 @@ export default class Select extends Component  {
                 throw new Error('value應該是一個object')
             }
         }
+        //確認需要的屬性，防範Key為未定義
+        this.options = this.checkAttrs(options,['input','panelHeight','groupPrepend','groupAppend','panelPrefix','panelSuffix','textKey','valueKey','validate'])  
+        this.events = this.checkAttrs(events,['onchange','onfocus','onblur','oninput','onclick'])     
+        this.textKey = this.options.textKey || 'text'
+        this.valueKey = this.options.valueKey || 'value'
+        this.childrens = []
+        if(childrens){
+            childrens.forEach((el,i) => {
+                this.childrens[i] = this.checkAttrs(el,[this.textKey,this.valueKey,'disabled','selected','style','class'])
+            })
+        }
+        this.selected = (this.hasValue())
+        ?this.checkAttrs(this.hasValue(),[this.textKey,this.valueKey])
+        :this.checkAttrs(selected,[this.textKey,this.valueKey])
+        //制定預設 selected 的值
+        const defaultSelected = {
+            [this.textKey]: '請選擇',
+            [this.valueKey]: null,
+        }
+        //預設 childrens 的值
+        const selectedChildren = this.checkAttrs(this.childrens.filter(item => item.selected)[0],[this.textKey,this.valueKey])
+        //預設 selected 的值
+        if(typeof this.selected ==='object'){
+            this.selected[this.textKey] = selectedChildren[this.textKey] || this.selected[this.textKey] || defaultSelected[this.textKey]
+            this.selected[this.valueKey] = selectedChildren[this.valueKey] || this.selected[this.valueKey] || defaultSelected[this.valueKey]
+        }else{
+            this.selected = defaultSelected
+        }
+        
+        this.active = false
+        this.readonly = vnode.attrs.readonly || false
+        this.disabled = vnode.attrs.disabled || false
+        this.attrs = vnode.attrs
+        
+        //生成state
+        this.state = createSelect(this)
+    }
+    onbeforeupdate(vnode){
+        this.state.childrens = []
+        vnode.attrs.childrens.forEach((el,i) => {
+            this.state.childrens[i] = this.checkAttrs(el,[this.state.textKey,this.state.valueKey,'disabled','selected','style','class'])
+        })
+    }
+    onupdate(vnode){
     }
     view(vnode) {
         const {
-            theme,
-            error,
             success,
-            disabled,
-            options,
-            validate
+            error,
         } = vnode.attrs
-        let {
-            hasError,
-            showError
-        } = vnode.attrs
-        const _theme = theme || 'native'
-        
-        showError = (showError === false) ? false : true
-        this.hasError(vnode.attrs.error)
-        this.hasValue(vnode.attrs.value)
-        vnode.attrs.hasError = this.hasError
-        vnode.attrs.hasValue = this.hasValue
-        if(!validate){
-            vnode.attrs.validate = () => {
-                if (options && options.validateText) {
-                    this.error =  options.validateText || '選擇的內容有誤'
-                    return options.validateText || '選擇的內容有誤'
-                }
-                return this.error = ''
-            }
-        }
+        this.state.hasError(vnode.attrs.error)
+        this.state.hasValue(vnode.attrs.value)
         
         return m('div', {
             class: classNames(vnode.attrs.class,{
-                'success': success,
-                'error': error,
-                'disabled': disabled
-            },cx('select', _theme))
+                'success':  this.state.hasValue()[this.state.valueKey] && !this.state.hasError() || success,
+                'error': this.state.hasError() || error,
+                'disabled': this.state.disabled
+            },cx('select', this.state.theme))
         }, [
             /**
              * theme: 'native'
-             * size
-             * autofocus
              */
-            (_theme === 'native') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx('select-label')
-                }): null,
-                m(NativeSelectComponent, {
-                    ...vnode.attrs
-                }),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null,
+            (this.state.theme === 'native') 
+            ? m(NativeSelectComponent,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title','required','autofocus','size','error','success'])
+            }) : null,
             /**
              * theme: 'group'
-             * options : {
-             *      groupPrepend
-             *      groupAppend
-             * }
              */
-            (_theme === 'group') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx('select-label')
-                }): null,
-                m('.input-group',[
-                    (options && options.groupPrepend)?
-                    m('.input-group-prepend',[
-                        this.handleComponent(options.groupPrepend,'div',{
-                            class: 'input-group-text'
-                        })
-                    ]): null,
-                    m(NativeSelectComponent, {
-                        ...vnode.attrs
-                    }),
-                    (options && options.groupAppend)?
-                    m('.input-group-append',[
-                        this.handleComponent(options.groupAppend,'div',{
-                            class: 'input-group-text'
-                        })
-                    ]): null,
-                ]),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null,
+            (this.state.theme === 'group') 
+            ? m(GroupSelectComponent,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title','required','autofocus','size','error','success'])
+            }) : null,
             /** 
              * theme: 'material'
-             * oninput
-             * options: {
-             *      panelHeight
-             *      input
-             * }
             */
-            (_theme === 'material') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx('select-label')
-                }): null,
-                m(MaterialSelectComponent, {
-                    ...vnode.attrs
-                }),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null
+            (this.state.theme === 'material') 
+            ? m(MaterialSelectComponent,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title','readonly','disabled'])
+            }) : null,
         ])
     }
 }
-/** 
- * 可使用的屬性
- * theme
- * options: {
- *      label
- *      validateText
- *      title
- * }
- * selected: {
- *      text
- *      value
- *      data
- * }
- * childrens: {
- *      panelPrefix
- *      panelSuffix
- *      text
- *      value
- *      disabled
- *      selected
- *      style
- *      class
- *      data
- * }
- * value
- * class
- * onchange
- * oninput
- * onclick
- * onfocus
- * onblur
- * disabled
- * error
- * success
- * validate
-*/

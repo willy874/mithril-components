@@ -132,9 +132,14 @@
   background-color: #fff;
   margin: 0.5rem 0.25rem;
   cursor: pointer;
+  opacity: 0.4;
 }
 
 .carousel-dots-item:hover {
-  opacity: 0.5;
+  opacity: 1;
+}
+
+.carousel-dots-item.active {
+  opacity: 1;
 }
 /*# sourceMappingURL=carousel.css.map */

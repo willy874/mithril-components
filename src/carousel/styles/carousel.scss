@@ -99,7 +99,11 @@
     background-color: #fff;
     margin: 0.5rem 0.25rem;
     cursor: pointer;
+    opacity: 0.4;
     &:hover{
-        opacity: 0.5;
+        opacity: 1;
+    }
+    &.active{
+        opacity: 1;
     }
 }

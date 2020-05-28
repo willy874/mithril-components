@@ -13,6 +13,7 @@ import Pagination from './paged/pagination'
 import PageItemCount from './paged/page_item_count'
 import Attach from './attach'
 import Carousel from './carousel'
+import DateTool from './date-tool'
 import './styles/layout.css'
 
 export {
@@ -30,5 +31,6 @@ export {
     TextBox,
     TextField,
     Attach,
-    Carousel
+    Carousel,
+    DateTool,
 }

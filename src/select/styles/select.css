@@ -10,6 +10,14 @@
   --select-disabled-bg-color: #666;
 }
 
+.success {
+  --status: var(--success);
+}
+
+.error {
+  --status: var(--danger);
+}
+
 .select {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -161,6 +169,11 @@
   background-color: var(--select-hover-bg-color);
   color: var(--select-hover-text-color);
   opacity: 1;
+}
+
+.select.material .select-panel button.disabled {
+  background-color: var(--select-btn-bg-color);
+  color: var(--text-color);
 }
 
 .select.material .select-option {

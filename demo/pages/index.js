@@ -5,6 +5,7 @@ import TextAreaPage from './textarea'
 import AttachPage from './attach'
 import CarouselPage from './carousel'
 import SelectPage from './select'
+import DateTool from './date-tool'
 
 export {
     SvgPage,
@@ -13,5 +14,6 @@ export {
     TextAreaPage,
     AttachPage,
     CarouselPage,
-    SelectPage
+    SelectPage,
+    DateTool
 }

@@ -59,7 +59,7 @@ function TableRow (td,tag = 'td'){
                     padding: '0.25rem',
                     fontWeight: (tag === 'th')? '700' : null
                 }
-            },text)
+            },m.trust(text))
         })
     ])
 }
@@ -69,3 +69,13 @@ export {
     TableTemplate,
     TableRow
 } 
+
+
+//#c188bb 語法紅
+//#cb917b 字串橘
+//#96d8fb 變數藍
+//#579cd5 語法藍
+//#50c8af 類別綠
+//#dadbaf 函式黃
+//#59714f 註解綠
+//#af9660 樣式黃

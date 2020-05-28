@@ -2,11 +2,33 @@
 @import 'outline';
 
 :global(.textbox-line) {
+    --status: #007bff;
+    --danger: #dc3545;
+    --success: #28a745;
     --textbox-line-color: #000;
-    --textbox-line-focus-color: var(--primary);
-    --textbox-label-color: rgba(0, 0, 0, 0.54);
+    --textbox-hover-line-color: #000;
+    --textbox-focus-line-color: var(--status);
+    --textbox-label-color: #000;
+    --textbox-focus-label-color: var(--status);
     --textbox-disabled: rgba(0, 0, 0, 0.4);
+    --textbox-bg-color: transparent;
+    --textbox-input-color: currentColor;
+    --textbox-placeholder-color: #888;
+    &.success{
+        --status: var(--success);
+        --textbox-label-color: var(--success);
+        --textbox-line-color: var(--success);
+        --textbox-focus-line-color: var(--success);
+    }
+    &.error{
+        --status: var(--danger);
+        --textbox-label-color: var(--danger);
+        --textbox-line-color: var(--danger);
+        --textbox-focus-line-color: var(--danger);
+    }
 }
+
+
 
 input.password-reveal {
     &::-ms-clear {
@@ -18,7 +40,6 @@ input.password-reveal {
     }
 
     padding-right: 2rem;
-
 
     &:global(.is-invalid) {
         background-image: none;
@@ -56,7 +77,7 @@ input.password-reveal {
     }
 }
 
-.prefix {
+.prefix,.group-prepend {
     flex: 1 1 0;
     padding: 0.25rem 0.375rem;
     align-self: flex-end;
@@ -66,7 +87,7 @@ input.password-reveal {
     }
 }
 
-.suffix {
+.suffix,.group-append {
     flex: 1 1 0;
     padding: 0.25rem 0.375rem;
     align-self: flex-end;
@@ -74,4 +95,8 @@ input.password-reveal {
     svg {
         fill: currentColor;
     }
+}
+
+.d-flex{
+    display: flex;
 }
