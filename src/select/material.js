@@ -7,7 +7,6 @@ const cx = classNames.bind(styles)
 export default class MaterialSelectComponent extends Component {
     view(vnode){
         const {
-            title,
             state
         } = vnode.attrs
         return m.fragment({},[
@@ -20,55 +19,90 @@ export default class MaterialSelectComponent extends Component {
                     'active': state.active,
                     'disabled': state.disabled,
                 }),
-                ...state.getSelectAttrs().select
+                ...state.getAttrs().select
             }, [
                 m('div', {
                     class: cx('select-btn'),
+                    ...state.events.selectEvents
                 }, [
                     m('button[type="text"]',{
                         class: cx('select-btn-button'),
-                        title,
-                        ...state.getSelectAttrs().button
-                    },state.getSelectValue()[state.textKey]),
+                        ...state.getAttrs().button
+                    },state.getComponentValue()[state.textKey]),
                     m('input[type="text"]',{
                         class: cx('select-btn-input'),
-                        title,
-                        ...state.getSelectAttrs().input
+                        ...state.getAttrs().input
                     }),
                     m('div', {
                         class: cx('select-line')
                     }),
                 ]),
-                (state.active)? m('div',{
-                    class: cx('select-panel'),
-                    ...state.getSelectAttrs().panel
-                },[
-                    (state.panelPrefix)?
-                    this.handleComponent(state.panelPrefix,'div',{
-                        class: cx('select-option')
-                    }): null,
-                    state.childrens.map((item, index) => {
-                        if(!item[state.valueKey]){
-                            item[state.valueKey] = index+1
-                        }
-                        return m('button', {
-                            class: cx('select-option',item.class, {
-                                'active': (state.selected[state.valueKey] === item[state.valueKey]),
-                                'input': state.findIndex === index,
-                                'disabled': item.disabled
-                            }),
-                            ...state.getSelectOptionAttrs(item)
-                        }, [
-                            m('span',`${item[state.textKey]}`)
+                (state.active)?(()=>{
+                    if (state.mobileMode) {
+                        return m('div', {
+                            class: cx('select-dialog'),
+                            ...state.getAttrs().dialog
+                        },[
+                            m('div',{
+                                class: cx('select-panel'),
+                            },[
+                                (state.panelPrefix)?
+                                this.handleComponent(state.panelPrefix,'div',{
+                                    class: cx('select-option-prefix')
+                                }): null,
+                                state.childrens.map((item, index) => {
+                                    if(!item.value){
+                                        item.value = index+1
+                                    }
+                                    return m('button', {
+                                        class: cx('select-option',item.class, {
+                                            'active': (state.selected[state.valueKey] === item.value),
+                                            'disabled': item.disabled
+                                        }),
+                                        ...state.getChildrensAttrs(item)
+                                    }, [
+                                        m('span',`${item.text}`)
+                                    ])
+                                }),
+                                (state.panelSuffix)?
+                                    this.handleComponent(state.panelSuffix,'div',{
+                                        class: cx('select-option-suffix')
+                                }): null
+                            ])
                         ])
-                    }),
-                    (state.panelSuffix)?
-                        this.handleComponent(state.panelSuffix,'div',{
-                            class: cx('select-option')
-                    }): null
-                ]):null
+                    }else{
+                        return m('div',{
+                            class: cx('select-panel'),
+                            ...state.getAttrs().panel
+                        },[
+                            (state.panelPrefix)?
+                            this.handleComponent(state.panelPrefix,'div',{
+                                class: cx('select-option-prefix')
+                            }): null,
+                            state.childrens.map((item, index) => {
+                                if(!item.value){
+                                    item.value = index+1
+                                }
+                                return m('button', {
+                                    class: cx('select-option',item.class, {
+                                        'active': (state.selected[state.valueKey] === item.value),
+                                        'input': state.findIndex === index && !item.disabled,
+                                        'disabled': item.disabled
+                                    }),
+                                    ...state.getChildrensAttrs(item)
+                                }, [
+                                    m('span',`${item.text}`)
+                                ])
+                            }),
+                            (state.panelSuffix)?
+                                this.handleComponent(state.panelSuffix,'div',{
+                                    class: cx('select-option-suffix')
+                            }): null
+                        ])
+                    }
+                })():null,
             ]),
-            (state.hasError) ? m('small.invalid-feedback', state.hasError) : null
+            (state.hasError()) ? m('small.text-danger', state.hasError()) : null
         ])
         
     } 

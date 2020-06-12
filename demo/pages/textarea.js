@@ -3,6 +3,9 @@ import TextAreaField from '@src/textarea/field'
 import {
     TextArea
 } from '@src'
+import { colorSet,CodeTemplate,TableTemplate,TableRow } from '../tool';
+const cs = colorSet
+
 class TextA {
     view(){
         return m('i',[
@@ -28,6 +31,14 @@ class TextA {
     }
 }
 export default class TextAreaPage {
+    constructor(){
+        this.model = {
+            value: '',
+            textarea: '請輸入文字',
+            feedback: null,
+            content: null,
+        }
+    }
     view(vnode) {
         return m('.main', [
             m.trust(``),
@@ -47,754 +58,358 @@ export default class TextAreaPage {
             m('.container.py-5'),
             m('.container', [
                 m('h3.pt-5', ['TextArea']),
-                m('.row', [
-                    m('.col-3', [
-                        m('h6', m('strong', '使用TextAreaField')),
-                        m(TextAreaField, {
-                            type: 'text',
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                this.showValid = true
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            }
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用TextArea')),
-                        m(TextArea, {
-                            class: 'form-control abc',
-                            type: 'password',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            }
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用helper text')),
-                        m(TextArea, {
-                            label: m('label.col-sm-2.col-form-label', 'mithril label'),
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '客製化class')),
-                        m(TextArea, {
-                            class: 'custom-input-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            }
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '不顯示錯誤訊息')),
-                        m(TextArea, {
-                            label: '標籤',
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            showError: false
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用內部標籤')),
-                        m(TextArea, {
-                            label: '標籤',
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            }
-                        })
-                    ]),
-
-
+                m('h3.pt-5', ['TextBox']),
+                m('.pt-3',[
+                    m('span.h5','Model Value 01： '),
+                    m.trust(`this.model.value: "${this.model.value}"<br>`),
+                    m('span.h5','Model Value 02： '),
+                    m.trust(`this.model.textarea: "${this.model.textarea}"<br>`),
+                    m('span.h5','Model Value 03： '),
+                    m.trust(`this.model.feedback: "${this.model.feedback}"<br>`),
+                    m('span.h5','Model Value 04： '),
+                    m.trust(`this.model.content: "${this.model.content}"<br>`),
                 ]),
                 m('.row', [
-                    m('.col-12', m('h3.pt-5', ['TextArea Group'])),
+                    m('.col-3',[
+                        m('h6', m('strong', '原始狀態')),
+                        m(TextAreaField)
+                    ]),
+                    m('.col-3',[
+                        m('h6', m('strong', '填入屬性')),
+                        m(TextAreaField,{
+                            title: '請輸入文字',
+                            placeholder: '請輸入文字',
+                            class: 'bg-light form-control',
+                            value: this.model,
+                            options: {
+                                valueKey: 'value'
+                            }
+                        })
+                    ]),
+                    m('.col-3',[
+                        m('h6', m('strong', '填入初始值')),
+                        m(TextArea,{
+                            value: this.model,
+                            options: {
+                                valueKey: 'textarea'
+                            }
+                        })
+                    ]),
+                    m('.col-3',[
+                        m('h6', m('strong', '不可修改')),
+                        m(TextAreaField,{
+                            value: '文字不能改',
+                            readonly: true
+                        })
+                    ]),
+                    m('.col-3',[
+                        m('h6', m('strong', '傳出參數')),
+                        m(TextAreaField,{
+                            value: this.model,
+                            options: {
+                                valueKey: 'feedback',
+                                validate: (method)=>{
+                                    this.textareaValue = method.hasValue().feedback
+                                    return !this.textareaValue
+                                }
+                            }
+                        }),
+                        (this.textareaValue)?m('small',this.textareaValue):null
+                    ]),
+                    m('.col-3',[
+                        m('h6', m('strong', '驗證')),
+                        m(TextArea,{
+                            value: this.model,
+                            options: {
+                                valueKey: 'content',
+                                validateText: '最少10個字元',
+                                validate: (method)=>{
+                                    if(method.hasValue().content.length >= 10){
+                                        return false
+                                    }
+                                    return method.text
+                                }
+                            }
+                        }),
+                    ])
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextAreaField'),`,`,cs('#96d8fb','TextArea'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextAreaField'),`)\n
+`,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),` = {
+    `,cs('#96d8fb','value'),`: `,cs('#cb917b',`""`),`,
+    `,cs('#96d8fb','content'),`: `,cs('#cb917b',`"null"`),`,
+}\n
+`,cs('#6AAF4E','//加入屬性參數'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextAreaField'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','title'),`: `,cs('#cb917b',`'請輸入文字'`),`,
+    `,cs('#96d8fb','placeholder'),`: `,cs('#cb917b',`'請輸入文字'`),`,
+    `,cs('#96d8fb','class'),`: `,cs('#cb917b',`'bg-light form-control'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"value"`),`
+    }
+})\n
+`,cs('#6AAF4E','//將value取出設定入this.inputValue變數中'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextAreaField'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"feedback"`),`,
+        `,cs('#dadbaf','validate'),`: (`,cs('#96d8fb','method'),`)=>{
+            `,cs('#579cd5','this'),`.`,cs('#96d8fb','textareaValue'),` = `,cs('#96d8fb','method'),`.`,cs('#dadbaf','hasValue'),`().`,cs('#96d8fb','feedback'),`
+            `,cs('#c188bb','return'),` !`,cs('#579cd5','this'),`.`,cs('#96d8fb','textareaValue'),`
+        }
+    }
+})\n
+`,cs('#6AAF4E','//將validateText取出設定入this.content變數中'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextArea'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','type'),`: `,cs('#cb917b',`'content'`),`,
+    `,cs('#96d8fb','validateText'),`: `,cs('#cb917b',`'最少10個字元'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"content"`),`,
+        `,cs('#dadbaf','validate'),`: (`,cs('#96d8fb','method'),`)=>{
+            `,cs('#c188bb','if'),`(`,cs('#96d8fb','method'),`.`,cs('#dadbaf','hasValue'),`().`,cs('#96d8fb','content'),`.`,cs('#96d8fb','length'),` >= `,cs('#ddeedd','10'),`){
+                `,cs('#c188bb','return'),` `,cs('#579cd5','false'),`
+            }
+            `,cs('#c188bb','return'),` `,cs('#96d8fb','method'),`.`,cs('#96d8fb','text'),`
+        }
+    }
+})\n
+`
+                    ]),
+                ]),
+                m('.row', [
+                    m('.col-12', m('h3.pt-5', ['TextBox Group'])),
                     m('.col-3', [
                         m('h6', m('strong', '使用前置附加元件')),
                         m(TextArea, {
-                            group: {
-                                class: '',
-                                prefix: m('.input-group-prepend', [
-                                    m('span.input-group-text', '@')
-                                ]),
-                            },
-                            //TextAreaField
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    this.showValid = true
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
+                            theme: 'group',
+                            options: {
+                                groupPrepend: '@',
                             }
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '使用後置附加元件')),
                         m(TextArea, {
-                            group: {
-                                class: '',
-                                suffix: m('.input-group-prepend', [
-                                    m('span.input-group-text', '@')
-                                ]),
-                            },
-                            class: 'form-control',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    this.showValid = true
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
+                            theme: 'group',
+                            options: {
+                                groupAppend: '@',
                             }
                         })
                     ])
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextArea'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextArea'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'group'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`,
+        `,cs('#96d8fb','groupPrepend'),`: `,cs('#cb917b',`'@'`),`,
+        `,cs('#96d8fb','groupAppend'),`: `,cs('#cb917b',`'@'`),`
+    },
+})\n
+`
+                    ]),
                 ]),
                 m('.row', [
                     m('.col-12', m('h3.pt-5', ['TextArea BottomLine'])),
                     m('.col-3', [
                         m('h6', m('strong', '使用Label')),
                         m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label'
-                            },
+                            theme: 'bottomline',
                             type: 'password',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
+                            options: {
+                                label: 'fly label',
                             }
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用固定Label')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                class: 'md-sm',
-                                label: {
-                                    text: 'fly label',
-                                    fixed: true
-                                }
-                            },
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '使用Placeholder')),
                         m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label'
-                            },
-                            //TextAreaField 設定
+                            theme: 'bottomline',
                             placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            options: {
+                                label: 'fly label',
+                            }
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '不使用Label')),
                         m(TextArea, {
-                            theme: {
-                                type: 'bottomline'
-                            },
-                            //TextAreaField 設定
-                            placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用前置ICON')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label',
-                                prefix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                }))
-                            },
-                            //TextAreaField 設定
-                            // placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用後置ICON')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label',
-                                suffix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                }))
-                            },
-                            //TextAreaField 設定
-                            placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]), ,
-                    m('.col-3', [
-                        m('h6', m('strong', '使用前置ICON Grid')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label',
-                                prefix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                })),
-                                grid: true
-                            },
-                            //TextAreaField 設定
-                            // placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用後置ICON Grid')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label',
-                                suffix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                })),
-                                grid: true
-                            },
-                            //TextAreaField 設定
-                            // placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            theme: 'bottomline',
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', 'Disabled')),
                         m(TextArea, {
-                            theme: {
-                                type: 'bottomline',
-                                label: 'fly label'
-                            },
-                            //TextAreaField 設定
-                            // placeholder: '請輸入內容',
+                            theme: 'bottomline',
+                            label: 'fly label',
                             disabled: true,
-                            value: 'abc',
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
                         })
-                    ])
+                    ]),
+                    m('.col-3', [
+                        m('h6', m('strong', '使用前置ICON')),
+                        m(TextArea, {
+                            theme: 'bottomline',
+                            options:{
+                                label: 'fly label',
+                                groupPrepend: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]),
+                    m('.col-3', [
+                        m('h6', m('strong', '使用後置ICON')),
+                        m(TextArea, {
+                            theme: 'bottomline',
+                            options: {
+                                label: 'fly label',
+                                groupAppend: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]), ,
+                    m('.col-3', [
+                        m('h6', m('strong', '使用前置ICON Grid')),
+                        m(TextArea, {
+                            theme: 'bottomline',
+                            options:{
+                                label: 'fly label',
+                                prefix: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]),
+                    m('.col-3', [
+                        m('h6', m('strong', '使用後置ICON Grid')),
+                        m(TextArea, {
+                            theme: 'bottomline',
+                            options: {
+                                label: 'fly label',
+                                suffix: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]),
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextArea'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextArea'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'bottomline'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`
+    },
+})\n
+`
+                    ]),
                 ]),
                 m('.row', [
                     m('.col-12', m('h3.pt-5', ['TextArea OutLine'])),
                     m('.col-3', [
                         m('h6', m('strong', '使用Label')),
                         m(TextArea, {
-                            theme: {
-                                type: 'outline',
-                                label: 'fly label'
-                            },
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
+                            theme: 'outline',
+                            type: 'password',
+                            options: {
+                                label: 'fly label',
                             }
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用固定Label')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'outline',
-                                class: 'md-sm',
-                                label: {
-                                    text: 'fly label',
-                                    fixed: true
-                                }
-                            },
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '使用Placeholder')),
                         m(TextArea, {
-                            theme: {
-                                type: 'outline',
-                                label: 'fly label'
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            theme: 'outline',
+                            placeholder: '請輸入內容',
+                            options: {
+                                label: 'fly label',
+                            }
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '不使用Label')),
                         m(TextArea, {
-                            theme: {
-                                type: 'outline'
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            theme: 'outline',
+                        })
+                    ]),
+                    m('.col-3', [
+                        m('h6', m('strong', 'Disabled')),
+                        m(TextArea, {
+                            theme: 'outline',
+                            label: 'fly label',
+                            disabled: true,
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '使用前置ICON')),
                         m(TextArea, {
-                            theme: {
-                                type: 'outline',
+                            theme: 'outline',
+                            options:{
                                 label: 'fly label',
-                                prefix: m('i', m(TextA, {
+                                groupPrepend: m('i', m(TextA, {
                                     style: {
                                         width: '1.25rem',
                                         height: '1.25rem'
                                     }
                                 }))
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            }
                         })
                     ]),
                     m('.col-3', [
                         m('h6', m('strong', '使用後置ICON')),
                         m(TextArea, {
-                            theme: {
-                                type: 'outline',
+                            theme: 'outline',
+                            options: {
+                                label: 'fly label',
+                                groupAppend: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]), ,
+                    m('.col-3', [
+                        m('h6', m('strong', '使用前置ICON Grid')),
+                        m(TextArea, {
+                            theme: 'outline',
+                            options:{
+                                label: 'fly label',
+                                prefix: m('i', m(TextA, {
+                                    style: {
+                                        width: '1.25rem',
+                                        height: '1.25rem'
+                                    }
+                                }))
+                            }
+                        })
+                    ]),
+                    m('.col-3', [
+                        m('h6', m('strong', '使用後置ICON Grid')),
+                        m(TextArea, {
+                            theme: 'outline',
+                            options: {
                                 label: 'fly label',
                                 suffix: m('i', m(TextA, {
                                     style: {
@@ -802,127 +417,72 @@ export default class TextAreaPage {
                                         height: '1.25rem'
                                     }
                                 }))
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
+                            }
                         })
                     ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用前置ICON Grid')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'outline',
-                                label: 'fly label',
-                                prefix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                })),
-                                grid: true
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            rows: 5,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ]),
-                    m('.col-3', [
-                        m('h6', m('strong', '使用後置ICON Grid')),
-                        m(TextArea, {
-                            theme: {
-                                type: 'outline',
-                                label: 'fly label',
-                                suffix: m('i', m(TextA, {
-                                    style: {
-                                        width: '1.25rem',
-                                        height: '1.25rem'
-                                    }
-                                })),
-                                grid: true
-                            },
-                            //TextAreaField 設定
-                            //placeholder: '請輸入內容',
-                            value: this.field,
-                            error: this.error,
-                            oninput: (e) => {
-                                this.field = e.target.value
-                            },
-                            onchange: (e) => {
-                                console.log('this field change')
-                            },
-                            onfocus: (e) => {
-                                console.log('this field focus')
-                            },
-                            onblur: (e) => {
-                                console.log('this field onblur')
-                            },
-                            //顯示bootstrap valid狀態
-                            showValid: this.showValid,
-                            validate: () => {
-                                if (!this.field) {
-                                    this.error = '請輸入標題'
-                                    return '請輸入標題'
-                                }
-                                return this.error = ''
-                            },
-                            helper: '說明文字'
-                        })
-                    ])
                 ]),
-                m('div', {
-                    style: {
-                        height: '50vh'
-                    }
-                })
-            ])
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextArea'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextArea'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'outline'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`
+    },
+})\n
+`
+                    ]),
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#d4bb85','.textarea-line'),`{
+    `,cs('#96d8fb','--status'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--primary'),`);
+    `,cs('#96d8fb','--danger'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--danger'),`);
+    `,cs('#96d8fb','--success'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--success'),`);
+    `,cs('#96d8fb','--textarea-line-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textarea-hover-line-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textarea-focus-line-color'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--status'),`);
+    `,cs('#96d8fb','--textarea-label-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textarea-focus-label-color'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--status'),`);
+    `,cs('#96d8fb','--textarea-disabled'),`: `,cs('#cb917b','#00000069'),`;
+    `,cs('#96d8fb','--textarea-bg-color'),`: `,cs('#cb917b','transparent'),`;
+    `,cs('#96d8fb','--textarea-color'),`: `,cs('#cb917b','currentColor'),`;
+    `,cs('#96d8fb','--textarea-placeholder-color'),`: `,cs('#cb917b','#888'),`;
+}\n
+`
+                    ]),
+                ]),
+                m('.h4','JS接口'),
+                m(TableTemplate,{
+                    colgroup: ['20%','10%','16%','7%','auto']
+                },[
+TableRow(['Attributes'           ,'Type'          ,'Default'        ,'Theme'        ,'Description'],'th'),
+TableRow(['基本屬性'              ,'string'        ,'default'        ,'all'          ,'可輸入屬性有 id、class、type、minlength、maxlength、wrap、rows、cols、disabled、readonly、required、tabindex、placeholder、autocomplete、autofocus、title、style、required']),
+TableRow(['theme'                ,'string'        ,'native'         ,'all'          ,'預設有三種樣式native、group、bottomline、outline']),
+TableRow(['value'                ,'object'        ,''               ,'all'          ,'要加入的傳遞值的model']),
+TableRow(['class'                ,'string'        ,'default'        ,'all'          ,'要加入組件的className']),
+TableRow(['success'              ,'boolen'        ,'false'          ,'all'          ,'組件是否為通過狀態']),
+TableRow(['error'                ,'boolen'        ,'false'          ,'all'          ,'組件是否為錯誤狀態']),
+TableRow(['disabled'             ,'boolen'        ,'false'          ,'all'          ,'組件是否為禁用狀態']),
+TableRow(['options.valueKey'     ,'string'        ,'value'          ,'all'          ,'value物件使用的參數Key名']),
+TableRow(['options.validate'     ,'function'      ,'default'        ,'all'          ,`驗證函式： error: return validateText<br>success: return false`]),
+TableRow(['options.validateText' ,'string'        ,'"輸入框不能空白"' ,'all'          ,'驗證回饋的文字']),
+TableRow(['options.groupPrepend' ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，文字框前置樣式']),
+TableRow(['options.groupAppend'  ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，文字框後置樣式']),
+TableRow(['options.groupPrepend' ,'string mithril','undefined'      ,'bottomline<br>outline','文字框外前置樣式']),
+TableRow(['options.groupAppend'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框外後置樣式']),
+TableRow(['options.panelPrefix'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框內前置樣式']),
+TableRow(['options.panelSuffix'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框內後置樣式']),
+TableRow(['options.label'        ,'string mithril','undefined'      ,'bottomline<br>outline','文字框上浮動的文字']),
+TableRow(['options.method'       ,'object'        ,''               ,'all'          ,'將內部方法引用出來']),
+TableRow(['events.onchange'      ,'function'      ,'undefined'      ,'all'          ,'文字輸入完成事件']),
+TableRow(['events.oninput'       ,'function'      ,'undefined'      ,'all'          ,'輸入文字事件']),
+TableRow(['events.onclick'       ,'function'      ,'undefined'      ,'all'          ,'點擊事件']),
+TableRow(['events.onfocus'       ,'function'      ,'undefined'      ,'all'          ,'聚焦事件']),
+TableRow(['events.onblur'        ,'function'      ,'undefined'      ,'all'          ,'失焦事件']),
+                ]),
+            ]),
+            m('.py-5.my-5'),
         ])
     }
 }

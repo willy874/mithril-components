@@ -25,6 +25,9 @@
             background: var(--textbox-bg-color);
             box-shadow: none;
         }
+        &::placeholder{
+            color: var(--textbox-placeholder-color);
+        }
     }
 
     .fly-label {
@@ -114,6 +117,7 @@
 }
 
 .outline-wrapper {
+    width: 100%;
     position: relative;
     border-radius: 4px;
     color: rgba(0, 0, 0, 0.87);
@@ -134,7 +138,7 @@
     padding: 0;
     position: absolute;
     border-style: solid;
-    border-color: rgba(0, 0, 0, 0.23);
+    border-color: var(--textbox-line-color);
     border-width: 1px;
     padding-left: 8px;
     border-radius: inherit;
@@ -157,8 +161,6 @@
         }
 
     }
-
-
 }
 
 .outline-fieldset {

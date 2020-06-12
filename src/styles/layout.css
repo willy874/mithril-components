@@ -9,29 +9,31 @@
   --dark: #343a40;
 }
 
-.error {
+:global(.error) {
   --status: var(--danger);
-  --text-color: var(--danger);
-  --input-border-color: var(--danger);
 }
 
-.success {
+:global(.success) {
   --status: var(--success);
-  --text-color: var(--success);
-  --input-border-color: var(--success);
 }
 
-.disabled {
+:global(.disabled) {
   --status: var(--secondary);
+}
+
+:global(.valid) {
+  --status: var(--danger);
+}
+
+:global(.invalid) {
+  --status: var(--danger);
 }
 
 form:valid {
   --status: var(--success);
-  --normal: var(--success);
 }
 
 form:invalid {
   --status: var(--danger);
-  --normal: var(--danger);
 }
 /*# sourceMappingURL=layout.css.map */

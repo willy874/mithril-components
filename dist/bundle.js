@@ -5,862 +5,17 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var m = _interopDefault(require('mithril'));
-var stream = _interopDefault(require('mithril/stream'));
 var classNames = _interopDefault(require('classnames/bind'));
-var uuid = _interopDefault(require('uuid/v4'));
-var uuid$1 = _interopDefault(require('uuid'));
+var stream = _interopDefault(require('mithril/stream'));
+var uuid = _interopDefault(require('uuid'));
+var uuid$1 = _interopDefault(require('uuid/v4'));
 var moment = _interopDefault(require('moment'));
 var classNames$1 = _interopDefault(require('classnames'));
 var Sortable = _interopDefault(require('sortablejs'));
 
-var styles = {"textarea-bottomline":"TTvtC","fly-label":"_2fLMS","flying":"_1mOU2","bottomline-wrapper":"_38Ahm","is-invalid":"_3r6MK","disabled":"_2lD6U","bottomline-grid":"y77Ei","textarea-bottomline-wrapper":"_2btmh","textarea-bottomline-form-control":"_1u3y0","textarea-outline":"_2enu-","outline-fieldset":"SDuP8","outline-wrapper":"_3t9Ye","textarea-outline-grid":"_2jMAt","textarea-outline-wrapper":"_208mO","textarea-outline-form-control":"_3z12Z","textarea-outline-fieldset":"_3-vqD","password-reveal":"_224kN","icon-btn":"lt257","prefix":"_3PFHb","suffix":"_7WCXT"};
-
-const cx = classNames.bind(styles);
-
-
-const allowAttrs = ['id', 'minlength', 'maxlength', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'cols', 'rows', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style', 'required'];
-const allowEvents = ['oninput', 'onchange', 'onfocus', 'onblur'];
-
-function filter(raw, allows = []) {
-    const filtered = Object.keys(raw) //取出raw所有的key轉化為array
-        .filter(key => allows.includes(key)) //判斷raw是否存在於allows設定的key，並回傳出新陣列
-        .reduce((obj, key) => { //取出keys轉化為object
-            return {
-                ...obj,
-                [key]: raw[key]
-            };
-        }, {});
-    return filtered
-}
-
-function checkEvent(options, event) {
-    return options.hasOwnProperty(event) && typeof options[event] === 'function'
-}
-
-/**
- * TextAreaField
- * 可接受屬性:['id', 'minlength', 'maxlength', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'cols', 'rows', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style', 'required','class']
- * 事件:['oninput', 'onchange', 'onfocus', 'onblur']
- * class: 預設為bootstrap classname: 'form-control', 可接受自訂classname
- * 操作設定:
- * showValid: 顯示bootstrap valid狀態
- */
-
-class TextAreaField {
-    constructor(vnode) {
-        let options = vnode.attrs;
-
-        this.attrs = {};
-        this.events = {};
-
-        //操作屬性
-        this.hasError = options.hasError || stream(vnode.attrs.error);
-        this.hasValue = options.hasValue || stream(vnode.attrs.value);
-        //顯示bootstrap valid
-        this.showValid = options.showValid === true ? stream(true) : stream(false);
-
-        //初始化
-        this.init(options);
-
-    }
-    init(options) {
-        //過濾多餘的屬性
-        this.attrs = filter(options, allowAttrs);
-        //過濾事件
-        this.events = filter(options, allowEvents);
-
-        if (checkEvent(options, 'validate')) {
-            this.events.onchange = (e) => {
-                const error = options.validate(e.target.value);
-                this.hasError(error);
-                if (checkEvent(options, 'onchange')) {
-                    options.onchange(e);
-                }
-            };
-        }
-
-        if (checkEvent(options, 'oninput')) {
-            this.events.oninput = (e) => {
-                options.oninput(e);
-                if (e.target.value) {
-                    this.hasValue(true);
-                } else {
-                    this.hasValue(false);
-                }
-            };
-        }
-    }
-
-    handleClassNames(classnames) {
-        //class 樣式-不打亂
-        const validate = classNames({
-            'is-valid': this.showValid() && !this.hasError(),
-            'is-invalid': this.hasError()
-        });
-        classnames = classnames || 'form-control';
-
-        //ie edge 密碼
-        //css打亂
-        return classNames(classnames, validate)
-    }
-    /**
-     * 檢查外部屬性
-     * @param {*} attrs vnode.attrs
-     */
-    checkError(attrs) {
-        if (attrs.hasOwnProperty('error')) {
-            this.hasError(attrs.error);
-        }
-    }
-
-    view(vnode) {
-        this.checkError(vnode.attrs);
-        this.showValid(vnode.attrs.showValid);
-
-        return m('textarea', {
-            class: this.handleClassNames(vnode.attrs.class),
-            ...this.attrs,
-            ...this.events,
-            value: vnode.attrs.value
-        })
-    }
-}
+var styles = {"gi-waves-effect":"_IGQO","gi-waves-ripple":"_1sY7L","gi-waves-notransition":"_1-Uht"};
 
 const cx$1 = classNames.bind(styles);
-
-class LineTextArea {
-    handleLabel(theme, placeholder) {
-        const {
-            label,
-            prefix,
-            grid
-        } = theme;
-
-        if (typeof label === 'function') {
-            return
-        }
-
-        let flyLabel = {
-            text: '',
-            fixed: false
-        };
-
-        if (typeof label === 'string') {
-            flyLabel.text = label;
-            flyLabel.fixed = (placeholder) ? true : false;
-        }
-
-        if (typeof label === 'object') {
-            flyLabel.text = label.text;
-            flyLabel.fixed = (placeholder) ? true : label.fixed;
-        }
-
-        if (prefix && !(grid)) {
-            flyLabel.fixed = true;
-        }
-
-        return flyLabel
-    }
-    view(vnode) {
-        const {
-            hasError,
-            hasValue,
-            showError,
-            helper,
-            placeholder,
-            theme
-        } = vnode.attrs;
-
-        const themeName = theme.type;
-        const flyLabel = this.handleLabel(theme, placeholder);
-        const disabled = vnode.attrs.disabled;
-
-        return m('div', {
-            class: classNames('textarea-line', cx$1(`textarea-${themeName}`, {
-                'is-invalid': hasError(),
-                'disabled': disabled
-            }), theme.class)
-        }, [
-            (theme.grid) ? [
-                m('div', {
-                    class: cx$1(`textarea-${themeName}-grid`)
-                }, [
-                    (theme.prefix) ? m('span', {
-                        class: cx$1('prefix')
-                    }, theme.prefix) : null,
-                    m('div', [
-                        m('div', {
-                            class: classNames({
-                                'is-invalid': hasError()
-                            }, cx$1(`textarea-${themeName}-wrapper`))
-                        }, [
-                            (flyLabel) ? m('label', {
-                                class: cx$1('fly-label', {
-                                    'flying': hasValue() || flyLabel.fixed === true,
-                                    'is-invalid': hasError()
-                                })
-                            }, flyLabel.text) : null,
-                            m(TextAreaField, Object.assign({}, vnode.attrs, {
-                                class: cx$1(`textarea-${themeName}-form-control`),
-                                hasError,
-                                hasValue
-                            })),
-                            (themeName === 'outline') ? [
-                                m('fieldset', {
-                                    class: cx$1('textarea-outline-fieldset', {
-                                        'flying': hasValue() || flyLabel.fixed === true,
-                                    })
-                                }, [
-                                    m('legend', {
-                                        class: cx$1({
-                                            'flying': hasValue() || flyLabel.fixed === true,
-                                            'is-invalid': hasError()
-                                        })
-                                    }, [
-                                        (flyLabel.text) ? m('span', flyLabel.text) : null
-                                    ])
-                                ])
-                            ] : null,
-                        ])
-                    ]),
-                    (theme.suffix) ? m('span', {
-                        class: cx$1('suffix')
-                    }, theme.suffix) : null,
-                ]),
-                (hasError() && showError) ? m('.invalid-feedback', hasError()) : helper
-            ] : [
-                (flyLabel) ? m('label', {
-                    class: cx$1('fly-label', {
-                        'flying': hasValue() || flyLabel.fixed === true || theme.prefix,
-                        'is-invalid': hasError()
-                    })
-                }, flyLabel.text) : null,
-                m('div', {
-                    class: classNames({
-                        'is-invalid': hasError()
-                    }, cx$1(`textarea-${themeName}-wrapper`))
-                }, [
-                    (theme.prefix) ? m('span', {
-                        class: cx$1('prefix')
-                    }, theme.prefix) : null,
-                    m(TextAreaField, Object.assign({}, vnode.attrs, {
-                        class: cx$1(`textarea-${themeName}-form-control`),
-                        hasError,
-                        hasValue
-                    })),
-                    (theme.suffix) ? m('span', {
-                        class: cx$1('suffix')
-                    }, theme.suffix) : null,
-                    (themeName === 'outline') ? [
-                        m('fieldset', {
-                            class: cx$1('textarea-outline-fieldset', {
-                                'flying': hasValue() || flyLabel.fixed === true,
-                            })
-                        }, [
-                            m('legend', {
-                                class: cx$1({
-                                    'flying': hasValue() || flyLabel.fixed === true,
-                                    'is-invalid': hasError()
-                                })
-                            }, [
-                                (flyLabel.text) ? m('span', flyLabel.text) : null
-                            ])
-                        ])
-                    ] : null
-                ]),
-                (hasError() && showError) ? m('.invalid-feedback', hasError()) : helper
-            ]
-        ])
-    }
-}
-
-const cx$2 = classNames.bind(styles);
-
-
-/**
- * TextBox參數
- * label: 顯示標籤, type: string, mithril
- * helper: 顯示說明文字, type: string, mithril
- * showError: 顯示錯誤,預設為true
- */
-class TextArea {
-    constructor(vnode) {
-        this.hasError = stream(vnode.attrs.error);
-        this.hasValue = stream(vnode.attrs.value);
-    }
-    handleLabel(label) {
-        if (!label) {
-            return
-        }
-        if (typeof label === 'string') {
-            return m('label', label)
-        }
-        if (typeof label === 'function') {
-            return m(label)
-        }
-    }
-    handleHelper(helper) {
-        if (!helper) {
-            return
-        }
-        if (typeof helper === 'string') {
-            return m('small.form-text.text-muted', helper)
-        }
-        if (typeof helper === 'function') {
-            return m(helper)
-        }
-    }
-    view(vnode) {
-        let {
-            label,
-            helper,
-            showError,
-            group,
-            theme
-        } = vnode.attrs;
-
-        label = this.handleLabel(label);
-        helper = this.handleHelper(helper);
-        showError = (showError === false) ? false : true;
-        this.hasError(vnode.attrs.error);
-        this.hasValue(vnode.attrs.value);
-
-        if (theme) {
-            return m(LineTextArea, {
-                theme,
-                ...vnode.attrs,
-                hasError: this.hasError,
-                hasValue: this.hasValue,
-                showError,
-                helper
-            })
-        }
-
-        //bootstrap group
-        if (group) {
-            return m('div', {
-                class: group.class || 'input-group mb-3'
-            }, [
-                group.prefix,
-                m('.flex-1', {
-                    class: classNames({
-                        'is-invalid': this.hasError()
-                    }),
-                }, [
-                    m(TextAreaField, Object.assign({}, vnode.attrs, {
-                        hasError: this.hasError,
-                        hasValue: this.hasValue
-                    })),
-
-                ]),
-                group.suffix,
-                (this.hasError() && showError) ? m('.invalid-feedback', this.hasError()) : helper
-
-            ])
-        }
-
-
-        //bootstrap 
-        return m.fragment({}, [
-            label,
-            m(TextAreaField, Object.assign({}, vnode.attrs, {
-                hasError: this.hasError,
-                hasValue: this.hasValue
-            })),
-            (this.hasError() && showError) ? m('.invalid-feedback', this.hasError()) : helper
-        ])
-    }
-}
-
-var styles$1 = {"textbox-bottomline":"_1Wt6F","fly-label":"_3n7VY","flying":"_2ifm1","bottomline-wrapper":"_1RDJY","is-invalid":"zgGQq","disabled":"_14mIP","bottomline-grid":"_1LJt9","bottomline-form-control":"_1XssW","textbox-outline":"_1dxTf","outline-fieldset":"dgPAR","outline-wrapper":"_2HuSA","outline-grid":"_3iz99","outline-form-control":"_2QPqN","password-reveal":"_3fAcc","icon-btn":"_12v8m","prefix":"_1MlwE","suffix":"Gbfhe"};
-
-class ViewFill{
-    view(){
-        return m('i',[
-            m.trust(`
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-        </svg>
-        `)
-        ])
-        
-    }
-}
-class ViewDisable {
-    view(){
-        return m('i',[
-            m.trust(`
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-        </svg>
-        `)
-        ])
-        
-    }
-}
-
-const cx$3 = classNames.bind(styles$1);
-
-//css 部份要補
-//disabled, readonly
-const allowAttrs$1 = ['id', 'minlength', 'maxlength', 'max', 'min', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'size', 'step', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style', 'required'];
-
-const allowEvents$1 = ['oninput', 'onchange', 'onfocus', 'onblur'];
-
-function filter$1(raw, allows = []) {
-    const filtered = Object.keys(raw)//取出raw所有的key轉化為array
-        .filter(key => allows.includes(key)) //判斷raw是否存在於allows設定的key，並回傳出新陣列
-        .reduce((obj, key) => { //取出keys轉化為object
-            return {
-                ...obj,
-                [key]: raw[key]
-            };
-        }, {});
-    return filtered
-}
-
-function checkEvent$1(options, event) {
-    return options.hasOwnProperty(event) && typeof options[event] === 'function'
-}
-
-/**
- * TextField
- * 可接受屬性:['minlength', 'maxlength', 'max', 'min', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'size', 'step', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style', 'required', 'class']
- * 事件:['oninput', 'onchange', 'onfocus', 'onblur']
- * class: 預設為bootstrap classname: 'form-control', 可接受自訂classname
- * 操作設定:
- * showValid: 顯示bootstrap valid狀態
- */
-
-class TextField {
-    constructor(vnode) {
-        let options = vnode.attrs;
-
-        this.type = vnode.attrs.type || 'text';
-        this.attrs = {};
-        this.events = {};
-
-        //操作屬性
-        this.hasError = options.hasError || stream(vnode.attrs.error);
-        this.hasValue = options.hasValue || stream(vnode.attrs.value);
-        //顯示bootstrap valid
-        this.showValid = options && options.showValid === true ? stream(true) : stream(false);
-
-        //初始化
-        this.init(options);
-
-        //密碼使用
-        if (this.type === 'password') {
-            this.reveal = 'hidden';
-        }
-    }
-    init(options) {
-        //過濾多餘的屬性
-        this.attrs = filter$1(options, allowAttrs$1);
-        //過濾事件
-        this.events = filter$1(options, allowEvents$1);
-
-        if (checkEvent$1(options, 'validate')) {
-            this.events.onchange = (e) => {
-                const error = options.validate(e.target.value);
-                this.hasError(error);
-                if (checkEvent$1(options, 'onchange')) {
-                    options.onchange(e);
-                }
-            };
-        }
-
-        if (checkEvent$1(options, 'oninput')) {
-            this.events.oninput = (e) => {
-                options.oninput(e);
-                if (e.target.value) {
-                    this.hasValue(true);
-                } else {
-                    this.hasValue(false);
-                }
-            };
-        }
-    }
-
-    handleClassNames(classnames) {
-        //class 樣式-不打亂
-        const validate = classNames({
-            'is-valid': this.showValid() && !this.hasError(),
-            'is-invalid': this.hasError()
-        });
-        classnames = classnames || 'form-control';
-
-        //ie edge 密碼
-        //css打亂
-        return classNames(classnames, validate, cx$3({
-            'password-reveal': this.reveal
-        }))
-    }
-    /**
-     * 檢查外部屬性
-     * @param {*} attrs vnode.attrs
-     */
-    checkError(attrs) {
-        if (attrs.hasOwnProperty('error')) {
-            this.hasError(attrs.error);
-        }
-    }
-
-    view(vnode) {
-        this.checkError(vnode.attrs);
-        this.showValid(vnode.attrs.showValid);
-
-        if (this.reveal) {
-            return m('div', {
-                class: classNames(cx$3('d-flex'))
-            }, [
-                m('input', {
-                    type: this.type,
-                    class: this.handleClassNames(vnode.attrs.class),
-                    ...this.attrs,
-                    ...this.events,
-                    value: vnode.attrs.value
-                }),
-                m('button[type="button"]', {
-                    class: classNames(cx$3('icon-btn')),
-                    onclick: (e) => {
-                        if (this.reveal === 'hidden') {
-                            this.type = 'text';
-                            this.reveal = 'visible';
-                        } else {
-                            this.type = 'password';
-                            this.reveal = 'hidden';
-                        }
-                    }
-                }, [
-                    (this.reveal == 'hidden') ? m(ViewFill) : m(ViewDisable)
-                ])
-            ])
-        }
-        return m('input', {
-            type: this.type,
-            class: this.handleClassNames(vnode.attrs.class),
-            ...this.attrs,
-            ...this.events,
-            value: vnode.attrs.value
-        })
-    }
-}
-
-const cx$4 = classNames.bind(styles$1);
-
-class LineTextBox {
-    handleLabel(theme, placeholder) {
-        const {
-            label,
-            prefix,
-            grid
-        } = theme;
-
-        if (typeof label === 'function') {
-            return
-        }
-
-        let flyLabel = {
-            text: false,
-            fixed: false
-        };
-
-        if (typeof label === 'string') {
-            flyLabel.text = label;
-            flyLabel.fixed = (placeholder) ? true : false;
-        }
-
-        if (typeof label === 'object') {
-            flyLabel.text = label.text;
-            flyLabel.fixed = (placeholder) ? true : label.fixed;
-        }
-
-        if (prefix && !(grid)) {
-            flyLabel.fixed = true;
-        }
-
-        return flyLabel
-    }
-    view(vnode) {
-        const {
-            hasError,
-            hasValue,
-            showError,
-            helper,
-            placeholder,
-            theme
-        } = vnode.attrs;
-
-        const themeName = theme.type;
-        const flyLabel = this.handleLabel(theme, placeholder);
-        const disabled = vnode.attrs.disabled;
-
-        return m('div', {
-            class: classNames('textbox-line', cx$4(`textbox-${themeName}`, {
-                'is-invalid': hasError(),
-                'disabled': disabled
-            }), theme.class)
-        }, [
-            (theme.grid) ? [
-                m('div', {
-                    class: cx$4(`${themeName}-grid`)
-                }, [
-                    (theme.prefix) ? m('div', {
-                        class: cx$4('prefix')
-                    }, theme.prefix) : null,
-                    m('div', [
-                        m('div', {
-                            class: classNames({
-                                'is-invalid': hasError()
-                            }, cx$4(`${themeName}-wrapper`))
-                        }, [
-                            (flyLabel.text) ? m('label', {
-                                class: cx$4('fly-label', {
-                                    'flying': hasValue() || flyLabel.fixed === true,
-                                    'is-invalid': hasError()
-                                })
-                            }, flyLabel.text) : null,
-                            m(TextField, Object.assign({}, vnode.attrs, {
-                                class: cx$4(`${themeName}-form-control`),
-                                hasError,
-                                hasValue
-                            })),
-                            (themeName === 'outline') ? [
-                                m('fieldset', {
-                                    class: cx$4('outline-fieldset', {
-                                        'flying': hasValue() || flyLabel.fixed === true,
-                                    })
-                                }, [
-                                    m('legend', {
-                                        class: cx$4({
-                                            'flying': hasValue() || flyLabel.fixed === true,
-                                            'is-invalid': hasError()
-                                        })
-                                    }, [
-                                        (flyLabel.text) ? m('span', flyLabel.text) : null
-                                    ])
-                                ])
-                            ] : null,
-                        ])
-                    ]),
-                    (theme.suffix) ? m('div', {
-                        class: cx$4('suffix')
-                    }, theme.suffix) : null
-                ]),
-                (hasError() && showError) ? m('.invalid-feedback', hasError()) : helper
-            ] : [
-                (flyLabel.text) ? m('label', {
-                    class: cx$4('fly-label', {
-                        'flying': hasValue() || flyLabel.fixed === true,
-                        'is-invalid': hasError()
-                    })
-                }, flyLabel.text) : null,
-                m('div', {
-                    class: classNames({
-                        'is-invalid': hasError()
-                    }, cx$4(`${themeName}-wrapper`))
-                }, [
-                    (theme.prefix) ? m('span', {
-                        class: cx$4('prefix')
-                    }, theme.prefix) : null,
-                    m(TextField, Object.assign({}, vnode.attrs, {
-                        class: cx$4(`${themeName}-form-control`),
-                        hasError,
-                        hasValue
-                    })),
-                    (theme.suffix) ? m('span', {
-                        class: cx$4('suffix')
-                    }, theme.suffix) : null,
-                    (themeName === 'outline') ? [
-                        m('fieldset', {
-                            class: cx$4('outline-fieldset', {
-                                'flying': hasValue() || flyLabel.fixed === true,
-                            })
-                        }, [
-                            m('legend', {
-                                class: cx$4({
-                                    'flying': hasValue() || flyLabel.fixed === true,
-                                    'is-invalid': hasError()
-                                })
-                            }, [
-                                (flyLabel.text) ? m('span', flyLabel.text) : null
-                            ])
-                        ])
-                    ] : null
-                ]),
-                (hasError() && showError) ? m('.invalid-feedback', hasError()) : helper
-            ]
-        ])
-    }
-}
-
-const cx$5 = classNames.bind(styles$1);
-
-
-// import LineTextBox from './line'
-
-
-
-/**
- * TextBox參數
- * label: 顯示標籤, type: string, mithril
- * helper: 顯示說明文字, type: string, mithril
- * showError: 顯示錯誤,預設為true
- */
-class TextBox {
-    constructor(vnode) {
-        this.hasError = stream(vnode.attrs.error);
-        this.hasValue = stream(vnode.attrs.value);
-    }
-    handleLabel(label) {
-        if (!label) {
-            return
-        }
-        if (typeof label === 'string') {
-            return m('label', label)
-        }
-        if (typeof label === 'function') {
-            return m(label)
-        }
-    }
-    handleHelper(helper) {
-        if (!helper) {
-            return
-        }
-        if (typeof helper === 'string') {
-            return m('small.form-text.text-muted', helper)
-        }
-        if (typeof helper === 'function') {
-            return m(helper)
-        }
-    }
-    view(vnode) {
-        let {
-            label,
-            helper,
-            showError,
-            group,
-            theme
-        } = vnode.attrs;
-
-        label = this.handleLabel(label);
-        helper = this.handleHelper(helper);
-        showError = (showError === false) ? false : true;
-        this.hasError(vnode.attrs.error);
-        this.hasValue(vnode.attrs.value);
-
-        if (theme) {
-            return m(LineTextBox, {
-                theme,
-                ...vnode.attrs,
-                hasError: this.hasError,
-                hasValue: this.hasValue,
-                showError,
-                helper
-            })
-        }
-
-        //bootstrap group
-        if (group) {
-            return m('div', {
-                class: group.class || 'input-group mb-3 align-items-start'
-            }, [
-                group.prefix,
-                m('.flex-1', [
-                    m(TextField, Object.assign({}, vnode.attrs, {
-                        hasError: this.hasError,
-                        hasValue: this.hasValue
-                    })),
-                    (this.hasError() && showError) ? m('.invalid-feedback', this.hasError()) : helper
-                ]),
-                group.suffix,
-
-            ])
-        }
-
-
-        //bootstrap 
-        return m.fragment({}, [
-            label,
-            m(TextField, Object.assign({}, vnode.attrs, {
-                hasError: this.hasError,
-                hasValue: this.hasValue
-            })),
-            (this.hasError() && showError) ? m('.invalid-feedback', this.hasError()) : helper
-        ])
-    }
-}
-
-const config = new WeakMap;
-
-class Config {
-    set(value = {}) {
-        config.set(this, value);
-    }
-    get theme() {
-        let _config = config.get(this);
-        return (_config) ? _config.theme : ''
-    }
-}
-
-var Config$1 = (new Config);
-
-var styles$2 = {"material":"SnYez","radio":"_3EGkm","success":"_3cv1Y","error":"_1B-KV","disabled":"lh15w","radio-wave-effect-on":"_369ki","radio-wave-effect-off":"_19Exk"};
-
-const cx$6 = classNames.bind(styles$2);
-
-class Radio {
-    constructor() {
-        this.id = uuid();
-    }
-    view(vnode) {
-        const {
-            theme,
-            checked,
-            onclick,
-            label,
-            style,
-            disabled,
-            name,
-            required
-        } = vnode.attrs;
-
-        const classes = vnode.attrs.class;
-
-        const _theme = theme ? theme : Config$1.theme;
-
-        return m('.custom-control.custom-radio', {
-            class: [cx$6('radio', _theme), classes].join(' '),
-            style
-        }, [
-            m('input.custom-control-input[type="radio"]', {
-                id: this.id,
-                onclick,
-                checked,
-                disabled,
-                name,
-                required
-            }),
-            m('label.custom-control-label', {
-                for: this.id
-            }, [
-                m('div', {
-                    class: cx$6({
-                        'radio-wave-effect-on': checked,
-                        //'radio-wave-effect-off': !checked,
-                    })
-                }),
-                m('span', label)
-            ])
-        ])
-
-    }
-}
-
-var styles$3 = {"gi-waves-effect":"_IGQO","gi-waves-ripple":"_1sY7L","gi-waves-notransition":"_1-Uht"};
-
-const cx$7 = classNames.bind(styles$3);
 
 const isTouchAvailable = 'ontouchstart' in window;
 
@@ -913,7 +68,7 @@ function attachWave(element, center, e) {
 
     // Create ripple
     const ripple = document.createElement('div');
-    ripple.classList.add(`${cx$7('gi-waves-ripple')}`, `${cx$7('waves-rippling')}`);
+    ripple.classList.add(`${cx$1('gi-waves-ripple')}`, `${cx$1('waves-rippling')}`);
     element.appendChild(ripple);
 
     const pos = offset(element);
@@ -975,9 +130,9 @@ function attachWave(element, center, e) {
         rippleStyle.height = height;
     }
 
-    ripple.classList.add(`${cx$7('gi-waves-notransition')}`);
+    ripple.classList.add(`${cx$1('gi-waves-notransition')}`);
     ripple.setAttribute('style', convertStyle(rippleStyle));
-    ripple.classList.remove(`${cx$7('gi-waves-notransition')}`);
+    ripple.classList.remove(`${cx$1('gi-waves-notransition')}`);
 
     rippleStyle['-webkit-transform'] = scale + ' ' + translate;
     rippleStyle['-moz-transform'] = scale + ' ' + translate;
@@ -999,7 +154,7 @@ function attachWave(element, center, e) {
 function removeWave(element, e) {
 
     element = element || this;
-    const ripples = element.querySelectorAll(`.${cx$7('waves-rippling')}`);
+    const ripples = element.querySelectorAll(`.${cx$1('waves-rippling')}`);
 
     for (let i = 0, len = ripples.length; i < len; i++) {
         removeRipple(e, element, ripples[i]);
@@ -1013,7 +168,7 @@ function removeRipple(e, el, ripple) {
         return;
     }
 
-    ripple.classList.remove(`${cx$7('waves-rippling')}`);
+    ripple.classList.remove(`${cx$1('waves-rippling')}`);
 
     const relativeX = ripple.getAttribute('data-x');
     const relativeY = ripple.getAttribute('data-y');
@@ -1075,7 +230,7 @@ const WaveEffect = {
     delay: 200,
     attach: (target, center) => {
         // Disable right click
-        target.classList.add(`${cx$7('gi-waves-effect')}`);
+        target.classList.add(`${cx$1('gi-waves-effect')}`);
         target.addEventListener('mousedown', attachWave.bind(null, target, center), false);
         target.addEventListener('mouseup', removeWave.bind(null, target), false);
         target.addEventListener('mouseout', removeWave.bind(null, target), false);
@@ -1091,16 +246,28 @@ const WaveEffect = {
 };
 
 /**
+ * @function (vnode) constructor 建立StateComponent的初始化
  * @param {Function} stream 管理資料流，以保存物件在Component空間。
  * @param {Function} checkAttrs 建立物件空間，防止找不到key而產生錯誤。
  * @param {Function} filterAttrs 排除為設定的屬性，以保護不傳入多餘屬性。
+ * @param {Function} excludeAttrs 排除為設定的屬性，以保護不傳入特定屬性。
+ * @param {Function} checkEvent 為所有事件添加額外參數與this.method。
  * @param {Function} handleComponent 判斷組件為何種類型，以正確讀取。
  * @param {Function} checkError 傳入hasError物件參數判斷當中的[error]是否錯誤。
  * @param {Function} addEventListenerTouch 建立一個觸控裝置滑動事件，可監聽四個方向的滑動。
+ * @param {Function} isMobileDevice 判斷使用者當前是否使用行動設備。
+ * @param {Function} createMethod 將 method 放入 options.method 的物件。
+ * @param {Function} getCoordinateBox 取得絕對位置的box座標。
  */
 class Component {
-    constructor(){
-        this.stream = stream;
+    constructor(vnode = {}){
+        this.attrs = this.checkAttrs(vnode.attrs, ['options', 'childrens','events']);
+        if (this.attrs) {
+            this.options = this.checkAttrs(this.attrs.options, ['validate']);
+            
+            this.childrens = this.attrs.childrens;
+            this.events = this.checkAttrs(this.attrs.events, ['onclick','oninput', 'onchange','onfocus', 'onblur']);
+        }
     }
 /**
  * 管理資料流，以保存物件在Component空間。
@@ -1115,9 +282,9 @@ class Component {
  * @param {*} allows Array 要被建立的屬性
  * @return {*} Object
  */
-    checkAttrs(ops,allows) {
+    checkAttrs(ops,allows = []) {
         if(!ops){
-            return false
+            return new Object
         }
         allows.forEach(key => {
             if(!ops.hasOwnProperty(key)){
@@ -1129,10 +296,10 @@ class Component {
 /**
  * 排除為設定的屬性，以保護不傳入多餘屬性。
  * @param {*} ops Object 進行篩選的物件
- * @param {*} allows Array 要被列入的屬性
+ * @param {*} allows Array 要被列入的屬性(filterAttrs)
  * @return {*} Object
  */
-    filterAttrs(ops,allows) {
+    filterAttrs(ops = {},allows = []) {
         return Object.keys(ops)
         .filter(key => allows.includes(key))
         .reduce((obj, key) => {
@@ -1143,9 +310,44 @@ class Component {
         }, {});
     }
 /**
- * 判斷組件為何種類型，以正確讀取。
+ * 排除為設定的屬性，以保護不傳入特定屬性。
+ * @param {*} ops Object 進行篩選的物件
+ * @param {*} allows Array 要被排除的屬性
+ * @return {*} Object
+ */
+    excludeAttrs(ops = {},allows = []) {
+        return Object.keys(ops)
+        .filter(key => !allows.includes(key))
+        .reduce((obj, key) => {
+            return {
+                ...obj,
+                [key]: ops[key]
+            };
+        }, {});
+    }
+    /**
+     * 為所有事件添加額外參數與this.method。
+     * @param {*} event Object 進行參數代入的物件
+     * @return {*} Object
+     */
+    checkEvent(event) {
+        if(!event){
+            return false
+        }
+        const check = {};
+        Object.keys(event).forEach(key => {
+            if(typeof event[key] === 'function'){
+                check[key] = (e,method = this.method,item = {}) => {
+                    event[key](e,method,item);
+                };
+            }
+        });
+        return check
+    }
+/**
+ * 判斷實體組件為何種類型，以正確讀取。
  * @param {*} cpo string vnode class 要傳入的組件
- * @param {string} tag 需要被mithril格式化的字串
+ * @param {string} tag 需要被 mithril 格式化的字串
  * @param {*} attrs Object 傳入組件的參數
  * @return {*} vnode
  */
@@ -1156,32 +358,35 @@ class Component {
         if (typeof cpo === 'string') {
             return m(tag,attrs,m.trust(cpo))
         }
-        if (typeof cpo === 'object') {
-            return cpo
-        }
-        if (typeof cpo === 'function' && cpo.hasOwnProperty('view')) {
+        if (typeof cpo === 'function' && cpo.prototype.hasOwnProperty('view')) {
             return m(cpo)
         }
-    }
-
-/**
- * 傳入hasError物件參數判斷當中的[error]是否錯誤。
- * @param {*} attrs Object
- */    
-    checkError(attrs) {
-        if (attrs.hasOwnProperty('error')) {
-            this.hasError(attrs.error);
+        if (typeof cpo === 'object') {
+            if(cpo.hasOwnProperty('dom')){
+                return cpo
+            }
+            if(cpo instanceof HTMLElement){
+                return Object.assign(m(cpo.localName),{
+                    dom: cpo,
+                    attrs
+                })
+            }
         }
+    } 
+    checkError(value,validateText) {
+        if(!value){
+            return validateText
+        }
+        return false
     }
-
 /**
  * 建立一個觸控裝置滑動事件，可監聽四個方向的滑動。
  * @param {HTMLElement} dom HTMLElement 要被加入事件的元素
  * @param {*} event Object 可傳入事件的物件
- * @param {Function} event.topEvent function
- * @param {Function} event.leftEvent function
- * @param {Function} event.rightEvent function
- * @param {Function} event.bottomEvent function
+ * @param {*} event.topEvent function
+ * @param {*} event.leftEvent function
+ * @param {*} event.rightEvent function
+ * @param {*} event.bottomEvent function
  */
     addEventListenerTouch(dom,event = {}){
         if (typeof event != 'object') {
@@ -1238,65 +443,1018 @@ class Component {
             throw new Error('傳入的dom參數必須是個HTMLElement')
         }
     }
+    /**
+     * 判斷使用者當前是否使用行動設備
+     * @return {*} boolen
+     */
+    isMobileDevice() {
+        const mobileDevice = ['Android', 'webOS', 'iPhone', 'iPad', 'iPod', 'BlackBerry', 'Windows Phone'];
+        return  mobileDevice.some(e => navigator.userAgent.match(e))
+    }
+    /**
+     * 將 method 放入 options.method 的物件
+     * @param {*} method Object 要建立的 method
+     */
+    createMethod(method){
+        this.method = method;
+        if(this.options.method){
+            if (typeof this.options.method !== 'object') {
+                throw new Error('method應該是一個object')
+            }
+            Object.assign(this.options.method,this.method);
+        }
+    }
+    /**
+     * 取得絕對位置的box座標
+     * @param {*} target 要傳入的偵測DOM
+     * @return box = { x , y , path }
+     */
+    getCoordinateBox(target){
+        const box = {
+            y: 0,
+            x: 0,
+            path: []
+        };
+        function boxCount(dom){
+            const offsetParent = dom.offsetParent;
+            box.y = box.y + ((dom.offsetTop)?dom.offsetTop:0);
+            box.x = box.x + ((dom.offsetLeft)?dom.offsetLeft:0);
+            if (dom === document.body) {
+                return document
+            }
+            box.path.push(offsetParent); 
+            return boxCount(offsetParent)
+        }
+        box.path.push(boxCount (target));
+        return box
+    }
 }
 
-var styles$4 = {"select":"X-tV4","material":"SAooc","disabled":"_3dWwg","select-dropdown":"HLDoM","active":"_2f_Ad","select-btn":"_3e05s","select-btn-input":"_1ZnqD","select-btn-button":"vJFNo","select-line":"njqf5","select-panel":"ncUex","transition-3":"_1G0Is","input":"_1dFfh","select-option":"d8p8k"};
+// if(process.env.NODE_ENV !== 'production'){
+//     console.warn('');
+// }
 
-class NativeSelectComponent extends Component {
+var styles$1 = {"textarea-bottomline":"TTvtC","textarea-bottomline-wrapper":"_2btmh","fly-label":"_2fLMS","flying":"_1mOU2","disabled":"_2lD6U","textarea-outline":"_2enu-","textarea-outline-wrapper":"_208mO","outline-fieldset":"SDuP8","textarea-outline-form-control":"_3z12Z","textarea-outline-fieldset":"_3-vqD","success":"_2OYd3","error":"_3pXlK","textarea-grid":"_424E","icon-btn":"lt257","prefix":"_3PFHb","group-prepend":"vTnPa","suffix":"_7WCXT","group-append":"_3OZhW","form-control":"_1lMaI"};
+
+const attrsAllows = ['id', 'disabled', 'readonly', 'required', 'tabindex', 'minlength', 'maxlength', 'wrap', 'rows', 'cols', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style'];
+class TextareaStateComponent extends Component  {
     constructor(vnode) {
-        super();
-        const {
-            selected,
-            options,
-            events,
-            hasError,
-            hasValue,
-            childrens
-        } = vnode.attrs;
-
-        this.hasError = hasError;
-        this.hasValue = hasValue;
-        //確認需要的屬性，防範Key為未定義
-        this.options = this.checkAttrs(options,['textKey','valueKey','panelPrefix','panelSuffix']);
-        const textKey = this.options.textKey || 'text';
-        const valueKey = this.options.valueKey || 'value';
-        this.childrens = [];
-        if(childrens){
-            childrens.forEach((el,i) => {
-                this.childrens[i] = this.checkAttrs(el,[textKey,valueKey,'disabled','selected','style','class']);
+        super(vnode);
+        const {attrs} = vnode;
+        //參數類
+        this.type = attrs.type;
+        this.value = attrs.value;
+        this.theme = attrs.theme || 'native';
+        this.class = attrs.class;
+        this.style = attrs.style;
+        this.success = attrs.success || false;
+        this.error = attrs.error || false;
+        this.disabled = attrs.disabled || false;
+        this.textareaAttrs = attrs.textareaAttrs || this.filterAttrs(attrs,attrsAllows);
+        this.textareaClass = this.options.textareaClass || 'form-control';
+        this.textareaStyle = this.options.textareaStyle;
+        this.valueKey = this.options.valueKey || 'value';
+        this.validateText = this.options.validateText || '輸入框不能空白';
+        this.validate = this.options.validate || (valid => this.checkError(valid.hasValue()[this.valueKey],valid.text));
+        //實體類
+        this.groupPrepend = this.options.groupPrepend;
+        this.groupAppend = this.options.groupAppend;
+        this.prefix = this.options.prefix;
+        this.suffix = this.options.suffix;
+        this.label = this.options.label;
+        //內部變數類
+        this.hasError = (attrs.error)? this.stream(attrs.error) : this.stream(false);
+        this.hasValue = this.stream(attrs.value);
+        if(attrs.value && typeof attrs.value === 'object'){
+            this.hasValue = this.stream(attrs.value);
+        }else{
+            this.hasValue = this.stream({
+                [this.valueKey]: attrs.value
             });
         }
-        this.selected = (this.hasValue())
-        ?Object.assign(this.checkAttrs(this.hasValue(),[textKey,valueKey]),this.checkAttrs(selected,[textKey,valueKey])) 
-        :this.checkAttrs(selected,[textKey,valueKey]);
-        this.events = this.checkAttrs(events,['onchange','onfocus','onblur','onclick']);
-        
-        //預設selected的值
-        const defaultSelected = {
-            [textKey]: this.childrens[0][textKey] || '請選擇',
-            [valueKey]: this.childrens[0][valueKey] || null,
-        };
-        const selectedChildren = this.childrens.filter(item => item.selected)[0] || {
-            [textKey]: undefined,
-            [valueKey]: undefined
-        };
-        if(typeof this.selected ==='object'){
-            this.selected[textKey] = selectedChildren[textKey] || this.selected[textKey] || '請選擇';
-            this.selected[valueKey] = selectedChildren[valueKey] || this.selected[valueKey] || null;
-        }else if(childrens){
-            this.selected = selectedChildren || defaultSelected;
-        }else{
-            this.selected = defaultSelected;
-        }
-        
+        this.showValid = (this.hasValue()[this.valueKey])? this.stream(true) : this.stream(false);
+        this.createMethod({
+            state: ()=>this,
+            text: this.validateText,
+            hasError: this.hasError,
+            hasValue: this.hasValue,
+            validState: this.getValidCalss,
+        });
     }
-    oncreate() {
-        m.redraw();
+    getValidCalss(){
+        return (this.showValid() && !this.hasError() && !this.textareaAttrs.readonly || this.success)?'success'
+        :(this.hasError() || this.error)?'error'
+        :(this.textareaAttrs.disabled)?'disabled':null
+    }
+    getComponentValue() {
+        return this.hasValue()
+    }
+    flylabel(){
+        const fixed = this.textareaAttrs.placeholder || this.prefix || this.hasValue()[this.valueKey];
+        return fixed
+    }
+    onBeforeUpdate(vnode){
+        this.attrs = this.checkAttrs(vnode.attrs,['events','options','inputAttrs']);
+        const attrs = this.filterAttrs(this.attrs,['theme','type','class','style','success','error','disabled']);
+        const textareaAttrs = this.filterAttrs(this.attrs,attrsAllows);
+        const options = this.filterAttrs(this.attrs.options,['validateText','validate','label','groupPrepend','groupAppen','prefix','suffix']);
+        const checkEvents = this.checkEvent(this.attrs.events);
+        const textareaEvents = this.excludeAttrs(checkEvents,['oninput','onchange']);
+        Object.assign(this,{
+            ...attrs,
+            ...options,
+            textareaAttrs: Object.assign(this.textareaAttrs, {
+                ...textareaAttrs
+            }),
+            textareaEvents: Object.assign(this.events, {
+                ...textareaEvents
+            }),
+            events: Object.assign(this.events, {
+                ...checkEvents
+            })
+        });
+    }
+    getTextAreaAttrs(){
+        return {
+            textarea: {
+                style: this.textareaStyle,
+                oninput: (e) => {
+                    //防止空字串無法讀取
+                    if(this.hasValue()[this.valueKey] === ""){
+                        this.hasValue()[this.valueKey] = e.target.value;
+                        this.hasError(this.validate(this.method));
+                        this.showValid((this.hasValue()[this.valueKey]));
+                    }
+                     //第一次onchange後才驗證
+                    if(this.showValid() || this.hasError()){
+                        this.hasValue()[this.valueKey] = e.target.value;
+                        if (!this.hasError(this.validate(this.method))) {
+                            this.showValid(this.hasValue()[this.valueKey]);
+                        }
+                    }
+                    if(this.events.oninput){
+                        this.events.oninput(e,this.method);
+                    }
+                },
+                onchange: (e) => {
+                    this.hasValue()[this.valueKey] = e.target.value;
+                    this.hasError(this.validate(this.method));
+                    this.showValid(this.hasValue()[this.valueKey]);
+                    if(this.events.onchange){
+                        this.events.onchange(e,this.method);
+                    }
+                },
+                ...this.textareaAttrs,
+                ...this.textareaEvents,
+                value: this.getComponentValue()[this.valueKey]
+            }
+        }
+    }
+}
+window.textareaState = new Object({});
+function createTextArea(entity){
+    const textareaUuid = uuid();
+    const textareaState = window.textareaState;
+    textareaState[textareaUuid] = new TextareaStateComponent(entity);
+    textareaState[textareaUuid].id = textareaUuid;
+    return textareaState[textareaUuid]
+}
+
+const cx$2 = classNames.bind(styles$1);
+
+class TextAreaField extends Component {
+    constructor(vnode) {
+        super();
+        
+        //生成state
+        if (vnode.attrs.state) {
+            this.state = vnode.attrs.state;
+        }else{
+            this.state =  new createTextArea({
+                state: this,
+                attrs: vnode.attrs
+            });
+        }
+    }
+    onbeforeupdate(vnode){
+        this.state.onBeforeUpdate(vnode);
+    }
+    view() {
+        return m('textarea', {
+            style: this.state.style,
+            class: classNames(this.state.textareaClass, {
+                'is-valid': this.state.showValid() && !this.state.hasError() && !this.state.textareaAttrs.readonly,
+                'is-invalid': this.state.hasError()
+            }),
+            ...this.state.getTextAreaAttrs().textarea
+        })
+    }
+}
+
+const cx$3 = classNames.bind(styles$1);
+
+class Textarea extends Component {
+    constructor(vnode) {
+        super();
+        
+        //生成state
+        this.state = new createTextArea({
+            state: this,
+            attrs: vnode.attrs
+        });
     }
     view(vnode) {
-        this.checkError(vnode.attrs);
+        //bootstrap
+        if (this.state.theme === 'native') {
+            return m.fragment({}, [
+                this.handleComponent(this.state.label, 'div', {
+                    style: this.state.style,
+                    class: 'input-group-text'
+                }),
+                m(TextAreaField, {
+                    state: this.state
+                }),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        
+        //bootstrap group
+        if (this.state.theme === 'group') {
+            return m.fragment({}, [
+                this.handleComponent(this.state.label, 'label', {
+                    class: 'input-group-text'
+                }),
+                m('div', {
+                    style: this.state.style,
+                    class: classNames(this.state.class, 'input-group')
+                }, [
+                    (this.state.groupPrepend) ?
+                    m('.input-group-prepend', [
+                        this.handleComponent(this.state.groupPrepend, 'div', {
+                            class: 'input-group-text'
+                        })
+                    ]) : null,
+                    m('div', [
+                        m(TextAreaField, {
+                            state: this.state
+                        }),
+                    ]),
+                    (this.state.groupAppend) ?
+                    m('.input-group-append', [
+                        this.handleComponent(this.state.groupAppend, 'div', {
+                            class: 'input-group-text'
+                        })
+                    ]) : null,
+
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+
+        }
+        //bottomline
+        if (this.state.theme === 'bottomline') {
+            return m('div', {
+                style: this.state.style,
+                class: classNames('textarea-line', this.state.class,cx$3('textarea-bottomline',this.state.getValidCalss()))
+            }, [
+                m('div', {
+                    class: cx$3('textarea-grid')
+                }, [
+                    (this.state.groupPrepend) ? m('div', {
+                        class: cx$3('group-prepend')
+                    }, this.state.groupPrepend) : null,
+                    m('div', {
+                        class: classNames({
+                            'is-invalid': this.state.hasError()
+                        }, cx$3('textarea-bottomline-wrapper'))
+                    }, [
+                        (this.state.prefix) ? m('div', {
+                            class: cx$3('prefix')
+                        }, this.state.prefix) : null,
+                        (this.state.label) ? m('label', {
+                            class: cx$3('fly-label', {
+                                'is-invalid': this.state.hasError(),
+                                'flying': this.state.flylabel(),
+                            })
+                        }, this.state.label) : null,
+                        m(TextAreaField, {
+                            state: this.state
+                        }),
+                        (this.state.suffix) ? m('div', {
+                            class: cx$3('suffix')
+                        }, this.state.suffix) : null
+                    ]),
+                    (this.state.groupAppend) ? m('div', {
+                        class: cx$3('group-append')
+                    }, this.state.groupAppend) : null
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        
+        //outline
+        if (this.state.theme === 'outline') {
+            return m('div', {
+                style: this.state.style,
+                class: classNames('textarea-line', this.state.class,cx$3('textarea-outline',this.state.getValidCalss()))
+            }, [
+                m('div', {
+                    class: cx$3('textarea-grid')
+                }, [
+                    (this.state.groupPrepend) ? m('div', {
+                        class: cx$3('group-prepend')
+                    }, this.state.groupPrepend) : null,
+                    m('div', {
+                        class: classNames({
+                            'is-invalid': this.state.hasError()
+                        }, cx$3('textarea-outline-wrapper'))
+                    }, [
+                        (this.state.prefix) ? m('div', {
+                            class: cx$3('prefix')
+                        }, this.state.prefix) : null,
+                        (this.state.label) ? m('label', {
+                            class: cx$3('fly-label', {
+                                'is-invalid': this.state.hasError(),
+                                'flying': this.state.flylabel(),
+                            })
+                        }, this.state.label) : null,
+                        m(TextAreaField, {
+                            state: this.state
+                        }),
+                        (this.state.suffix) ? m('div', {
+                            class: cx$3('suffix')
+                        }, this.state.suffix) : null,
+
+                        m('fieldset', {
+                            class: cx$3('textarea-outline-fieldset', {
+                                'flying': this.state.flylabel(),
+                            })
+                        }, [
+                            m('legend', {
+                                class: cx$3({
+                                    'flying': this.state.flylabel(),
+                                    'is-invalid': this.state.hasError()
+                                })
+                            }, [
+                                (this.state.label) ? m('span', this.state.label) : null
+                            ])
+                        ])
+                    ]),
+                    (this.state.groupAppend) ? m('div', {
+                        class: cx$3('group-append')
+                    }, this.state.groupAppend) : null
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        
+
+        //bootstrap 
+        return m.fragment({}, [
+            this.handleComponent(this.state.label, 'div', {
+                class: 'input-group-text'
+            }),
+            m(TextAreaField, {
+                state: this.state
+            }),
+            (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+        ])
+
+    }
+}
+
+var styles$2 = {"textbox-bottomline":"_1Wt6F","bottomline-wrapper":"_1RDJY","fly-label":"_3n7VY","flying":"_2ifm1","disabled":"_14mIP","bottomline-grid":"_1LJt9","textbox-outline":"_1dxTf","outline-wrapper":"_2HuSA","outline-fieldset":"dgPAR","outline-grid":"_3iz99","success":"_14gF8","error":"_1RVnp","password-reveal":"_3fAcc","icon-btn":"_12v8m","prefix":"_1MlwE","group-prepend":"_2o5wO","suffix":"Gbfhe","group-append":"_1Vqx9","field":"_1IVyf","form-control":"snllU"};
+
+class ViewFill{
+    view(){
+        return m('i',[
+            m.trust(`
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        </svg>
+        `)
+        ])
+        
+    }
+}
+class ViewDisable {
+    view(){
+        return m('i',[
+            m.trust(`
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+        </svg>
+        `)
+        ])
+        
+    }
+}
+
+const attrsAllows$1 = ['id', 'minlength', 'maxlength', 'max', 'min', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'size', 'step', 'placeholder', 'autocomplete', 'autofocus', 'title', 'required'];
+class InputStateComponent extends Component  {
+    constructor(vnode) {
+        super(vnode);
+        const {attrs} = vnode;
+        //參數類
+        this.type = attrs.type;
+        this.value = attrs.value;
+        this.theme = attrs.theme || 'native';
+        this.class = attrs.class;
+        this.style = attrs.style;
+        this.success = attrs.success || false;
+        this.error = attrs.error || false;
+        this.disabled = attrs.disabled || false;
+        this.type = attrs.type || 'text';
+        this.inputAttrs = attrs.inputAttrs || this.filterAttrs(attrs,attrsAllows$1);
+        this.inputClass = this.options.inputClass || 'form-control';
+        this.inputStyle = this.options.inputStyle;
+        this.valueKey = this.options.valueKey || 'value';
+        this.validateText = this.options.validateText || '輸入框不能空白';
+        this.validate = this.options.validate || (valid => this.checkError(valid.hasValue()[this.valueKey],valid.text));
+        //實體類
+        this.groupPrepend = this.options.groupPrepend;
+        this.groupAppend = this.options.groupAppend;
+        this.prefix = this.options.prefix;
+        this.suffix = this.options.suffix;
+        this.label = this.options.label;
+        //內部變數類
+        this.reveal = (this.type === 'password') ? 'hidden' : null;
+        this.hasError = (attrs.error)? this.stream(attrs.error) : this.stream(false);
+        if(attrs.value && typeof attrs.value === 'object'){
+            this.hasValue = this.stream(attrs.value);
+        }else{
+            this.hasValue = this.stream({
+                [this.valueKey]: attrs.value
+            });
+        }
+        this.showValid = (this.hasValue()[this.valueKey])? this.stream(true) : this.stream(false);
+        /**
+         * @string validateText
+         * @function () state 取得目前元件的state
+         * @function (object) hasValue 取得目前元件的Value，放入參數可立即修改元件中傳遞的model。
+         * @function (string) hasError 取得目前元件的Error文字，success回傳為False，放入字串參數可立即修改元件中的valid狀態，並將字串顯示出來。
+         * @function () validState 取得目前元件的valid狀態
+         */
+        this.createMethod({
+            getState: this,
+            text: this.validateText,
+            hasError: this.hasError,
+            hasValue: this.hasValue,
+            validState: this.getValidCalss
+        });
+    }
+    getComponentValue() {
+        return this.hasValue()
+    }
+    getValidCalss(){
+        return (this.showValid() && !this.hasError() && !this.inputAttrs.readonly || this.success)?'success'
+        :(this.hasError() || this.error)?'error'
+        :(this.inputAttrs.disabled)?'disabled':null
+    }
+    flylabel(){
+        const fixed = this.inputAttrs.placeholder || this.prefix || this.hasValue()[this.valueKey];
+        return fixed
+    }
+    onBeforeUpdate(vnode){
+        this.attrs = this.checkAttrs(vnode.attrs,['events','options','inputAttrs']);
+        const attrs = this.filterAttrs(this.attrs,['theme','type','class','style','success','error','disabled']);
+        const inputAttrs = this.filterAttrs(this.attrs,attrsAllows$1);
+        const options = this.filterAttrs(this.attrs.options,['validateText','validate','label','groupPrepend','groupAppen','prefix','suffix','valueKey']);
+        const checkEvents = this.checkEvent(this.attrs.events);
+        const inputEvents = this.excludeAttrs(checkEvents,['oninput','onchange']);
+        Object.assign(this,{
+            ...attrs,
+            ...options,
+            inputAttrs: Object.assign(this.inputAttrs, {
+                ...inputAttrs
+            }),
+            inputEvents: Object.assign(this.events, {
+                ...inputEvents
+            }),
+            events: Object.assign(this.events, {
+                ...checkEvents
+            })
+        });
+    }
+    getInputAttrs(){
+        return {
+            input: {
+                type: this.type,
+                style: this.inputStyle,
+                oninput: (e) => {
+                    //防止空字串無法讀取
+                    if(this.hasValue()[this.valueKey] === ""){
+                        this.hasValue()[this.valueKey] = e.target.value;
+                        this.hasError(this.validate(this.method));
+                        this.showValid((this.hasValue()[this.valueKey]));
+                    }
+                    //第一次onchange後才驗證
+                    if(this.showValid() || this.hasError()){
+                        this.hasValue()[this.valueKey] = e.target.value;
+                        if (!this.hasError(this.validate(this.method))) {
+                            this.showValid(this.hasValue()[this.valueKey]);
+                        }
+                    }
+                    if(this.events.oninput){
+                        this.events.oninput(e,this.method);
+                    }
+                },
+                onchange: (e) => {
+                    this.hasValue()[this.valueKey] = e.target.value;
+                    this.hasError(this.validate(this.method));
+                    this.showValid((this.hasValue()[this.valueKey]));
+                    
+                    if(this.events.onchange){
+                        this.events.onchange(e,this.method);
+                    }
+                },
+                ...this.inputAttrs,
+                ...this.inputEvents,
+                value: this.getComponentValue()[this.valueKey]
+            }
+        }
+    }
+}
+window.inputState = new Object({});
+function createInput(entity){
+    const inputUuid = uuid();
+    const inputState = window.inputState;
+    inputState[inputUuid] = new InputStateComponent(entity);
+    inputState[inputUuid].id = inputUuid;
+    return inputState[inputUuid]
+}
+
+const cx$4 = classNames.bind(styles$2);
+
+
+class TextField extends Component {
+    constructor(vnode) {
+        super();
+        //生成state
+        if (vnode.attrs.state) {
+            this.state = vnode.attrs.state;
+        }else{
+            this.state =  new createInput({
+                state: this,
+                attrs: vnode.attrs
+            });
+        }
+    }
+    onbeforeupdate(vnode){
+        this.state.onBeforeUpdate(vnode);
+    }
+    view() {
+        const inputClass = classNames(this.state.inputClass, {
+            'is-valid': this.state.showValid() && !this.state.hasError() && !this.state.inputAttrs.readonly,
+            'is-invalid': this.state.hasError()
+        },cx$4({
+            'password-reveal': this.state.reveal
+        }));
+        
+        if (this.state.reveal) {
+            return m('div', {
+                style: this.state.style,
+                class: cx$4('field')
+            }, [
+                m('input', {
+                    class: inputClass,
+                    ...this.state.getInputAttrs().input
+                }),
+                m('button[type="button"]', {
+                    class: classNames(cx$4('icon-btn')),
+                    onclick: (e) => {
+                        if (this.state.reveal === 'hidden') {
+                            this.state.type = 'text';
+                            this.state.reveal = 'visible';
+                        } else {
+                            this.state.type = 'password';
+                            this.state.reveal = 'hidden';
+                        }
+                    }
+                }, [
+                    (this.state.reveal == 'hidden') ? m(ViewFill) : m(ViewDisable)
+                ])
+            ])
+        }
+        return m('input', {
+            class: inputClass,
+            ...this.state.getInputAttrs().input
+        })
+    }
+}
+
+const cx$5 = classNames.bind(styles$2);
+
+class TextBox extends Component {
+    constructor(vnode) {
+        super();
+        //生成state
+        this.state = new createInput({
+            state: this,
+            attrs: vnode.attrs
+        });
+    }
+    view(vnode) {
+        //bootstrap
+        if (this.state.theme === 'native') {
+            return m.fragment({}, [
+                this.handleComponent(this.state.label, 'div', {
+                    class: 'input-group-text'
+                }),
+                m(TextField, {
+                    state: this.state
+                }),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        //bootstrap group
+        if (this.state.theme === 'group') {
+            return m.fragment({}, [
+                this.handleComponent(this.state.label, 'label', {
+                    class: 'input-group-text'
+                }),
+                m('div', {
+                    style: this.state.style,
+                    class: classNames(this.state.class, 'input-group')
+                }, [
+                    (this.state.groupPrepend) ?
+                    m('.input-group-prepend', [
+                        this.handleComponent(this.state.groupPrepend, 'div', {
+                            class: 'input-group-text'
+                        })
+                    ]) : null,
+                    m('.flex-1', [
+                        m(TextField, {
+                            state: this.state
+                        }),
+                    ]),
+                    (this.state.groupAppend) ?
+                    m('.input-group-append', [
+                        this.handleComponent(this.state.groupAppend, 'div', {
+                            class: 'input-group-text'
+                        })
+                    ]) : null,
+
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+
+        }
+        //bottomline
+        if (this.state.theme === 'bottomline') {
+            return m('div', {
+                style: this.state.style,
+                class: classNames('textbox-line', this.state.class,cx$5('textbox-bottomline',this.state.getValidCalss()))
+            }, [
+                m('div', {
+                    class: cx$5('bottomline-grid')
+                }, [
+                    (this.state.groupPrepend) ? m('div', {
+                        class: cx$5('group-prepend')
+                    }, this.state.groupPrepend) : null,
+                    m('div', {
+                        class: classNames({
+                            'is-invalid': this.state.hasError()
+                        }, cx$5('bottomline-wrapper'))
+                    }, [
+                        (this.state.prefix) ? m('div', {
+                            class: cx$5('prefix')
+                        }, this.state.prefix) : null,
+                        (this.state.label) ? m('label', {
+                            class: cx$5('fly-label', {
+                                'is-invalid': this.state.hasError(),
+                                'flying': this.state.flylabel(),
+                            })
+                        }, this.state.label) : null,
+                        m(TextField, {
+                            state: this.state
+                        }),
+                        (this.state.suffix) ? m('div', {
+                            class: cx$5('suffix')
+                        }, this.state.suffix) : null
+                    ]),
+                    (this.state.groupAppend) ? m('div', {
+                        class: cx$5('group-append')
+                    }, this.state.groupAppend) : null
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        
+        //outline
+        if (this.state.theme === 'outline') {
+            return m('div', {
+                style: this.state.style,
+                class: classNames('textbox-line', this.state.class,cx$5('textbox-outline',this.state.getValidCalss()))
+            }, [
+                m('div', {
+                    class: cx$5('outline-grid')
+                }, [
+                    (this.state.groupPrepend) ? m('div', {
+                        class: cx$5('group-prepend')
+                    }, this.state.groupPrepend) : null,
+                    m('div', {
+                        class: classNames({
+                            'is-invalid': this.state.hasError()
+                        }, cx$5('outline-wrapper'))
+                    }, [
+                        (this.state.prefix) ? m('div', {
+                            class: cx$5('prefix')
+                        }, this.state.prefix) : null,
+                        (this.state.label) ? m('label', {
+                            class: cx$5('fly-label', {
+                                'is-invalid': this.state.hasError(),
+                                'flying': this.state.flylabel(),
+                            })
+                        }, this.state.label) : null,
+                        m(TextField, {
+                            state: this.state
+                        }),
+                        (this.state.suffix) ? m('div', {
+                            class: cx$5('suffix')
+                        }, this.state.suffix) : null,
+
+                        m('fieldset', {
+                            class: cx$5('outline-fieldset', {
+                                'flying': this.state.flylabel(),
+                            })
+                        }, [
+                            m('legend', {
+                                class: cx$5({
+                                    'flying': this.state.flylabel(),
+                                    'is-invalid': this.state.hasError()
+                                })
+                            }, [
+                                (this.state.label) ? m('span', this.state.label) : null
+                            ])
+                        ])
+                    ]),
+                    (this.state.groupAppend) ? m('div', {
+                        class: cx$5('group-append')
+                    }, this.state.groupAppend) : null
+                ]),
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+        }
+        
+
+        //bootstrap 
+        return m.fragment({}, [
+            this.handleComponent(this.state.label, 'div', {
+                class: 'input-group-text'
+            }),
+            m(TextField, {
+                state: this.state
+            }),
+            (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+        ])
+
+    }
+}
+
+var styles$3 = {"success":"_3cv1Y","error":"_1B-KV","radio-group":"_2hwbK","radio-list":"_3G42H","disabled":"lh15w","material":"SnYez","radio-boxborder":"_3qi2G","radio-wave-effect":"_1Kzl9","on":"_2xpVQ","radio-wave-effect-on":"_369ki","off":"bCaM3","radio-wave-effect-off":"_19Exk"};
+
+const cx$6 = classNames.bind(styles$3);
+
+class RadioStateComponent extends Component  {
+    constructor(vnode) {
+        super(vnode);
+        const {attrs} = vnode;
+        //參數類
+        this.theme = attrs.theme || 'native';
+        this.class = attrs.class;
+        this.style = attrs.style;
+        this.success = attrs.success || false;
+        this.error = attrs.error || false;
+        this.disabled = attrs.disabled || false;
+        this.validateText = this.options.validateText || '單選框不能無勾選';
+        this.validate = this.options.validate || ((valid) => (valid.hasValue()[this.valueKey])?false:valid.text);
+        this.valueKey = this.options.valueKey || 'value';
+        //內部變數類
+        this.hasError = (attrs.error)? this.stream(attrs.error) : this.stream(false);
+        // 預設this.hasValue
+        if(attrs.value && typeof attrs.value === 'object'){
+            this.hasValue = this.stream(attrs.value);
+        }else if(attrs.checked && Array.isArray(attrs.checked)){
+            this.hasValue = this.stream({
+                [this.valueKey]: attrs.checked
+            });
+        }else{
+            this.hasValue = this.stream({[this.valueKey]:[]});
+        }
+        this.showValid = (this.hasValue() && this.hasValue()[this.valueKey])? this.stream(true) : this.stream(false);
+        this.createMethod({
+            state: ()=>this,
+            text: this.validateText,
+            hasError: this.hasError,
+            hasValue: this.hasValue,
+            validState: this.validCalss,
+        });
+        const init = true;
+        this.childrensUpdate(init);
+    }
+    onBeforeUpdate(vnode){
+        this.attrs = this.checkAttrs(vnode.attrs,['events','options','checked']);
+        this.attrs = this.filterAttrs(this.attrs,['theme','class','style']);
+        this.options = this.filterAttrs(this.attrs.options,['validateText','validate','valueKey']);
+        this.childrens = this.attrs.childrens;
+        this.childrensUpdate();
+        Object.assign(this,{
+            ...attrs,
+            ...options,
+        });
+        this.success = vnode.attrs.success || false;
+        this.error = vnode.attrs.error || false;
+        this.disabled = vnode.attrs.disabled || false;
+    }
+    validCalss(){
+        //頂層進行狀態管理
+        return (this.showValid() && !this.hasError() || this.success)?'success'
+        :(this.hasError() || this.error)?'error'
+        :(this.disabled)?'disabled':null
+    }
+    childrensUpdate(init = false) {
+        //檢查參數
+        if (this.childrens){
+            if(!Array.isArray(this.childrens)){
+                throw new Error('childrens必須是個陣列')
+            }
+            if(this.childrens){
+                this.childrens.forEach((el,i) => {
+                    if(!el.label){
+                        throw new Error('childrens的label為必填參數')
+                    }
+                    //檢查childrens所有參數
+                    el = this.checkAttrs(el,['value','disabled','checked','style','class','id','label','events','radioEvents']);
+                    el.id = (el.id)? el.id : uuid();
+                    el.value = (el.value)? el.value :`${i}`;
+                    //檢查使用者預設checked
+                    if(el.checked && init){
+                        this.hasValue()[this.valueKey] = el.value;
+                    }
+                    //更新事件參數
+                    el.events = this.checkAttrs(el.events);
+                    const checkEvents = this.checkEvent(el.events);
+                    const radioEvents = this.excludeAttrs(checkEvents,['onclick']);
+                    Object.assign(el,{
+                        events: Object.assign(el.events, {
+                            ...checkEvents
+                        }),
+                        radioEvents: Object.assign(el.events, {
+                            ...radioEvents
+                        }),
+                    });
+                });
+            }
+        }else{
+            throw new Error('childrens為必填參數')
+        }
+        if(this.hasValue()){
+            if (typeof this.hasValue() !== 'object') {
+                throw new Error('checked、value必須是個object')
+            }
+        }else{
+            this.hasValue({[this.valueKey]:null});
+        }
+    }
+    getAttrs(item){
+        return {
+            list: {
+                key: item.id,
+                style: item.style,
+            },
+            radio: {
+                checked: this.hasValue()[this.valueKey] == item.value,
+                id: item.id,
+                disabled: item.disabled,
+                onclick: ()=>{
+                    if (item.checked) {
+                        item.checked = true;
+                    }else{
+                        this.hasValue()[this.valueKey] = item.value;
+                        item.checked = false;
+                    }
+                    if (!this.hasError(this.validate(this.method))) {
+                        this.showValid(this.hasValue()[this.valueKey]);
+                    }
+                    if(this.events.onclick){
+                        this.events.onclick(e,this.method);
+                    }
+                },
+                ...item.radioEvents
+            },
+            label: {
+                for: item.id,
+            },
+            waveEffectOn:{
+                onbeforeremove: (vnode)=>{
+                    const dom = vnode.dom;
+                    dom.classList.add(`${cx$6('on')}`);
+                    return new Promise((resolve)=> {
+                        dom.addEventListener('animationend',resolve);
+                    })
+                }
+            },
+            waveEffectOff:{
+                onbeforeremove: (vnode)=>{
+                    const dom = vnode.dom;
+                    dom.classList.add(`${cx$6('off')}`);
+                    return new Promise((resolve)=> {
+                        dom.addEventListener('animationend',resolve);
+                    })
+                }
+            }
+        }
+    }
+}
+window.radioState = new Object({});
+function createRadio(entity){
+    const radioUuid = uuid();
+    const radioState = window.radioState;
+    radioState[radioUuid] = new RadioStateComponent(entity);
+    radioState[radioUuid].id = radioUuid;
+    return radioState[radioUuid]
+}
+
+const cx$7 = classNames.bind(styles$3);
+
+
+class Radio extends Component {
+    constructor(vnode){
+        super();
+
+        //生成state
+        this.state = new createRadio({
+            state: this,
+            attrs: vnode.attrs,
+            children: vnode.children
+        });
+    }
+    view(vnode) {
+        return m('div',{
+            style: this.state.style,
+            class: classNames(this.state.class,'radio',cx$7('radio-group',this.state.validCalss())),
+        },[
+            this.state.childrens.map((item, index)=>{
+                if (this.state.theme === 'material') {
+                    return m('div',{
+                        class: classNames(cx$7('radio-list',item.class, this.state.theme)),
+                        ...this.state.getAttrs(item).list
+                    },[
+                        m('input[type="radio"]', {
+                            class: classNames('custom-control-input'),
+                            ...this.state.getAttrs(item).radio
+                        }),
+                        m('label', {
+                            class: classNames('custom-control-label'),
+                            ...this.state.getAttrs(item).label
+                        }, [
+                            m('div', {
+                                class: cx$7('radio-boxborder')
+                            },[
+                                (!item.checked)
+                                ?m('div', {
+                                    class: cx$7('radio-wave-effect'),
+                                    key: 'on',
+                                    ...this.state.getAttrs(item).waveEffectOn
+                                })
+                                :m('div', {
+                                    class: cx$7('radio-wave-effect'),
+                                    key: 'off',
+                                    ...this.state.getAttrs(item).waveEffectOff
+                                })
+                            ]),
+                            this.handleComponent(item.label,'span',{})
+                        ])
+                    ])
+                }
+                return m('div',{
+                    class: classNames('custom-control','custom-radio',item.class,cx$7('radio-list')),
+                    ...this.state.getAttrs(item).list
+                },[
+                    m('input[type="radio"]', {
+                        class: classNames('custom-control-input'),
+                        ...this.state.getAttrs(item).radio
+                    }),
+                    this.handleComponent(item.label,'label',{
+                        class: classNames('custom-control-label'),
+                        ...this.state.getAttrs(item).label
+                    })
+                ])
+            }),
+            m('.feeback',[
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+            
+        ])
+    }
+}
+
+var styles$4 = {"select":"X-tV4","material":"SAooc","disabled":"_3dWwg","bottomline":"_2sNo7","select-dropdown":"HLDoM","select-btn":"_3e05s","select-btn-input":"_1ZnqD","select-btn-button":"vJFNo","select-line":"njqf5","select-dialog":"_2SzbD","select-panel":"ncUex","select-option":"d8p8k","transition-3":"_1G0Is","active":"_2f_Ad","input":"_1dFfh","select-option-prefix":"_3vg4v","select-option-suffix":"_1m8wL","outline":"_2vbuR","success":"_1CIdz","error":"g77gf","select-dialog-body":"Rto7E"};
+
+class NativeSelectComponent extends Component {
+    view(vnode) {
         const {
-            childrens,
             disabled,
             required,
             autofocus,
@@ -1304,612 +1462,711 @@ class NativeSelectComponent extends Component {
             title,
             error,
             success,
-            validate
+            state
         } = vnode.attrs;
-        const {
-            panelPrefix,
-            panelSuffix
-        } = this.options;
-        const textKey = this.options.textKey || 'text';
-        const valueKey = this.options.valueKey || 'value';
-        const { 
-            onchange,
-            onfocus,
-            onblur,
-            onclick,
-        } = this.events;
-        
-
-        return m('select.custom-select.browser-default', {
+        return m.fragment({},[
+            (state.label)?
+                this.handleComponent(state.label,'div',{
+                class: cx('select-label')
+            }): null,
+            m('select.custom-select.browser-default', {
                 disabled,
                 required,
-                onfocus,
-                onblur,
-                onclick,
                 autofocus,
                 size,
                 title,
-                onchange: (e)=>{
-                    this.value = e.target.value;
-                    console.log('e.target.value',e.target.value);
-                    //判斷this.value是否有符合childrens選項
-                    this.childrens.forEach(item=>{
-                            if (this.value == item[valueKey] || this.value == item[textKey]) {
-                                this.selected.value = item[valueKey];
-                                this.selected.text = item[textKey];
-                            }
-                        });
-
-                    this.hasValue(this.selected);
-                    console.log('hasValue',this.hasValue());
-                    const error = validate(this.selected[valueKey]);
-                    this.hasError(error);
-                    const v = this.selected;
-                    if(onchange){
-                        onchange(e,v,{
-                            ...vnode.attrs
-                        });
-                    }
-                },
-                value: this.selected[valueKey] || '請選擇',
                 class: classNames('form-control',{
                     'is-invalid': error,
                     'is-valid': success
-                })
+                }),
+                ...state.getAttrs().select,
             }, [
-                m('option[disabled]','請選擇'),
-                (panelPrefix)?
-                this.handleComponent(panelPrefix,'option',{
+                (state.panelPrefix)?
+                this.handleComponent(state.panelPrefix,'option',{
                     disabled: true,
                 }): null,
-                this.childrens.map((item,index) => {
-                    if(!item[valueKey]){
-                        item[valueKey] = index;
+                state.childrens.map((item,index) => {
+                    if(!item.value){
+                        item.value = index + 1;
                     }
-                    
                     return m('option', {
-                        style: item.style || null,
-                        class: item.class || null,
-                        value: item[valueKey],
-                        disabled: item.disabled,
+                        ...state.getChildrensAttrs(item),
                         //判斷若沒有設定selected則帶入item.selected
-                        selected: (item.selected) ? this.selected[valueKey] == item.selected[valueKey] : (item.selected) || null,
-                    }, item[textKey])
+                        selected: (item.selected) ? !state.getComponentValue()[state.valueKey] || item.selected : null
+                    }, item.text)
                 }),
-                (panelSuffix)?
-                this.handleComponent(panelSuffix,'option',{
+                (state.panelSuffix)?
+                this.handleComponent(state.panelSuffix,'option',{
                     disabled: true,
                 }): null
-            ]
+            ]),
+                (state.hasError()) ? m('small.text-danger', state.hasError()) : null
+        ])
+        
+        
+    }
+}
 
-        )
+class NativeSelectComponent$1 extends Component {
+    view(vnode) {
+        const {
+            disabled,
+            required,
+            autofocus,
+            size,
+            title,
+            error,
+            success,
+            state
+        } = vnode.attrs;
+        
+        return m.fragment({},[
+            (state.label)?
+                this.handleComponent(state.label,'div',{
+                class: cx('select-label')
+            }): null,
+            m('.input-group',[
+                (state.groupPrepend)?
+                m('.input-group-prepend',[
+                    this.handleComponent(state.groupPrepend,'div',{
+                        class: 'input-group-text'
+                    })
+                ]): null,
+                m('select.custom-select.browser-default', {
+                    disabled,
+                    required,
+                    autofocus,
+                    size,
+                    title,
+                    class: classNames('form-control',{
+                        'is-invalid': error,
+                        'is-valid': success
+                    }),
+                    ...state.getAttrs().select,
+                }, [
+                    m('option',{
+                        disabled: true,
+                        selected: !state.getComponentValue()[state.valueKey]
+                    },'請選擇'),
+                    (state.panelPrefix)?
+                    this.handleComponent(state.panelPrefix,'option',{
+                        disabled: true,
+                    }): null,
+                    state.childrens.map((item,index) => {
+                        if(!item.value){
+                            item.value = index + 1;
+                        }
+                        return m('option', {
+                            ...state.getChildrensAttrs(item),
+                            //判斷若沒有設定selected則帶入item.selected
+                            selected: (item.selected) ? !state.getComponentValue()[state.valueKey] || item.selected : null
+                        }, item.text)
+                    }),
+                    (state.panelSuffix)?
+                    this.handleComponent(state.panelSuffix,'option',{
+                        disabled: true,
+                    }): null
+                ]),
+                (state.groupAppend)?
+                m('.input-group-append',[
+                    this.handleComponent(state.groupAppend,'div',{
+                        class: 'input-group-text'
+                    })
+                ]): null,
+            ]),
+            (state.hasError()) ? m('small.invalid-feedback', state.hasError()) : null
+        ])
+        
+        
     }
 }
 
 const cx$8 = classNames.bind(styles$4);
 
-/**
- * 每次在body進行onclick行為時，會針對全域class MaterialSelectComponent執行迴圈，
- * 該事件判斷是否進行開啟或關閉，並也同時監測onfocus防止重複操作。
- */
-let selectActive = [];
-document.body.addEventListener('click', (e) => {
-    //全域關閉事件
-    for (let i = 0; i < selectActive.length; i++) {
-        if (!(selectActive[i].active) 
-            && selectActive[i].btn == e.target
-            && !(selectActive[i].disabled)
-            && !(selectActive[i].readonly)
-            ) {
-            selectActive[i].active = true;
-        } else {
-            if(selectActive[i].focusEvent){
-                selectActive[i].active = false;
-                m.redraw();
-            }else{
-                selectActive[i].focusEvent = true;
-            }
-        }
-    }
-});
-/**
- * 採用自定義Select Component
- * @param MaterialSelectComponent
- */
-class MaterialSelectComponent extends Component  {
-    constructor(vnode) {
-        super();
+class MaterialSelectComponent extends Component {
+    view(vnode){
         const {
-            options,
-            selected,
-            childrens,
-            events,
-            hasError,
-            hasValue,
+            state
         } = vnode.attrs;
-        this.hasError = hasError;
-        this.hasValue = hasValue;
-        //確認需要的屬性，防範Key為未定義
-        this.options = this.checkAttrs(options,['input','panelHeight','panelPrefix','panelSuffix','textKey','valueKey']);
-        const textKey = this.options.textKey || 'text';
-        const valueKey = this.options.valueKey || 'value';
-        this.childrens = [];
-        if(childrens){
-            childrens.forEach((el,i) => {
-                this.childrens[i] = this.checkAttrs(el,[textKey,valueKey,'disabled','selected','style','class']);
-            });
-        }
-        this.selected = (this.hasValue())
-        ?Object.assign(this.checkAttrs(this.hasValue(),[textKey,valueKey]),this.checkAttrs(selected,[textKey,valueKey])) 
-        :this.checkAttrs(selected,[textKey,valueKey]);
-        this.events = this.checkAttrs(events,['onchange','onfocus','onblur','oninput','onclick']);
-        
-        //預設selected的值
-        const defaultSelected = {
-            [textKey]: this.childrens[0][textKey] || '請選擇',
-            [valueKey]: this.childrens[0][valueKey] || null,
-        };
-        const selectedChildren = this.childrens.filter(item => item.selected)[0] || {
-            [textKey]: undefined,
-            [valueKey]: undefined
-        };
-        if(typeof this.selected ==='object'){
-            this.selected[textKey] = selectedChildren[textKey] || this.selected[textKey] || '請選擇';
-            this.selected[valueKey] = selectedChildren[valueKey] || this.selected[valueKey] || null;
-        }else if(childrens){
-            this.selected = selectedChildren || defaultSelected;
-        }else{
-            this.selected = defaultSelected;
-        }
-        this.active = false;
-        this.disabled = vnode.attrs.disabled || false;
-        selectActive.push(this);
-        
-    }
-    oncreate(vnode) {
-        //當建立Select時，在this.btn和this.input紀錄這個Select的input實體
-        this.btn = vnode.dom.querySelectorAll(`.${cx$8('select-btn-button')}`)[0];
-        this.input = vnode.dom.querySelectorAll(`.${cx$8('select-btn-input')}`)[0];
-        this.btn.uuid = uuid$1();
-        /** 控制鍵盤能用上下鍵來進行操作
-         * 38:ArrowUp
-         * 40:ArrowDown
-        */   
-        window.addEventListener('keydown',(e)=>{
-            const activeElement = document.activeElement;
-            if(this.active){ 
-                if(e.keyCode == 38 || e.keyCode == 40){
-                    if(activeElement==this.input || activeElement==this.btn) {
-                        this.panel.children[0].focus();
-                    }else if(e.keyCode == 38){
-                        activeElement.previousElementSibling.focus();
-                    }else if(e.keyCode == 40){
-                        activeElement.nextElementSibling.focus();
-                    }
-                }
-            }
-        });
-    }
-    onbeforeremove(){   
-        //當移除Select時，移除全域監聽事件
-        const indexOf = selectActive.map((el)=> el.btn.uuid).indexOf(this.btn.uuid);
-        if(indexOf !== -1){
-            selectActive.splice(indexOf,1);
-        }
-    }
-    view(vnode) {
-        this.checkError(vnode.attrs);
-        const {
-            disabled,
-            readonly,
-            validate,
-            title
-        } = vnode.attrs;
-        const { 
-            onchange,
-            oninput,
-            onfocus,
-            onblur,
-            onclick,
-        } = this.events;
-        const { 
-            input,
-            panelHeight,
-            panelPrefix,
-            panelSuffix,
-        } = this.options;
-        const textKey = this.options.textKey || 'text';
-        const valueKey = this.options.valueKey || 'value';
-        //判斷panel要避開window邊界的變數
-        
-        
-
-        return m('div', {
-            class: cx$8('select-dropdown', {
-                'active': this.active,
-                'disabled': disabled,
-            })
-        }, [
+        return m.fragment({},[
+            (state.label)?
+                this.handleComponent(state.label,'div',{
+                    class: cx$8('select-label')
+            }): null,
             m('div', {
-                class: cx$8('select-btn'),
+                class: cx$8('select-dropdown', {
+                    'active': state.active,
+                    'disabled': state.disabled,
+                }),
+                ...state.getAttrs().select
             }, [
-                m('button[type="text"]',{
-                    class: cx$8('select-btn-button'),
-                    style: {display: (this.active && input)?'none':null},
-                    onclick: (e) => {
-                        e.preventDefault();
-                        if (readonly || disabled) {
-                            return
-                        }
-                        setTimeout(() => {
-                            this.input.focus();
-                        }, 0);
-                        if(this.focus){
-                            this.active = false;
-                        }
-                        // this.clientY 紀錄滑鼠點擊的位置，判斷panel要往上或往下來打開
-                        this.clientY = e.clientY;
-                        
-                        // v 將value傳遞給自定義onclick事件
-                        const v =  this.selected;
-                        if(onclick){
-                            onclick(e,v,{
-                                ...vnode.attrs
-                            });
-                        }
-                    },
-                },this.value
-                    || (document.activeElement!==this.input && this.selected[textKey]) 
-                    || !(input) && this.selected[textKey]
-                    || '',),
-                m('input[type="text"]',{
-                    class: cx$8('select-btn-input'),
-                    style: {display: (this.active && input)?null:'none'},
-                    readonly: !(input),
-                    title: title,
-                    oninput: (e) => {
-                        this.value = e.target.value;
-                        if(oninput){
-                            oninput(e,this.value,{
-                                ...vnode.attrs
-                            });
-                        }
-                    },
-                    onchange: (e) => {
-                        //如果oninput合乎value或text則直接選取對象
-                        const v = this.value;
-                        let _find = false;
-                        let _findIndex = 0;
-                        this.childrens.forEach((item,index) => {
-                                if(item[valueKey] == v){
-                                    _find = true;
-                                    _findIndex = index;
-                                }
-                                if(item[textKey] == v){
-                                    _find = true;
-                                    _findIndex = index;
-                                }
-                                if (_find) {
-                                    return
-                                }
-                            });
-                        
-                        if(_findIndex === 0 && /^[0-9] .?[0-9]*/.test(item.value)){
-                            if(this.panel.querySelectorAll('button')[this.value]){
-                                this.panel.querySelectorAll('button')[this.value].focus();
-                            }
-                        }else{
-                            this.panel.querySelectorAll('button')[_findIndex].focus();
-                        }
-                        
-                        this.value = false;
-                    },
-                    onfocus: (e) => {
-                        if (readonly || disabled || vnode.attrs.focusEvent) {
-                            return
-                        }
-                        if(onfocus){
-                            onfocus(e,{
-                                ...vnode.attrs
-                            });
-                        }
-                    },
-                    onblur: (e) => {
-                        //判斷離開Select時，則onblur
-                        if (readonly || disabled || vnode.attrs.focusEvent) {
-                            return
-                        }
-                        if(this.panel && !this.panel.contains(e.relatedTarget)){
-                            this.active = false;
-                            this.value = null;
-                            if(onblur){
-                                onblur(e,{
-                                    ...vnode.attrs
-                                });
-                            }
-                        }
-                    }, 
-                    onclick: (e) => {}
-                }),
                 m('div', {
-                    class: cx$8('select-line')
-                }),
-            ]),
-            
-            (this.active)? m('div',{
-                class: cx$8('select-panel'),
-                oncreate: (vd)=>{
-                    this.panel = vd.dom;
-                    const clientHeight = this.panel.clientHeight;
-                    const maxPanelHeight = panelHeight || 320;
-                    //判斷panel要避開window邊界
-                    const _panelHeight = this.panel && Math.min(maxPanelHeight,this.panel.offsetHeight);
-                    const btnOffsetHeight = this.btn && this.btn.offsetHeight || 0;
-                    const panelBottom = window.innerHeight - this.clientY < _panelHeight + btnOffsetHeight;
-                    const panelTop = this.clientY < _panelHeight + btnOffsetHeight;
-                    this.panel.style.maxHeight = `${maxPanelHeight}px`,
-                    this.panel.style.bottom = (panelBottom && !panelTop)?'100%':null,
-                    this.panel.style.top = (panelTop)?'100%':null;
-                    //執行打開panel的動畫
-                    this.panel.style.height = 0;
-                    this.panel.classList.add(cx$8('transition-3'));
-                    window.requestAnimationFrame(()=>{
-                        this.panel.style.height = `${clientHeight}px`;
-                    });
-                },
-                onbeforeremove: ()=> {
-                    //執行關閉panel的動畫
-                    this.panel.style.height = 0;
-                    return new Promise((resolve)=> {
-                        this.panel.addEventListener('transitionend',resolve);
-                    })
-                },
-            },[
-                (panelPrefix)?
-                this.handleComponent(panelPrefix,'div',{
-                    class: cx$8('select-option')
-                }): null,
-                this.childrens.map((item, index) => {
-                    if(!item[valueKey]){
-                        item[valueKey] = index;
-                    }
-                    return m('button', {
-                        style: item.style || null,
-                        class: cx$8('select-option',item.class, {
-                            'active': item.disabled || (this.selected[valueKey] === item[valueKey]),
-                            'input': (this.value === item[valueKey]) || (this.value === item[textKey]) || (this.value === index) ,
-                            'disabled': item.disabled
-                        }),
-                        onblur: (e) => {
-                            //判斷離開Select時，則onblur
-                            if(!this.panel.contains(e.relatedTarget)){
-                                this.active = false;
-                                this.value = null;
-                                setTimeout(() => {
-                                    this.btn.focus();
-                                }, 0);
-                                if(onblur){
-                                    onblur(e,{
-                                        ...vnode.attrs
-                                    });
+                    class: cx$8('select-btn'),
+                    ...state.events.selectEvents
+                }, [
+                    m('button[type="text"]',{
+                        class: cx$8('select-btn-button'),
+                        ...state.getAttrs().button
+                    },state.getComponentValue()[state.textKey]),
+                    m('input[type="text"]',{
+                        class: cx$8('select-btn-input'),
+                        ...state.getAttrs().input
+                    }),
+                    m('div', {
+                        class: cx$8('select-line')
+                    }),
+                ]),
+                (state.active)?(()=>{
+                    if (state.mobileMode) {
+                        return m('div', {
+                            class: cx$8('select-dialog'),
+                            ...state.getAttrs().dialog
+                        },[
+                            m('div',{
+                                class: cx$8('select-panel'),
+                            },[
+                                (state.panelPrefix)?
+                                this.handleComponent(state.panelPrefix,'div',{
+                                    class: cx$8('select-option-prefix')
+                                }): null,
+                                state.childrens.map((item, index) => {
+                                    if(!item.value){
+                                        item.value = index+1;
+                                    }
+                                    return m('button', {
+                                        class: cx$8('select-option',item.class, {
+                                            'active': (state.selected[state.valueKey] === item.value),
+                                            'disabled': item.disabled
+                                        }),
+                                        ...state.getChildrensAttrs(item)
+                                    }, [
+                                        m('span',`${item.text}`)
+                                    ])
+                                }),
+                                (state.panelSuffix)?
+                                    this.handleComponent(state.panelSuffix,'div',{
+                                        class: cx$8('select-option-suffix')
+                                }): null
+                            ])
+                        ])
+                    }else{
+                        return m('div',{
+                            class: cx$8('select-panel'),
+                            ...state.getAttrs().panel
+                        },[
+                            (state.panelPrefix)?
+                            this.handleComponent(state.panelPrefix,'div',{
+                                class: cx$8('select-option-prefix')
+                            }): null,
+                            state.childrens.map((item, index) => {
+                                if(!item.value){
+                                    item.value = index+1;
                                 }
-                            }
-                        },
-                        onclick: (e) => {
-                            e.preventDefault();
-                            if (item.disabled) {
-                                return false
-                            }
-                            //將資料傳遞至selected物件中
-                            this.selected[textKey] = item[textKey];
-                            this.selected[valueKey] = item[valueKey];
-                            this.selected.data = item.data;
-                            this.hasValue(this.selected);
-                            const error = validate(this.selected[valueKey]);
-                            const v = this.hasValue() || this.selected || null;
-                            this.hasError(error);
-                            if(onchange){
-                                onchange(e,v,{
-                                    ...attrs,
-                                    children: item
-                                });
-                            }
-                            this.active = false;
-                        },
-                    }, [
-                        m('span', item[textKey])
-                    ])
-                }),
-                (panelSuffix)?
-                    this.handleComponent(panelSuffix,'div',{
-                        class: cx$8('select-option')
-                }): null
-            ]):null
+                                return m('button', {
+                                    class: cx$8('select-option',item.class, {
+                                        'active': (state.selected[state.valueKey] === item.value),
+                                        'input': state.findIndex === index && !item.disabled,
+                                        'disabled': item.disabled
+                                    }),
+                                    ...state.getChildrensAttrs(item)
+                                }, [
+                                    m('span',`${item.text}`)
+                                ])
+                            }),
+                            (state.panelSuffix)?
+                                this.handleComponent(state.panelSuffix,'div',{
+                                    class: cx$8('select-option-suffix')
+                            }): null
+                        ])
+                    }
+                })():null,
+            ]),
+            (state.hasError()) ? m('small.text-danger', state.hasError()) : null
         ])
-    }
+        
+    } 
 }
 
 const cx$9 = classNames.bind(styles$4);
 
+/**
+ * @class SelectStateComponent
+ */
+class SelectStateComponent extends Component  {
+    constructor(vnode) {
+        super(vnode);
+        const {attrs} = vnode;
+        //參數類
+        this.class = attrs.class;
+        this.style = attrs.style;
+        this.title = attrs.title;
+        this.selected = attrs.selected;
+        this.theme = attrs.theme || 'native';
+        this.success = attrs.success || false;
+        this.error = attrs.error || false;
+        this.disabled = attrs.disabled || false;
+        this.readonly = attrs.readonly || false;
+        this.valueKey = this.options.valueKey || 'value';
+        this.textKey = this.options.textKey || this.valueKey && `${this.valueKey}Text` || 'text';
+        this.panelHeight = this.options.panelHeight;
+        this.showError = (this.options.showError === false) ? false : true;
+        this.validateText = this.options.validateText || '選擇的內容有誤';
+        this.validate = this.options.validate || ((valid) =>this.checkError(valid.hasValue()[this.valueKey],valid.text));
+        this.inputText = this.options.inputText;
+        this.mobilePanelHeight = this.options.mobilePanelHeight;
+        this.mobileMode = this.isMobileDevice() ? this.options.mobileMode : false;
+        //實體類
+        this.label = this.options.label;
+        this.panelPrefix = this.options.panelPrefix;
+        this.panelSuffix = this.options.panelSuffix;
+        this.groupPrepend = this.options.groupPrepend;
+        this.groupAppend = this.options.groupAppend;
+        //方法類
+        this.hasError = (attrs.error)? this.stream(attrs.error) : this.stream(false);
+        this.hasValue = (this.selected)? this.stream(this.selected) : this.stream(attrs.value);
+        const init = true;
+        this.checkChildrens(init);
+        this.showValid = (this.hasValue()[this.valueKey])? this.stream(true) : this.stream(false);  
+        /**
+         * @string validateText
+         * @function () state 取得目前元件的state
+         * @function (object) hasValue 取得目前元件的Value，放入參數可立即修改元件中傳遞的model。
+         * @function (string) hasError 取得目前元件的Error文字，success回傳為False，放入字串參數可立即修改元件中的valid狀態，並將字串顯示出來。
+         * @function () validState 取得目前元件的valid狀態
+         */
+        this.createMethod({
+            getState: this,
+            text: this.validateText,
+            hasError: this.hasError,
+            hasValue: this.hasValue,
+            validState: this.getValidCalss
+        });
+    }
+    checkChildrens(init){
+        //判斷childrens是否有正確填寫
+        if (this.childrens){
+            if(!Array.isArray(this.childrens)){
+                throw new Error('childrens必須是個陣列')
+            }
+            if(!this.childrens){
+                throw new Error('childrens為必填參數')
+            }
+        }
+        //判斷selected和value是否有正確填寫
+        if(this.hasValue() || this.selected){
+            if (typeof this.selected !== 'object' && typeof this.hasValue() !== 'object') {
+                throw new Error('selected應該是一個object')
+            }
+            if (typeof selected !== 'object' && typeof this.hasValue() !== 'object') {
+                throw new Error('value應該是一個object')
+            }
+        }else if(process.env.NODE_ENV !== 'production'){
+            console.warn('請為select元件填寫selected或value給予傳遞的變數');
+        }
+        //確認需要的屬性，防範Key為未定義
+        if (!this.childrens) {
+            this.childrens = [];
+        }
+        this.childrens.forEach((el,i) => {
+            this.childrens[i] = this.checkAttrs(el,['text','value','disabled','selected','style','class']);
+        });
+        //制定預設 selected 的值
+        const defaultSelected = {
+            [this.textKey]: '請選擇',
+            [this.valueKey]: null,
+        };
+        this.selected = (this.hasValue())
+        ? this.checkAttrs(this.hasValue(),[this.textKey,this.valueKey])
+        : defaultSelected;
+
+        //預設 selected 的值
+        if(typeof this.selected ==='object'){
+            this.selected[this.textKey] = this.selected[this.textKey] || defaultSelected[this.textKey];
+            this.selected[this.valueKey] = this.selected[this.valueKey] || defaultSelected[this.valueKey];
+        }else{
+            this.selected = defaultSelected;
+        }
+    }
+    getComponentValue() {
+        return (this.theme === 'material' || this.theme === 'bottomline' || this.theme === 'outline')?{
+            [this.textKey]: this.inputValue
+            || (document.activeElement!==this.inputValue && this.selected[this.textKey]) 
+            || !(this.inputValue) && this.selected[this.textKey]
+            || '',
+            [this.valueKey]: this.value || (document.activeElement!==this.inputValue && this.selected[this.valueKey]) 
+            || !(this.inputValue) && this.selected[this.valueKey]
+            || '',
+        }:{
+            [this.textKey]: this.selected[this.textKey] || "",
+            [this.valueKey]: this.selected[this.valueKey] || null
+        }
+    }
+    getValidCalss(){
+        return (this.showValid() && !this.hasError() && !this.readonly || this.success)?'success'
+        :(this.hasError() || this.error)?'error'
+        :(this.disabled)?'disabled':null
+    }
+    onBeforeUpdate(vnode){
+        this.attrs = this.checkAttrs(vnode.attrs,['options','events','selected']);
+        const attrs = this.filterAttrs(this.attrs,['theme','class','style']);
+        const options = this.filterAttrs(this.attrs.options,['validate','groupPrepend','groupAppend','panelHeight','panelPrefix','panelSuffix','textKey','valueKey','input','label','validateText','mobilePanelHeight']);
+        const checkEvents = this.checkEvent(this.attrs.events);
+        const buttonEvents = this.filterAttrs(checkEvents,['oninput','onchange']);
+        const selectEvents = this.excludeAttrs(checkEvents,['onclick','oninput','onchange','onfocus','onblur','onscroll']);
+        this.checkChildrens();
+        Object.assign(this,{
+            ...attrs,
+            ...options,
+            events: Object.assign(this.events, {
+                ...checkEvents
+            }),
+            buttonEvents: Object.assign(this.events, {
+                ...buttonEvents
+            }),
+            selectEvents: Object.assign(this.events, {
+                ...selectEvents
+            }),
+        });
+        this.mobileMode = this.isMobileDevice() ? this.options.mobileMode : false;
+        this.success = vnode.attrs.success || false;
+        this.error = vnode.attrs.error || false;
+        this.disabled = vnode.attrs.disabled || false;
+    }
+    getAttrs(){
+        const textKey = this.textKey;
+        const valueKey = this.valueKey;
+        return (this.theme === 'material' || this.theme === 'bottomline' || this.theme === 'outline')?{
+            select: {
+                oncreate: ()=>{
+                    /** 控制鍵盤能用上下鍵來進行操作
+                     * 38:ArrowUp
+                     * 40:ArrowDown
+                    */   
+                    window.addEventListener('keydown',(e)=>{
+                        const activeElement = document.activeElement;
+                        if(this.active){ 
+                            if(e.keyCode == 38 || e.keyCode == 40){
+                                e.preventDefault();
+                                if(activeElement==this.inputDom || activeElement==this.btn) {
+                                    this.panel.children[0].focus();
+                                }else if(e.keyCode == 38){
+                                    activeElement.previousElementSibling.focus();
+                                }else if(e.keyCode == 40){
+                                    activeElement.nextElementSibling.focus();
+                                }
+                            }
+                        }
+                    });
+                },
+                onbeforeremove:()=>{   
+                    //當移除Select時，移除全域監聽事件
+                    const selectState = window.selectState;
+                    const indexOfId = Object.keys(selectState).filter(key => selectState[key] == this)[0];
+                    delete selectState[indexOfId];
+                }
+            },
+            button: {
+                title: this.title,
+                style: {display: (this.active && this.inputText && !this.isMobileDevice())?'none':null},
+                oncreate: (vnode)=>{
+                    this.btn = vnode.dom;
+                    this.btn.uuid = this.id;
+                    this.offsetBox = this.getCoordinateBox(this.btn);
+                },
+                onclick: (e) => {
+                    if (this.readonly || this.disabled) {
+                        return
+                    }
+                    setTimeout(()=>{this.inputDom.focus();}, 0);
+                    if(this.focus){
+                        this.active = false;
+                        
+                    }
+                    // offsetBox 紀錄滑鼠點擊的Box位置，判斷panel要往上或往下來打開
+                    if(this.events.onclick){
+                        this.events.onclick(e,this.method);
+                    }
+                },
+                ...this.buttonEvents
+            },
+            input: {
+                title: this.title,
+                style: {display: (this.active && this.inputText && !this.isMobileDevice())?null:'none'},
+                readonly: !(this.inputText && !this.isMobileDevice()),
+                oncreate:(vnode)=>{
+                    this.inputDom = vnode.dom;
+                },
+                oninput: (e) => {
+                    this.inputValue = e.target.value;
+                    const v = this.inputValue;
+                    //如果oninput合乎value或text則跳出 input 這個class樣式
+                    const findChildren = this.childrens.filter((item,index) =>{
+                        return (
+                            item[textKey] == this.inputValue 
+                            || item[valueKey] == this.inputValue 
+                            || (/^[0-9] .?[0-9]*/.test(v) && index == this.inputValue)
+                        )
+                    })[0];
+                    this.findIndex = this.childrens.indexOf(findChildren);
+                    if(this.events.oninput){
+                        this.events.oninput(e,this.method);
+                    }
+                },
+                onchange: (e) => {
+                    //如果oninput合乎value或text則直接選取對象
+                    //抓取button.select-option
+                    const panelBtn = this.panel.querySelectorAll('button');
+                    if(panelBtn && !panelBtn.disabled){
+                        panelBtn[this.findIndex].focus();
+                    }
+                    this.inputValue = false;
+                },
+                onblur: (e) => {
+                    //判斷離開Select時，則onblur
+                    if (this.readonly || this.disabled) {
+                        return
+                    }
+                    this.findIndex = null;
+                    // if(this.panel && !this.panel.contains(e.relatedTarget)){
+                    //     this.active = false
+                    //     this.value = null
+                    //     if(this.events.onblur){
+                    //         this.events.onblur(e,this.method)
+                    //     }
+                    //     console.log('onblur2');
+                    // }
+                },
+            },
+            dialog:{
+                tabindex: (this.mobileMode)? -1 :false,
+                role: (this.mobileMode)?'dialog' :false,
+                'aria-modal': (this.mobileMode)?"true":false,
+                oncreate: (vnode)=>{
+                    const dialog = vnode.dom;
+                    const panel = vnode.dom.querySelector(`.${cx$9('select-panel')}`);
+                    this.panel = panel;
+                    const maxMobilePanelHeight = this.mobilePanelHeight || 400;
+                    const _panelHeight = panel && Math.min(maxMobilePanelHeight,panel.offsetHeight);
+                    panel.style.height = `0px`;
+                    document.body.classList.add(`${cx$9('select-dialog-body')}`);
+                    //執行打開panel的動畫
+                    panel.classList.add(cx$9('transition-3'));
+                    const dialogAnimation = () => {
+                        panel.style.height = `${_panelHeight}px`;
+                        panel.style.maxHeight = `${maxMobilePanelHeight}px`;
+                        dialog.removeEventListener('transitionend',dialogAnimation);
+                    };
+                    dialog.addEventListener('transitionend',dialogAnimation);
+                    dialog.style.opacity = `1`;
+                },
+                onbeforeremove: (vnode)=> {
+                    //執行關閉 panel 的動畫
+                    const panel = vnode.dom.querySelector(`.${cx$9('select-panel')}`);
+                    panel.style.height = 0;
+                    document.body.classList.remove(`${cx$9('select-dialog-body')}`);
+                    return new Promise((resolve)=> {
+                        panel.addEventListener('transitionend',resolve);
+                    })
+                }
+            },
+            panel: {
+                oncreate: (vnode)=>{
+                    const panel = vnode.dom;
+                    this.panel = vnode.dom;
+                    const maxPanelHeight = this.panelHeight || 320;
+                    //判斷panel要避開window邊界
+                    const _panelHeight = panel && Math.min(maxPanelHeight,panel.offsetHeight);
+                    const btnOffsetHeight = this.btn && this.btn.offsetHeight || 0;
+                    const panelBottom =  window.innerHeight - (this.offsetBox.y - window.scrollY) < _panelHeight + btnOffsetHeight;
+                    const panelTop = this.offsetBox.y - window.scrollY < _panelHeight + btnOffsetHeight;
+                    panel.style.height = `0px`,
+                    panel.style.bottom = (panelBottom && !panelTop)?'100%':null,
+                    panel.style.top = (panelTop)?'100%':null;
+                    //執行打開panel的動畫
+                    panel.classList.add(cx$9('transition-3'));
+                    window.requestAnimationFrame(()=>{
+                        panel.style.height = `${_panelHeight}px`;
+                        panel.style.maxHeight = `${maxPanelHeight}px`;
+                    });
+                },
+                onbeforeremove: (vnode)=> {
+                    //清除 input 內的值
+                    this.inputDom.value = '';
+                    //執行關閉 panel 的動畫
+                    const panel = vnode.dom;
+                    panel.style.height = 0;
+                    return new Promise((resolve)=> {
+                        panel.addEventListener('transitionend',resolve);
+                    })
+                },
+                onscroll: (e)=>{
+                    if(this.events.onscroll){
+                        this.events.onscroll(e,this.method);
+                    }
+                }
+            },
+        }:{
+            select: {
+                onchange: (e)=>{
+                    const v = e.target.value;
+                    this.childrens.forEach(children=>{
+                        if(children.value == v){
+                            this.selected[this.textKey] = children.text;
+                            this.selected[this.valueKey] = children.value;
+                        }
+                    });
+                    this.value = this.hasValue(this.selected);
+                    this.hasError(this.validate(this.method));
+                    if(this.events.onchange){
+                        this.events.onchange(e,this.method);
+                    }
+                },
+            }
+        }
+    }
+    getChildrensAttrs(item) {
+        return (this.theme === 'material' || this.theme === 'bottomline' || this.theme === 'outline')? {
+            style: item.style || null,
+            onblur: (e) => {
+                //判斷離開Select時，則onblur
+                if(!this.panel.contains(e.relatedTarget)){
+                    this.active = false;
+                    this.value = null;
+                    setTimeout(() => {
+                        this.btn.focus();
+                    }, 0);
+                    if(this.events.onblur){
+                        this.events.onblur(e,this.method);
+                    }
+                }
+            },
+            onclick: (e) => {
+                e.preventDefault();
+                if (item.disabled) {
+                    return false
+                }
+                //將資料傳遞至selected物件中
+                this.selected[this.textKey] = item.text;
+                this.selected[this.valueKey] = item.value;
+                this.value = this.hasValue(this.selected);
+                if (!this.hasError(this.validate(this.method))) {
+                    this.showValid(this.hasValue());
+                }
+                if(this.events.onchange){
+                    this.events.onchange(e,this.method,item);
+                }
+                this.active = false;
+                this.inputValue = false;
+            }
+        } : {
+            disabled: item.disabled,
+            style: item.style,
+            class: item.class,
+            value: item.value,
+        }
+    }
+}
+
+window.selectState = new Object({});
+//全域關閉事件
+function clickEvent (e){
+    const selectState = window.selectState;
+    for (let id in selectState) {
+        if (selectState[id].theme === 'material' || selectState[id].theme === 'bottomline' || selectState[id].theme === 'outline'){
+            if (!(selectState[id].active) 
+                && selectState[id].id == e.target.uuid
+                && !(selectState[id].disabled)
+                && !(selectState[id].readonly)
+                && !(e.target.disabled)
+                ) {
+                selectState[id].active = true;
+            } else {
+                selectState[id].active = false;
+                m.redraw();
+            }
+        }
+    }
+}
+document.body.addEventListener('click',clickEvent);
+
+
+function createSelect(entity){
+    const selectUuid = uuid();
+    const selectState = window.selectState;
+    selectState[selectUuid] = new SelectStateComponent(entity);
+    selectState[selectUuid].id = selectUuid;
+    return selectState[selectUuid]
+}
+
+const cx$a = classNames.bind(styles$4);
 
 /**
  * @param Select
- * 如果要傳遞model，將selected之物件傳進value。
- * 可使用options.textKey、options.valueKey參數來修改model的參數KeyName
  */
 class Select extends Component  {
     constructor(vnode) {
         super();
-        const {
-            childrens,
-            selected
-        } = vnode.attrs;
-        this.hasError = stream(vnode.attrs.error);
-        this.hasValue = stream(vnode.attrs.value);
 
-        //判斷childrens是否有正確填寫
-        if (childrens){
-            if(!Array.isArray(childrens)){
-                throw new Error('childrens必須是個陣列')
-            }
-        }
-        //判斷selected是否有正確填寫
-        if(selected){
-            if (typeof selected !== 'object' && typeof this.hasValue() !== 'object') {
-                throw new Error('selected應該是一個object')
-            }
-        }
-        //判斷value是否有正確填寫
-        if(this.hasValue()){
-            if (typeof selected !== 'object' && typeof this.hasValue() !== 'object') {
-                throw new Error('value應該是一個object')
-            }
-        }
+        //生成state
+        this.state = createSelect({
+            state: this,
+            attrs: vnode.attrs
+        });
+    }
+    childrensUpdate(init = false){}
+    onbeforeupdate(vnode){
+        this.state.onBeforeUpdate(vnode);
     }
     view(vnode) {
-        const {
-            theme,
-            error,
-            success,
-            disabled,
-            options,
-            validate
-        } = vnode.attrs;
-        let {
-            hasError,
-            showError
-        } = vnode.attrs;
-        const _theme = theme || 'native';
-        
-        showError = (showError === false) ? false : true;
-        this.hasError(vnode.attrs.error);
-        this.hasValue(vnode.attrs.value);
-        vnode.attrs.hasError = this.hasError;
-        vnode.attrs.hasValue = this.hasValue;
-        if(!validate){
-            vnode.attrs.validate = () => {
-                if (options && options.validateText) {
-                    this.error =  options.validateText || '選擇的內容有誤';
-                    return options.validateText || '選擇的內容有誤'
-                }
-                return this.error = ''
-            };
-        }
-        
         return m('div', {
-            class: classNames(vnode.attrs.class,{
-                'success': success,
-                'error': error,
-                'disabled': disabled
-            },cx$9('select', _theme))
+            style: this.state.style,
+            class: classNames(this.state.class,'select-line',cx$a('select', this.state.theme,this.state.getValidCalss()))
         }, [
             /**
              * theme: 'native'
-             * size
-             * autofocus
              */
-            (_theme === 'native') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx$9('select-label')
-                }): null,
-                m(NativeSelectComponent, {
-                    ...vnode.attrs
-                }),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null,
+            (this.state.theme === 'native') 
+            ? m(NativeSelectComponent,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title','required','autofocus','size','error','success'])
+            }) : null,
             /**
              * theme: 'group'
-             * options : {
-             *      groupPrepend
-             *      groupAppend
-             * }
              */
-            (_theme === 'group') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx$9('select-label')
-                }): null,
-                m('.input-group',[
-                    (options && options.groupPrepend)?
-                    m('.input-group-prepend',[
-                        this.handleComponent(options.groupPrepend,'div',{
-                            class: 'input-group-text'
-                        })
-                    ]): null,
-                    m(NativeSelectComponent, {
-                        ...vnode.attrs
-                    }),
-                    (options && options.groupAppend)?
-                    m('.input-group-append',[
-                        this.handleComponent(options.groupAppend,'div',{
-                            class: 'input-group-text'
-                        })
-                    ]): null,
-                ]),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null,
+            (this.state.theme === 'group') 
+            ? m(NativeSelectComponent$1,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title','required','autofocus','size','error','success'])
+            }) : null,
             /** 
-             * theme: 'material'
-             * oninput
-             * options: {
-             *      panelHeight
-             *      input
-             * }
+             * theme: material bottomlime outline
             */
-            (_theme === 'material') ? [
-                (options && options.label)?
-                    this.handleComponent(options.label,'div',{
-                        class: cx$9('select-label')
-                }): null,
-                m(MaterialSelectComponent, {
-                    ...vnode.attrs
-                }),
-                (hasError) ? m('small.invalid-feedback', hasError) : null
-            ] : null
+            (this.state.theme === 'material' || this.state.theme === 'bottomline' || this.state.theme === 'outline') 
+            ? m(MaterialSelectComponent,{
+                state: this.state,
+                ...this.filterAttrs(vnode.attrs,['title'])
+            }) : null,
         ])
     }
 }
-/** 
- * 可使用的屬性
- * theme
- * options: {
- *      label
- *      validateText
- *      title
- * }
- * selected: {
- *      text
- *      value
- *      data
- * }
- * childrens: {
- *      panelPrefix
- *      panelSuffix
- *      text
- *      value
- *      disabled
- *      selected
- *      style
- *      class
- *      data
- * }
- * value
- * class
- * onchange
- * oninput
- * onclick
- * onfocus
- * onblur
- * disabled
- * error
- * success
- * validate
-*/
+
+const config = new WeakMap;
+
+class Config {
+    set(value = {}) {
+        config.set(this, value);
+    }
+    get theme() {
+        let _config = config.get(this);
+        return (_config) ? _config.theme : ''
+    }
+}
+
+var Config$1 = (new Config);
 
 var styles$5 = {"material":"_23gbE","switch":"_2TzXj","success":"_2t65r","error":"_1rObM","disabled":"U7Jgc","switch-wave-effect-on":"_13JKH","switch-wave-effect-off":"_37OuF"};
 
-const cx$a = classNames.bind(styles$5);
+const cx$b = classNames.bind(styles$5);
 
 class Switch {
     view(vnode) {
@@ -1922,11 +2179,11 @@ class Switch {
             disabled,
         } = vnode.attrs;
         const classes = vnode.attrs.class;
-        const id = uuid();
+        const id = uuid$1();
         const _theme = theme ? theme : Config$1.theme;
 
         return m('.custom-control.custom-switch', {
-            class: [cx$a('switch', _theme), classes].join(' '),
+            class: [cx$b('switch', _theme), classes].join(' '),
             style
         }, [
             m('input.custom-control-input[type="checkbox"]', {
@@ -1939,7 +2196,7 @@ class Switch {
                 for: id
             }, [
                 m('div', {
-                    class: cx$a({
+                    class: cx$b({
                         'switch-wave-effect-on': checked,
                         //'switch-wave-effect-off': !checked,
                     })
@@ -1951,54 +2208,264 @@ class Switch {
     }
 }
 
-var styles$6 = {"success":"_2DghH","material":"_2Lo8J","checkbox":"SxWqM","error":"_1b3dp","disabled":"_3dB1a","select-option":"_1Gbix","select-btn":"_2HVYJ","checkbox-wave-effect-on":"_3DP-O","checkbox-wave-effect-off":"_7UISw"};
+var styles$6 = {"success":"_2DghH","error":"_1b3dp","checkbox-group":"ltq6Y","checkbox-list":"_3k3Ot","disabled":"_3dB1a","material":"_2Lo8J","checkbox-boxborder":"_2HSMr","checkbox-wave-effect":"UOw1c","on":"_1gyOL","checkbox-wave-effect-on":"_3DP-O","off":"_2hg0Z","checkbox-wave-effect-off":"_7UISw"};
 
-const cx$b = classNames.bind(styles$6);
+const cx$c = classNames.bind(styles$6);
 
-
-
-class Checkbox {
-
-    view(vnode) {
-        const {
-            theme,
-            checked,
-            onclick,
-            label,
-            style,
-            disabled,
-            required
-        } = vnode.attrs;
-
-        const classes = vnode.attrs.class;
-        const id = uuid();
-        const _theme = theme ? theme : Config$1.theme;
-
-        return m('.custom-control.custom-checkbox', {
-            class: [cx$b('checkbox', _theme), classes].join(' '),
-            style
-        }, [
-            m('input.custom-control-input[type="checkbox"]', {
-                id,
-                onclick,
-                checked,
-                disabled,
-                required
-            }),
-            m('label.custom-control-label', {
-                for: id
-
-            }, [
-                m('div', {
-                    class: cx$b({
-                        'checkbox-wave-effect-on': checked,
-                        //'checkbox-wave-effect-off': !checked,
+class CheckboxStateComponent extends Component  {
+    constructor(vnode) {
+        super(vnode);
+        const {attrs} = vnode;
+        //參數類
+        this.theme = attrs.theme || 'native';
+        this.class = attrs.class;
+        this.style = attrs.style;
+        this.success = attrs.success || false;
+        this.error = attrs.error || false;
+        this.disabled = attrs.disabled || false;
+        this.validateText = this.options.validateText || '複選框不能無勾選';
+        this.validate = this.options.validate || ((valid) => (valid.hasValue()[this.valueKey].length)?false:valid.text);
+        this.valueKey = this.options.valueKey || 'value';
+        //內部變數類
+        this.hasError = (attrs.error)? this.stream(attrs.error) : this.stream(false);
+        // 預設this.hasValue
+        if(attrs.value && typeof attrs.value === 'object'){
+            this.hasValue = this.stream(attrs.value);
+            if (this.hasValue().hasOwnProperty(this.valueKey)) {
+                if (!Array.isArray(this.hasValue()[this.valueKey])) {
+                    throw new Error('value應該是一個Array')
+                }
+            }else{
+                this.hasValue()[this.valueKey] = [];
+            }
+        }else if(attrs.checked && Array.isArray(attrs.checked)){
+            this.hasValue = this.stream({
+                [this.valueKey]: attrs.checked
+            });
+        }else{
+            this.hasValue = this.stream({[this.valueKey]:[]});
+        }
+        this.showValid = (this.hasValue() && this.hasValue()[this.valueKey].length)? this.stream(true) : this.stream(false);
+        this.createMethod({
+            state: ()=>this,
+            text: this.validateText,
+            hasError: this.hasError,
+            hasValue: this.hasValue,
+            validState: this.checkboxValidCalss,
+        });
+        const init = true;
+        this.childrensUpdate(init);
+    }
+    onBeforeUpdate(vnode){
+        this.attrs = this.checkAttrs(vnode.attrs,['events','options','checked']);
+        this.attrs = this.filterAttrs(this.attrs,['theme','class','style']);
+        this.options = this.filterAttrs(this.attrs.options,['validateText','validate','valueKey']);
+        this.childrens = this.attrs.childrens;
+        this.childrensUpdate();
+        Object.assign(this,{
+            ...attrs,
+            ...options,
+        });
+        this.success = vnode.attrs.success || false;
+        this.error = vnode.attrs.error || false;
+        this.disabled = vnode.attrs.disabled || false;
+    }
+    checkboxValidCalss(){
+        //頂層進行狀態管理
+        return (this.showValid() && !this.hasError() || this.success)?'success'
+        :(this.hasError() || this.error)?'error'
+        :(this.disabled)?'disabled':null
+    }
+    childrensUpdate(init = false) {
+        //檢查參數
+        if (this.childrens){
+            if(!Array.isArray(this.childrens)){
+                throw new Error('childrens必須是個陣列')
+            }
+            if(this.childrens){
+                this.childrens.forEach((el,i) => {
+                    if(!el.label){
+                        throw new Error('childrens的label為必填參數')
+                    }
+                    //檢查childrens所有參數
+                    el = this.checkAttrs(el,['value','disabled','checked','style','class','id','label','events','checkboxEvents']);
+                    el.id = (el.id)? el.id : uuid();
+                    el.value = (el.value)? el.value : i;
+                    //檢查使用者預設checked
+                    if(el.checked && !this.hasValue()[this.valueKey].includes(el.value) && init){
+                        this.hasValue()[this.valueKey].push(el.value);
+                    }
+                    //更新事件參數
+                    el.events = this.checkAttrs(el.events);
+                    const checkEvents = this.checkEvent(el.events);
+                    const checkboxEvents = this.excludeAttrs(checkEvents,['onclick']);
+                    Object.assign(el,{
+                        events: Object.assign(el.events, {
+                            ...checkEvents
+                        }),
+                        checkboxEvents: Object.assign(el.events, {
+                            ...checkboxEvents
+                        }),
+                    });
+                });
+            }
+        }else{
+            throw new Error('childrens為必填參數')
+        }
+        if(this.hasValue()){
+            if (typeof this.hasValue() !== 'object') {
+                throw new Error('checked、value必須是個object')
+            }
+        }else{
+            this.hasValue({[this.valueKey]:[]});
+        }
+        if(this.hasValue()[this.valueKey]){
+            if (!Array.isArray(this.hasValue()[this.valueKey])) {
+                throw new Error('checked、value必須是個陣列')
+            }
+        }else{
+            this.hasValue({[this.valueKey]:[]});
+        }
+        if (process.env.NODE_ENV !== 'production') {
+            this.hasValue()[this.valueKey].forEach((el,i) => {
+                if(this.childrens.includes(el.value)){
+                    console.warn(`checked[${i}]填入不在childrens的value預設值`);
+                }
+            });
+        }
+    }
+    getAttrs(item){
+        return {
+            list: {
+                key: item.id,
+                style: item.style,
+            },
+            checkbox: {
+                checked: this.hasValue()[this.valueKey].some(value => value===item.value),
+                id: item.id,
+                disabled: item.disabled,
+                onclick: (e)=>{
+                    const clickIndex = this.hasValue()[this.valueKey].indexOf(item.value);
+                    if (clickIndex === -1) {
+                        this.hasValue()[this.valueKey].push(item.value);
+                        item.checked = true;
+                    }else{
+                        this.hasValue()[this.valueKey].splice(clickIndex,1);
+                        item.checked = false;
+                    }
+                    if (!this.hasError(this.validate(this.method))) {
+                        this.showValid(this.hasValue()[this.valueKey].length);
+                    }
+                    if(this.events.onclick){
+                        this.events.onclick(e,this.method);
+                    }
+                },
+                ...item.checkboxEvents
+            },
+            label: {
+                for: item.id,
+            },
+            waveEffectOn:{
+                onbeforeremove: (vnode)=>{
+                    const dom = vnode.dom;
+                    dom.classList.add(`${cx$c('on')}`);
+                    return new Promise((resolve)=> {
+                        dom.addEventListener('animationend',resolve);
                     })
-                }),
-                m('span', label)
-            ])
-        ])
+                }
+            },
+            waveEffectOff:{
+                onbeforeremove: (vnode)=>{
+                    const dom = vnode.dom;
+                    dom.classList.add(`${cx$c('off')}`);
+                    return new Promise((resolve)=> {
+                        dom.addEventListener('animationend',resolve);
+                    })
+                }
+            }
+        }
+    }
+}
+window.checkboxState = new Object({});
+function createCheckbox(entity){
+    const checkboxUuid = uuid();
+    const checkboxState = window.checkboxState;
+    checkboxState[checkboxUuid] = new CheckboxStateComponent(entity);
+    checkboxState[checkboxUuid].id = checkboxUuid;
+    return checkboxState[checkboxUuid]
+}
 
+const cx$d = classNames.bind(styles$6);
+
+
+class Checkbox extends Component {
+    constructor(vnode){
+        super();
+
+        //生成state
+        this.state = new createCheckbox({
+            state: this,
+            attrs: vnode.attrs,
+            children: vnode.children
+        });
+    }
+    view(vnode) {
+        return m('div',{
+            style: this.state.style,
+            class: classNames(this.state.class,'checkbox',cx$d('checkbox-group',this.state.checkboxValidCalss())),
+        },[
+            this.state.childrens.map((item, index)=>{
+                if (this.state.theme === 'material') {
+                    return m('div',{
+                        class: classNames(cx$d('checkbox-list',item.class, this.state.theme)),
+                        ...this.state.getAttrs(item).list
+                    },[
+                        m('input[type="checkbox"]', {
+                            class: classNames('custom-control-input'),
+                            ...this.state.getAttrs(item).checkbox
+                        }),
+                        m('label', {
+                            class: classNames('custom-control-label'),
+                            ...this.state.getAttrs(item).label
+                        }, [
+                            m('div', {
+                                class: cx$d('checkbox-boxborder')
+                            },[
+                                (!item.checked)
+                                ?m('div', {
+                                    class: cx$d('checkbox-wave-effect'),
+                                    key: 'on',
+                                    ...this.state.getAttrs(item).waveEffectOn
+                                })
+                                :m('div', {
+                                    class: cx$d('checkbox-wave-effect'),
+                                    key: 'off',
+                                    ...this.state.getAttrs(item).waveEffectOff
+                                })
+                            ]),
+                            this.handleComponent(item.label,'span',{})
+                        ])
+                    ])
+                }
+                return m('div',{
+                    class: classNames('custom-control','custom-checkbox',item.class,cx$d('checkbox-list')),
+                    ...this.state.getAttrs(item).list
+                },[
+                    m('input[type="checkbox"]', {
+                        class: classNames('custom-control-input'),
+                        ...this.state.getAttrs(item).checkbox
+                    }),
+                    this.handleComponent(item.label,'label',{
+                        class: classNames('custom-control-label'),
+                        ...this.state.getAttrs(item).label
+                    })
+                ])
+            }),
+            m('.feeback',[
+                (this.state.hasError()) ? m('small.text-danger', this.state.hasError()) : null
+            ])
+            
+        ])
     }
 }
 
@@ -2183,7 +2650,7 @@ class MonthPicker {
 
 var style = {"datepicker-popup":"_3aI8P","calendar":"_3ogyK","show":"_1Fs1a","calendar-header":"_2w01a","calendar-controls":"_2PfTw","mat-button":"_1BmuC","mat-icon-button":"cs9TJ","header-year-month":"_1QMMx","calendar-previous-button":"_2MwrD","calendar-next-button":"KZ1Bx","calendar-body":"LlDa6","calendar-weekly":"_10DG8","cell":"_1QDyH","calendar-divider":"ulKpJ","calendar-content":"_2Wop2","calendar-content-cell":"tuQIY","calendar-day":"_38xj6","selected":"mhpwL","not-in-month":"yomK5","perspective":"_3xt8y","calendar-moveToLeft":"_2QHbA","moveToLeft":"_3Rism","calendar-moveFromLeft":"pELb4","moveFromLeft":"_3DWmD","calendar-moveToRight":"_27GER","moveToRight":"_3A1OX","calendar-moveFromRight":"_11Jfs","moveFromRight":"_3Bc1g","year-month-picker":"_2H9Bz","pickerIn":"_3xupt","hide":"_3AIRI","pickerOut":"SLG2v","year-panel":"_230dQ","month-panel":"_1WS88"};
 
-const cx$c = classNames.bind(style);
+const cx$e = classNames.bind(style);
 
 class Calendar {
     constructor(vnode) {
@@ -2205,8 +2672,8 @@ class Calendar {
     oncreate(vnode) {
         //判斷位置
         if (vnode.dom) {
-            const calendar = vnode.dom.querySelector(`.${cx$c('calendar')}`);
-            calendar.classList.add(`${cx$c('show')}`);
+            const calendar = vnode.dom.querySelector(`.${cx$e('calendar')}`);
+            calendar.classList.add(`${cx$e('show')}`);
         }
     }
     handleChange(currentMonth, direction) {
@@ -2230,9 +2697,9 @@ class Calendar {
     }
     handlePicker(dom, toggle, type) {
         if (toggle()) {
-            const picker = dom.querySelector(`.${cx$c('year-month-picker')}`);
-            picker.classList.remove(`${cx$c('show')}`);
-            picker.classList.add(`${cx$c('hide')}`);
+            const picker = dom.querySelector(`.${cx$e('year-month-picker')}`);
+            picker.classList.remove(`${cx$e('show')}`);
+            picker.classList.add(`${cx$e('hide')}`);
             picker.addEventListener("animationend", () => {
                 toggle(false);
                 m.redraw();
@@ -2255,58 +2722,58 @@ class Calendar {
         } = vnode.attrs;
 
         return m('div', {
-            class: cx$c('calendar-popup')
+            class: cx$e('calendar-popup')
         }, [
             m('div', {
-                class: cx$c('calendar')
+                class: cx$e('calendar')
             }, [
                 m('div', {
-                    class: cx$c('calendar-header')
+                    class: cx$e('calendar-header')
                 }, [
                     m('div', {
                         //使用flex
-                        class: cx$c('calendar-controls')
+                        class: cx$e('calendar-controls')
                     }, [
                         m('div', {
-                            class: cx$c('mat-button-wrapper')
+                            class: cx$e('mat-button-wrapper')
                         }, [
                             m('button[type="button"]', {
-                                class: cx$c('mat-button'),
+                                class: cx$e('mat-button'),
                                 onclick: (e) => {
                                     e.preventDefault();
                                     this.handlePicker(vnode.dom, this.toggle, 'year');
                                 }
                             }, [
                                 m('span', {
-                                    class: cx$c('header-year')
+                                    class: cx$e('header-year')
                                 }, `${this.months[0].get('year')}年`)
                             ]),
                             m('button[type="button"]', {
-                                class: cx$c('mat-button'),
+                                class: cx$e('mat-button'),
                                 onclick: (e) => {
                                     e.preventDefault();
                                     this.handlePicker(vnode.dom, this.toggle, 'month');
                                 }
                             }, [
                                 m('span', {
-                                    class: cx$c('header-month')
+                                    class: cx$e('header-month')
                                 }, `${this.months[0].get('month') + 1}月`)
                             ])
                         ]),
                         m('div', {
-                            class: cx$c('mat-button-wrapper'),
+                            class: cx$e('mat-button-wrapper'),
                             style: {
                                 visibility: this.toggle() ? 'hidden' : 'visible'
                             }
                         }, [
                             m('button[type="button"]', {
-                                class: cx$c('mat-icon-button', 'calendar-previous-button'),
+                                class: cx$e('mat-icon-button', 'calendar-previous-button'),
                                 onclick: (e) => {
                                     this.handleChange(this.months[0], 'prev');
                                 }
                             }),
                             m('button[type="button"]', {
-                                class: cx$c('mat-icon-button', 'calendar-next-button'),
+                                class: cx$e('mat-icon-button', 'calendar-next-button'),
                                 onclick: (e) => {
                                     this.handleChange(this.months[0], 'next');
                                 }
@@ -2315,26 +2782,26 @@ class Calendar {
                     ])
                 ]),
                 m('div', {
-                    class: cx$c('calendar-body', 'perspective')
+                    class: cx$e('calendar-body', 'perspective')
                 }, [
                     m('div', {
-                        class: cx$c('calendar-weekly')
+                        class: cx$e('calendar-weekly')
                     }, [
                         ['日', '一', '二', '三', '四', '五', '六'].map(item => {
                             return m('div', {
-                                class: cx$c('cell')
+                                class: cx$e('cell')
                             }, item)
                         }),
                     ]),
                     m('hr', {
-                        class: cx$c('calendar-divider')
+                        class: cx$e('calendar-divider')
                     }),
                     m('div', {
-                        class: cx$c('perspective')
+                        class: cx$e('perspective')
                     }, [
                         this.months.map(month => {
                             return m(DateComponent, {
-                                cx: cx$c,
+                                cx: cx$e,
                                 key: month,
                                 selectedDate: this.selectedDate,
                                 //月份的第一天
@@ -2347,7 +2814,7 @@ class Calendar {
                     ]),
                     (this.toggle() === 'year') ? [
                         m(YearPicker, {
-                            cx: cx$c,
+                            cx: cx$e,
                             toggle: (value) => {
                                 this.handlePicker(vnode.dom, this.toggle, 'year');
                                 this.handleYearAndMonth({
@@ -2359,7 +2826,7 @@ class Calendar {
                     ] : null,
                     (this.toggle() === 'month') ? [
                         m(MonthPicker, {
-                            cx: cx$c,
+                            cx: cx$e,
                             toggle: (value) => {
                                 this.handlePicker(vnode.dom, this.toggle, 'month');
                                 this.handleYearAndMonth({
@@ -2426,7 +2893,7 @@ class Button {
 
 var style$1 = {"icon-wave-button":"_2pKgG"};
 
-const cx$d = classNames.bind(style$1);
+const cx$f = classNames.bind(style$1);
 
 const wave$1 = {
     oncreate: (vnode) => {
@@ -2453,7 +2920,7 @@ class IconButton {
 
 
         let attrs = {
-            class: classNames(vnode.attrs.class, cx$d('icon-wave-button')),
+            class: classNames(vnode.attrs.class, cx$f('icon-wave-button')),
             disabled,
             style,
             onclick
@@ -4915,7 +5382,7 @@ var bundle_107 = bundle.YoutubeSymbol;
 
 var styles$7 = {"gi-editor-attachs":"_2uDx1","gi-editor-header":"_3Sjkk","gi-editor-attachs-content":"QO435","gi-editor-attach-item":"xcnuV","close":"_35375","gi-editor-attach-icon":"_2Q8MW","gi-editor-attach-title":"_1M5hn","gi-editor-attach-size":"_1VxEi","gi-editor-attach-filename":"_3yH-y","gi-editor-attach-tooltip":"_1jer7","editing":"_13XOT","blue-background-class":"_2NOJe","gi-editor-attach-upload":"_1NDny"};
 
-const cx$e = classNames.bind(styles$7);
+const cx$g = classNames.bind(styles$7);
 
 function getFileExtension(filename) {
     const ext = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
@@ -4959,7 +5426,7 @@ function fileSelectHandler(files, storage) {
         });
         if (!found) {
             this.attachs.push({
-                id: uuid$1(),
+                id: uuid(),
                 filename: files[i].name,
                 size: files[i].size,
                 caption: files[i].name.split('.').slice(0, -1).join('.'),
@@ -4975,21 +5442,21 @@ function fileSelectHandler(files, storage) {
 
 function initSortable() {
     this.sortable = Sortable.create(this.content, {
-        ghostClass: `${cx$e('blue-background-class')}`,
+        ghostClass: `${cx$g('blue-background-class')}`,
         onChoose: (evt) => {
-            const items = document.querySelectorAll(`.${cx$e('gi-editor-attach-item')}`);
+            const items = document.querySelectorAll(`.${cx$g('gi-editor-attach-item')}`);
             if (items) {
                 items.forEach(item => {
-                    item.classList.add(`${cx$e('editing')}`);
+                    item.classList.add(`${cx$g('editing')}`);
                 });
             }
         },
         onEnd: (evt) => {
             this.attachs.splice(evt.newIndex, 0, this.attachs.splice(evt.oldIndex, 1)[0]);
-            const items = document.querySelectorAll(`.${cx$e('gi-editor-attach-item')}`);
+            const items = document.querySelectorAll(`.${cx$g('gi-editor-attach-item')}`);
             if (items) {
                 items.forEach(item => {
-                    item.classList.remove(`${cx$e('editing')}`);
+                    item.classList.remove(`${cx$g('editing')}`);
                 });
             }
             this.export(this.attachs);
@@ -5007,7 +5474,7 @@ class Attachs {
     }
     oncreate(vnode) {
         document.addEventListener('click', (e) => {
-            const editing = vnode.dom.querySelector(`.${cx$e('gi-editor-attach-title')}[data-edit]`);
+            const editing = vnode.dom.querySelector(`.${cx$g('gi-editor-attach-title')}[data-edit]`);
             if (editing && e.target != editing && !editing.contains(e.target)) {
                 let isEditing = false;
                 this.attachs.map(item => {
@@ -5029,7 +5496,7 @@ class Attachs {
             }
         });
 
-        this.content = vnode.dom.querySelector(`.${cx$e('gi-editor-attachs-content')}`);
+        this.content = vnode.dom.querySelector(`.${cx$g('gi-editor-attachs-content')}`);
         initSortable.call(this);
     }
     onremove(vnode) {
@@ -5052,17 +5519,17 @@ class Attachs {
         storage = storage || '.';
 
         return m('div.gi-attachs', {
-            class: cx$e('gi-editor-attachs')
+            class: cx$g('gi-editor-attachs')
         }, [
             m('div.gi-attachs-header', {
-                class: cx$e('gi-editor-header')
+                class: cx$g('gi-editor-header')
             }, [
                 m('h6', [
                     '附件檔案',
                     note
                 ]),
                 m('button[type="button"]', {
-                    class: cx$e('gi-editor-attach-upload'),
+                    class: cx$g('gi-editor-attach-upload'),
                     onclick: (e) => {
                         vnode.dom.querySelector('#attach_upload').click();
                     }
@@ -5081,7 +5548,7 @@ class Attachs {
                 })
             ]),
             m('div.gi-attachs-content', {
-                class: cx$e('gi-editor-attachs-content'),
+                class: cx$g('gi-editor-attachs-content'),
                 ondragover: (e) => {
                     e.preventDefault();
                 },
@@ -5095,7 +5562,7 @@ class Attachs {
                     const ext = getFileExtension(item.filename);
                     return m('div.gi-attachs-item', {
                         key: item.id,
-                        class: cx$e('gi-editor-attach-item', {
+                        class: cx$g('gi-editor-attach-item', {
                             'editing': item.editable
                         }),
                         style: {
@@ -5107,18 +5574,18 @@ class Attachs {
                         }
                     }, [
                         m('div', {
-                            class: cx$e('gi-editor-attach-filename')
+                            class: cx$g('gi-editor-attach-filename')
                         }, [
                             m('div', {
-                                class: cx$e('gi-editor-attach-tooltip')
+                                class: cx$g('gi-editor-attach-tooltip')
                             }, `檔案: ${item.filename}`)
                         ]),
                         m('div', {
-                            class: cx$e('gi-editor-attach-icon')
+                            class: cx$g('gi-editor-attach-icon')
                         }, getIcon(ext)),
                         (item.editable) ? [
                             m('div', {
-                                class: cx$e('gi-editor-attach-title'),
+                                class: cx$g('gi-editor-attach-title'),
                                 'data-edit': item.editable
                             }, [
                                 m('input[type="text"]', {
@@ -5143,7 +5610,7 @@ class Attachs {
                             ])
                         ] : [
                             m('div', {
-                                class: cx$e('gi-editor-attach-title'),
+                                class: cx$g('gi-editor-attach-title'),
                                 ondblclick: (e) => {
                                     this.attachs.map(item => {
                                         item.editable = false;
@@ -5155,10 +5622,10 @@ class Attachs {
                             }, item.caption)
                         ],
                         m('div', {
-                            class: cx$e('gi-editor-attach-size')
+                            class: cx$g('gi-editor-attach-size')
                         }, bytesToSize(item.size)),
                         m('button[type="button"]', {
-                            class: cx$e('close'),
+                            class: cx$g('close'),
                             onclick: (e) => {
                                 e.preventDefault();
                                 this.attachs.splice(index, 1);
@@ -5302,7 +5769,7 @@ function onChangeEvent (e , goToList = null){
 
 var styles$8 = {"carousel":"_1TU4e","carousel-panel":"_34jyM","carousel-panel-item":"_32ZPT","carousel-arrow":"_2AcBZ","carousel-arrow-icon":"zX_RK","carousel-arrow-left":"uALmQ","carousel-arrow-right":"pxLns","carousel-dots":"_2mFq5","carousel-dots-item":"_3qPHy","active":"_2g7vW"};
 
-const cx$f = classNames.bind(styles$8);
+const cx$h = classNames.bind(styles$8);
 
 class Carousel extends Component {
     constructor(vnode){
@@ -5376,9 +5843,9 @@ class Carousel extends Component {
         dom.onChangeEvent = (goToList)=>{
             onChangeEvent(this.changeEvent,goToList);
         };
-        this.state.panel = dom.querySelector(`.${cx$f('carousel-panel')}`);
+        this.state.panel = dom.querySelector(`.${cx$h('carousel-panel')}`);
         this.state.bannerWidth = dom.offsetWidth;
-        const carouselItem = dom.querySelectorAll(`.${cx$f('carousel-panel-item')}`);
+        const carouselItem = dom.querySelectorAll(`.${cx$h('carousel-panel-item')}`);
         for (let i = 0; i < carouselItem.length; i++) {
             carouselItem[i].style.width = `${this.state.bannerWidth}px`;
         }
@@ -5400,6 +5867,17 @@ class Carousel extends Component {
             });
         }
     }
+    onbeforeupdate(vnode){
+        this.state = Object.assign(this.state,vnode.attrs.state);
+    }
+    onupdate(vnode){
+        const dom = vnode.dom;
+        this.state.bannerWidth = dom.offsetWidth;
+        const carouselItem = dom.querySelectorAll(`.${cx$h('carousel-panel-item')}`);
+        for (let i = 0; i < carouselItem.length; i++) {
+            carouselItem[i].style.width = `${this.state.bannerWidth}px`;
+        }
+    }
     view(vnode){
         const {
             carouselScroll,
@@ -5415,12 +5893,12 @@ class Carousel extends Component {
         const orderList = initIndex%panelItem.length;
         this.state.orderKey = panelItem[carouselScroll + orderList].key;
         return m('div',{
-            class: cx$f('carousel'),
+            class: cx$h('carousel'),
             'data-order': this.state.order,
             'data-orderkey': this.state.orderKey,
         },[
             m('div',{
-                class: cx$f('carousel-panel')
+                class: cx$h('carousel-panel')
             },[
                 panelItem.map((item, index , array)=>{
                     
@@ -5430,7 +5908,7 @@ class Carousel extends Component {
                             transform: `translateX(-${childrens.length + orderList}00%)`,
                             maxWidth: `${100/carouselShow}%`,
                         },
-                        class: cx$f('carousel-panel-item'),
+                        class: cx$h('carousel-panel-item'),
                         key: item.key,
                         'data-key': item.key,
                         'data-order': item.order,
@@ -5443,8 +5921,8 @@ class Carousel extends Component {
 
             (arrows)? m(ArrowComponent,{
                 ...arrows,
-                arrowIcon: arrows.children || m('i',{class: cx$f('carousel-arrow-icon')}),
-                arrowClass: cx$f('carousel-arrow','carousel-arrow-left'),
+                arrowIcon: arrows.children || m('i',{class: cx$h('carousel-arrow-icon')}),
+                arrowClass: cx$h('carousel-arrow','carousel-arrow-left'),
                 changeEvent: this.changeEvent,
                 onChangeEvent:  (e) => {
                     onChangeEvent({
@@ -5456,8 +5934,8 @@ class Carousel extends Component {
 
             (arrows)? m(ArrowComponent,{
                 ...arrows,
-                arrowIcon: m('i',{class: cx$f('carousel-arrow-icon')}),
-                arrowClass: cx$f('carousel-arrow','carousel-arrow-right'),
+                arrowIcon: m('i',{class: cx$h('carousel-arrow-icon')}),
+                arrowClass: cx$h('carousel-arrow','carousel-arrow-right'),
                 changeEvent: this.changeEvent,
                 onChangeEvent:  (e) => {
                     onChangeEvent({
@@ -5468,7 +5946,7 @@ class Carousel extends Component {
             }):'',
 
             (dots)? m('div',{
-                class: cx$f('carousel-dots')
+                class: cx$h('carousel-dots')
             },[
                 childrens.map((item, index) =>{
                     const {
@@ -5476,7 +5954,7 @@ class Carousel extends Component {
                         dotsClass
                     } = item;
                     return m('div',{
-                        class: classNames(dotsClass,cx$f('carousel-dots-item',{
+                        class: classNames(dotsClass,cx$h('carousel-dots-item',{
                             active: index == this.state.order
                         })),
                         onclick: (e) => {
@@ -5498,18 +5976,267 @@ class Carousel extends Component {
  * 2.滑動
  */
 
+function getMouthLength (maxDate,minDate,year,month) {
+    if(maxDate.year() == minDate.year()){
+        return maxDate.month() - minDate.month()
+    }
+    if(maxDate.year() == year){
+        return maxDate.month() + 1
+    }
+    if(minDate.year() == year){
+        return 12 - minDate.month()
+    }
+    if(year > minDate.year() && year < maxDate.year()){
+        return 12
+    }
+    return 0
+}
+
+function rangeMonth (maxDate,minDate,year,month,day,index){
+    if(maxDate.year() == year && minDate.year() == year && maxDate.month()+1 == month && minDate.month()+1 == month){
+        return maxDate.date() - minDate.date()
+    }
+    if(maxDate.year() == year && maxDate.month()+1 == month){
+        return maxDate.date()
+    }
+    if(minDate.year() == year && minDate.month()+1 == month){
+        return index - minDate.date()
+    }
+    return index
+}
+
+function getDayLength (maxDate,minDate,year,month,day){
+    switch (month){
+        case 1 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 2 : return rangeMonth(maxDate,minDate,year,month,day, (year%4 == 0)?29:28 )
+        case 3 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 4 : return rangeMonth(maxDate,minDate,year,month,day,30)
+        case 5 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 6 : return rangeMonth(maxDate,minDate,year,month,day,30)
+        case 7 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 8 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 9 : return rangeMonth(maxDate,minDate,year,month,day,30)
+        case 10 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        case 11 : return rangeMonth(maxDate,minDate,year,month,day,30)
+        case 12 : return rangeMonth(maxDate,minDate,year,month,day,31)
+        default: return 0
+    }
+}
+
+
+function selectChildrens (set){
+    const {
+        textKey,
+        valueKey,
+    } = set;
+    
+    let yearLength = 0;
+    let monthLength,dayLength;
+    const maxDate = (moment(set.maxDate).isValid())? moment(set.maxDate):moment();
+    const minDate = (moment(set.minDate).isValid())? moment(set.minDate):moment();
+    
+    yearLength = maxDate.year() - minDate.year() || 1;
+    monthLength = getMouthLength(maxDate,minDate,set.yearSelected[valueKey],set.monthSelected[valueKey]);
+    dayLength = getDayLength (maxDate,minDate,set.yearSelected[valueKey],set.monthSelected[valueKey],set.daySelected[valueKey]);
+
+    let yearArray = [];
+    let monthArray = [{
+        [textKey]: set.monthSelected[textKey],
+        [valueKey]: null,
+        disabled: true,
+    }];
+    let dayArray = [{
+        [textKey]: set.daySelected[textKey],
+        [valueKey]: null,
+        disabled: true,
+    }];
+    
+    if(moment(set.maxDate).isValid()){
+        for (let i = 0; i <= yearLength; i++) {
+            yearArray[i] = {
+                [textKey]: maxDate.year() - i + '年',
+                [valueKey]: maxDate.year() - i
+            };
+        }
+        yearArray.reverse();
+    }else{
+        for (let i = 0; i <= yearLength; i++) {
+            yearArray[i] = {
+                [textKey]: maxDate.year() - i + '年',
+                [valueKey]: maxDate.year() - i
+            };
+        }
+    }
+    if(monthLength){
+        if(minDate.year() == set.yearSelected[valueKey] || maxDate.year() == minDate.year()){
+            monthArray = [];
+            for (let i = 0; i < monthLength; i++) {
+                monthArray[i] = {
+                    [textKey]: minDate.month() + i + 1 + '月',
+                    [valueKey]: minDate.month() + i + 1
+                };
+            } 
+        }else{
+            monthArray = [];
+            for (let i = 0; i < monthLength; i++) {
+                monthArray[i] = {
+                    [textKey]: i + 1 + '月',
+                    [valueKey]: i + 1
+                };
+            }
+        }
+    }
+    if(dayLength){
+        if(minDate.year() == set.yearSelected[valueKey] || (maxDate.year() == minDate.year() && maxDate.month() == minDate.month())){
+            dayArray = [];
+            for (let i = 0; i < dayLength; i++) {
+                dayArray[i] = {
+                    [textKey]: minDate.date() + i + 1 + '月',
+                    [valueKey]: minDate.date() + i + 1
+                };
+            } 
+        }else{
+            dayArray = [];
+            for (let i = 0; i < dayLength; i++) {
+                dayArray[i] = {
+                    [textKey]: i + 1 + '日',
+                    [valueKey]: i + 1
+                };
+            }
+        }
+    }
+
+    if(!monthArray.some(obj=>obj[valueKey] == set.monthSelected[valueKey])){
+        set.monthSelected[textKey] = '請選擇';
+        set.monthSelected[valueKey] = null;
+        set.daySelected[textKey] = '請選擇';
+        set.daySelected[valueKey] = null;
+    }
+    if(!dayArray.some(obj=>obj[valueKey] == set.daySelected[valueKey])){
+        set.daySelected[textKey] = '請選擇';
+        set.daySelected[valueKey] = null;
+    }
+    
+    return {
+        year: yearArray,
+        month: monthArray,
+        day: dayArray,
+    }
+}
+
+class DateTool {
+    constructor(setting) {
+        const textKey = setting.textKey || 'text';
+        const valueKey = setting.valueKey || 'value';
+        
+        const defaultSetting = {
+            maxDate: false,
+            minDate: false,
+            yearSelected: {
+                [textKey]: '請選擇',
+                [valueKey]: null
+            },
+            monthSelected: {
+                [textKey]: '請選擇',
+                [valueKey]: null
+            },
+            daySelected: {
+                [textKey]: '請選擇',
+                [valueKey]: null
+            },
+        }; 
+        this.set = Object.assign({},defaultSetting,setting,{
+            textKey: textKey,
+            valueKey: valueKey,
+        });
+    }
+    static moment(value){
+        return moment(value)
+    }
+    /**
+     * @return {Object} Moment YYYY/MM/DD
+     */
+    getMomentValue(){
+        return moment(`${this.set.yearSelected[this.set.valueKey]}/${this.set.monthSelected[this.set.valueKey]}/${this.set.daySelected[this.set.valueKey]}`)
+    }
+    /**
+     * @param {*} setValue Object = {year,month,day}
+     * @param {*} year {[textKey],[valueKey]}
+     * @param {*} month {[textKey],[valueKey]}
+     * @param {*} day {[textKey],[valueKey]}
+     */
+    setDateValue(setValue){
+        const {year,month,day} = setValue;
+        const {textKey,valueKey} = this.set;
+        this.set.yearSelected = Object.assign(this.set.yearSelected,{
+            [textKey]: year[textKey],
+            [valueKey]: year[valueKey]
+        }),
+        this.set.monthSelected = Object.assign(this.set.monthSelected,{
+            [textKey]: month[textKey],
+            [valueKey]: month[valueKey]
+        }),
+        this.set.daySelected = Object.assign(this.set.daySelected,{
+            [textKey]: day[textKey],
+            [valueKey]: day[valueKey]
+        });
+    }
+    
+    select(){
+        
+        return {
+            set: this.set,
+            /**
+             * @return {Array} Array {year,month,day}
+             */
+            getChildrens: ()=>{
+                return selectChildrens(this.set)
+            },
+            /**
+             * @return {Object} Object {year,month,day}
+             */
+            getSelected: ()=>{
+                const {
+                    yearSelected,
+                    monthSelected,
+                    daySelected
+                } = this.set;
+                return {
+                    year: yearSelected,
+                    month: monthSelected,
+                    day: daySelected,
+                }
+            },
+            year: {
+                childrens: selectChildrens(this.set).year,
+                selected: this.set.yearSelected,
+            },
+            month: {
+                childrens: selectChildrens(this.set).month,
+                selected: this.set.monthSelected,
+            },
+            day: {
+                childrens: selectChildrens(this.set).day,
+                selected: this.set.daySelected,
+            },
+        }
+    }
+}
+
 exports.Attach = Attachs;
 exports.Button = Button;
 exports.Calendar = Calendar;
 exports.Carousel = Carousel;
 exports.CheckBox = Checkbox;
 exports.Config = Config$1;
+exports.DateTool = DateTool;
 exports.IconButton = IconButton;
 exports.PageItemCount = PageItemCount;
 exports.Pagination = Pagination;
 exports.Radio = Radio;
 exports.Select = Select;
 exports.Switch = Switch;
-exports.TextArea = TextArea;
+exports.TextArea = Textarea;
+exports.TextAreaField = TextAreaField;
 exports.TextBox = TextBox;
 exports.TextField = TextField;

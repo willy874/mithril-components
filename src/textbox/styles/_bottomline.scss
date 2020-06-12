@@ -25,6 +25,9 @@
             background: var(--textbox-bg-color);
             box-shadow: none;
         }
+        &::placeholder{
+            color: var(--textbox-placeholder-color);
+        }
     }
 
     label {
@@ -46,14 +49,14 @@
         transform-origin: top left;
 
         &.flying {
-            transform: translate(0, 1.5px) scale(0.75);
+            transform: translate(0, 8px) scale(0.75);
             transform-origin: top left;
         }
     }
 
     &:focus-within {
         .fly-label {
-            transform: translate(0, 1.5px) scale(0.75);
+            transform: translate(0, 8px) scale(0.75);
             transform-origin: top left;
             color: var(--textbox-focus-label-color);
         }
@@ -101,6 +104,7 @@
 
 
 .bottomline-wrapper {
+    width: 100%;
     cursor: text;
     display: inline-flex;
     position: relative;
@@ -108,7 +112,7 @@
     box-sizing: border-box;
     align-items: center;
     line-height: 1.1875em;
-    margin-top: 16px;
+    margin-top: 4px;
 
     &::before {
         left: 0;

@@ -23,7 +23,9 @@ export default class{
             m('.container',[
                 
                 m('h3.pt-5',['DemoPage']),
-                
+                m('row',[
+                    
+                ])
             ])
         ])
     }

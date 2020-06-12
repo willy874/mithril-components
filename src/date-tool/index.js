@@ -27,7 +27,7 @@ export default class DateTool {
             valueKey: valueKey,
         })
     }
-    moment(value){
+    static moment(value){
         return moment(value)
     }
     /**

@@ -1,220 +1,50 @@
+@import 'bottomline';
+@import 'outline';
+
 //** var *******************************************************************************************
-.select{
+:global(.select-line) {
     --status: var(--primary);
     --select-btn-bg-color: transparent;
+    --select-active-btn-bg-color: transparent;
+    --select-btn-text-color: #000;
+    --select-active-btn-text-color: #000;
     --select-panel-bg-color: #fff;
     --select-line-color: #666;
-    --select-border-color: transparent;
-    --select-border-line: var(--primary);
-    --select-hover-bg-color: var(--primary);
+    --select-hover-line-color: #222;
+    --select-active-line-color: var(--status);
+    --select-hover-bg-color: var(--status);
+    --select-text-color: #000;
     --select-hover-text-color: #fff;
     --select-disabled-bg-color: #666;
+    --select-dialog-bg-color: #000000bb;
+    --select-dialog-zindex: 1000;
+    --select-scrollbar-bg-color: rgba(128, 128, 128, 0.5);
+    &.success{
+        --status: var(--success);
+    }
+    &.error{
+        --status: var(--danger);
+    }
+    &.disabled{
+        --status: var(--secondary);
+    }
 }
-.success{
-    --status: var(--success);
-}
-.error{
-    --status: var(--danger);
-}
-
-
 
 //** native *******************************************************************************************
+.select-dialog-body{
+    overflow: hidden;
+}
 .select{
     display: flex;
     flex-direction: column;
     
-    label{
-        margin-right: 0.5rem;
-        margin-bottom: 0;
-        font-size: 1rem;
-        color: var(--text-color);
-        flex-shrink: 0;
-    }
     select{
         background-color: transparent;
     }
-}
-
-//** material *******************************************************************************************
-.select.material{
-    // &.success{}
-    // &.error{}
-    &.disabled{
-        opacity: 0.6;
-        .select-dropdown{
-            cursor: auto;
-        }
-    }
-    .select-dropdown{
-        width: 100%;
-        position: relative;
-
-        &.active{
-            .select-btn{
-                &::after{
-                    transform: translateY(-50%) rotate(180deg);
-                    border-color: var(--status) transparent transparent transparent;
-                }
-            }
-        }
-    }
-    .select-btn{
-        padding: 0;
-
-
-        &::after{
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: 0.5rem;
-            transform: translateY(-50%) rotate(0deg);
-            border-width: 0.5rem 0.5rem*0.707 0 0.5rem*0.707;
-            border-style: solid;
-            border-color: var(--select-line-color) transparent transparent transparent;
-            transition: all 0.3s ease-in-out;
-        }
-        input,button,.select-btn-input,.select-btn-button {
-            text-align: left;
-            border-color: var(--select-border-color);
-            border-style: solid;
-            background-color: var(--select-btn-bg-color);
-            padding: 0.25rem 1.5rem 0.25rem 0.75rem;
-            width: 100%;
-            cursor: pointer;
-            &:focus{
-                box-shadow: none;
-                outline: 0;
-            }
-        }
-    }
-    .select-line{
-        z-index: 12;
-        width: 100%;
-        
-        &::before{
-            content: '';
-            position: absolute;
-            height: 0.0625rem;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            opacity: 0.5;
-            background-color: var(--select-line-color)
-        }
-        &::after{
-            content: '';
-            position: absolute;
-            height: 0.0625rem;
-            bottom: 0;
-            left: 50%;
-            right: 50%;
-            background-color: var(--status);
-            transition: all 0.3s ease-in-out;
-            z-index: 2;
-        }
-    }
     .select-panel{
-        background-color: var(--select-panel-bg-color);
-        position: absolute;
-        left: 0;
-        right: 0;
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-        z-index: 1;
-        &.transition-3{
-            transition: all 0.3s;
-        }
-        button{
-            
-            &.active{
-                background-color: var(--select-hover-bg-color);
-                color: var(--select-hover-text-color);
-                opacity: 0.6;
-            }
-            &.input{
-                background-color: var(--select-hover-bg-color);
-                color: var(--select-hover-text-color);
-                opacity: 0.8;
-            }
-            &:focus{
-                box-shadow: none;
-                outline: 0;
-                background-color: var(--select-hover-bg-color);
-                color: var(--select-hover-text-color);
-                opacity: 1;
-            }
-            &:hover{
-                background-color: var(--select-hover-bg-color);
-                color: var(--select-hover-text-color);
-                opacity: 1;
-            }
-            &.disabled{
-                background-color: var(--select-btn-bg-color);
-                color: var(--text-color);
-            }
-            
-        }
-    }    
-    
-    .select-option{
-        border: 0;
-        width: 100%;
-        text-align: left;
-        overflow: hidden;
-        flex-shrink: 0;
-        padding: 0.25rem 0.75rem;
-        background-color: var(--select-panel-bg-color);
-        &.disabled{
-            background-color: var(--select-disabled-bg-color);
-            opacity: 0.6;
-            cursor: auto;
-        }
-    }    
-      
-    
-    &:hover{
-        .select-line::after{
-            left: 0;
-            right: 0;
-        }
-        .select-line::before{
-            height: 0.125rem;
-        }
-        .select-line::after{
-            height: 0.125rem;
-        }
-    }
-    &:focus-within {
-        .select-line::after{
-            left: 0;
-            right: 0;
-        }
-        .select-line::before{
-            height: 0.125rem;
-        }
-        .select-line::after{
-            height: 0.125rem;
-        }
-    }
-    .active{
-        .select-line::after{
-            left: 0;
-            right: 0;
-        }
-        &:hover{
-            .select-line::before{
-                height: 0.125rem;
-            }
-            .select-line::after{
-                height: 0.125rem;
-            }
-        }
-        .select-panel{
-            height: auto;
-            box-shadow:  0 0.125rem 0.25rem 0.125rem #00000011,0 -0.125rem 0.25rem 0.125rem #00000011;
-        }
-        
+        &::-webkit-scrollbar{width: 0.25rem;}
+        &::-webkit-scrollbar-button{height: 0;}
+        &::-webkit-scrollbar-thumb{background-color: var(--status);}
+        &::-webkit-scrollbar-track{background-color: var(--select-scrollbar-bg-color);}
     }
 }

@@ -3,6 +3,9 @@ import {
     TextBox,
     TextField
 } from '@src'
+import { colorSet,CodeTemplate,TableTemplate,TableRow } from '../tool';
+const cs = colorSet
+
 class TextA {
     view(){
         return m('i',[
@@ -28,6 +31,14 @@ class TextA {
     }
 }
 export default class {
+    constructor(){
+        this.model = {
+            value: '',
+            input: '請輸入文字',
+            feedback: null,
+            password: null,
+        }
+    }
     view(vnode) {
         return m('.main', [
             m.trust(``),
@@ -47,6 +58,16 @@ export default class {
             m('.container.py-5'),
             m('.container', [
                 m('h3.pt-5', ['TextBox']),
+                m('.pt-3',[
+                    m('span.h5','Model Value 01： '),
+                    m.trust(`this.model.value: "${this.model.value}"<br>`),
+                    m('span.h5','Model Value 02： '),
+                    m.trust(`this.model.input: "${this.model.input}"<br>`),
+                    m('span.h5','Model Value 03： '),
+                    m.trust(`this.model.feedback: "${this.model.feedback}"<br>`),
+                    m('span.h5','Model Value 04： '),
+                    m.trust(`this.model.password: "${this.model.password}"<br>`),
+                ]),
                 m('.row', [
                     m('.col-3',[
                         m('h6', m('strong', '原始狀態')),
@@ -57,13 +78,20 @@ export default class {
                         m(TextField,{
                             title: '請輸入文字',
                             placeholder: '請輸入文字',
-                            class: 'bg-light form-control'
+                            class: 'bg-light form-control',
+                            value: this.model,
+                            options: {
+                                valueKey: 'value'
+                            }
                         })
                     ]),
                     m('.col-3',[
                         m('h6', m('strong', '填入初始值')),
-                        m(TextField,{
-                            value: '請輸入文字',
+                        m(TextBox,{
+                            value: this.model,
+                            options: {
+                                valueKey: 'input'
+                            }
                         })
                     ]),
                     m('.col-3',[
@@ -76,10 +104,12 @@ export default class {
                     m('.col-3',[
                         m('h6', m('strong', '傳出參數')),
                         m(TextField,{
+                            value: this.model,
                             options: {
-                                validate: (v)=>{
-                                    this.inputValue = v
-                                    return !v
+                                valueKey: 'feedback',
+                                validate: (method)=>{
+                                    this.inputValue = method.hasValue().feedback
+                                    return !this.inputValue
                                 }
                             }
                         }),
@@ -87,20 +117,68 @@ export default class {
                     ]),
                     m('.col-3',[
                         m('h6', m('strong', '密碼及驗證')),
-                        m(TextField,{
+                        m(TextBox,{
                             type: 'password',
+                            value: this.model,
                             options: {
+                                valueKey: 'password',
                                 validateText: '密碼最少4個字元',
-                                validate: (v,text)=>{
-                                    if(v.length >= 4){
-                                        return (this.feedback = false)
+                                validate: (method)=>{
+                                    if(method.hasValue().password.length >= 4){
+                                        return false
                                     }
-                                    return (this.feedback = text)
+                                    return method.text
                                 }
                             }
                         }),
-                        (this.feedback)?m('small.text-danger',this.feedback):null
                     ])
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextField'),`,`,cs('#96d8fb','TextBox'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextField'),`)\n
+`,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),` = {
+    `,cs('#96d8fb','value'),`: `,cs('#cb917b',`""`),`,
+    `,cs('#96d8fb','password'),`: `,cs('#cb917b',`"null"`),`,
+}\n
+`,cs('#6AAF4E','//加入屬性參數'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextField'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','title'),`: `,cs('#cb917b',`'請輸入文字'`),`,
+    `,cs('#96d8fb','placeholder'),`: `,cs('#cb917b',`'請輸入文字'`),`,
+    `,cs('#96d8fb','class'),`: `,cs('#cb917b',`'bg-light form-control'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"value"`),`
+    }
+})\n
+`,cs('#6AAF4E','//將value取出設定入this.inputValue變數中'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextField'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"feedback"`),`,
+        `,cs('#dadbaf','validate'),`: (`,cs('#96d8fb','method'),`)=>{
+            `,cs('#579cd5','this'),`.`,cs('#96d8fb','inputValue'),` = `,cs('#96d8fb','method'),`.`,cs('#dadbaf','hasValue'),`().`,cs('#96d8fb','feedback'),`
+            `,cs('#c188bb','return'),` !`,cs('#579cd5','this'),`.`,cs('#96d8fb','inputValue'),`
+        }
+    }
+})\n
+`,cs('#6AAF4E','//使用[type="password"]，將validateText取出設定入this.password變數中'),`
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextBox'),`,{
+    `,cs('#96d8fb','value'),`: `,cs('#579cd5','this'),`.`,cs('#96d8fb','model'),`,
+    `,cs('#96d8fb','type'),`: `,cs('#cb917b',`'password'`),`,
+    `,cs('#96d8fb','validateText'),`: `,cs('#cb917b',`'密碼最少4個字元'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','valueKey'),`: `,cs('#cb917b',`"password"`),`,
+        `,cs('#dadbaf','validate'),`: (`,cs('#96d8fb','method'),`)=>{
+            `,cs('#c188bb','if'),`(`,cs('#96d8fb','method'),`.`,cs('#dadbaf','hasValue'),`().`,cs('#96d8fb','password'),`.`,cs('#96d8fb','length'),` >= `,cs('#ddeedd','4'),`){
+                `,cs('#c188bb','return'),` `,cs('#579cd5','false'),`
+            }
+            `,cs('#c188bb','return'),` `,cs('#96d8fb','method'),`.`,cs('#96d8fb','text'),`
+        }
+    }
+})\n
+`
+                    ]),
                 ]),
                 m('.row', [
                     m('.col-12', m('h3.pt-5', ['TextBox Group'])),
@@ -109,9 +187,7 @@ export default class {
                         m(TextBox, {
                             theme: 'group',
                             options: {
-                                groupPrepend: m('.input-group-prepend', [
-                                    m('span.input-group-text', '@')
-                                ]),
+                                groupPrepend: '@',
                             }
                         })
                     ]),
@@ -120,12 +196,24 @@ export default class {
                         m(TextBox, {
                             theme: 'group',
                             options: {
-                                groupAppend: m('.input-group-prepend', [
-                                    m('span.input-group-text', '@')
-                                ]),
+                                groupAppend: '@',
                             }
                         })
                     ])
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextBox'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextBox'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'group'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`,
+        `,cs('#96d8fb','groupPrepend'),`: `,cs('#cb917b',`'@'`),`,
+        `,cs('#96d8fb','groupAppend'),`: `,cs('#cb917b',`'@'`),`
+    },
+})\n
+`
+                    ]),
                 ]),
                 m('.row', [
                     m('.col-12', m('h3.pt-5', ['TextBox BottomLine'])),
@@ -156,6 +244,14 @@ export default class {
                         })
                     ]),
                     m('.col-3', [
+                        m('h6', m('strong', 'Disabled')),
+                        m(TextBox, {
+                            theme: 'bottomline',
+                            label: 'fly label',
+                            disabled: true,
+                        })
+                    ]),
+                    m('.col-3', [
                         m('h6', m('strong', '使用前置ICON')),
                         m(TextBox, {
                             theme: 'bottomline',
@@ -215,14 +311,18 @@ export default class {
                             }
                         })
                     ]),
-                    m('.col-3', [
-                        m('h6', m('strong', 'Disabled')),
-                        m(TextBox, {
-                            theme: 'bottomline',
-                            label: 'fly label',
-                            disabled: true,
-                        })
-                    ])
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextBox'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextBox'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'bottomline'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`
+    },
+})\n
+`
+                    ]),
                 ]),
                 m('.row', [
                     m('.col-12', m('h3.pt-5', ['TextBox OutLine'])),
@@ -253,6 +353,14 @@ export default class {
                         })
                     ]),
                     m('.col-3', [
+                        m('h6', m('strong', 'Disabled')),
+                        m(TextBox, {
+                            theme: 'outline',
+                            label: 'fly label',
+                            disabled: true,
+                        })
+                    ]),
+                    m('.col-3', [
                         m('h6', m('strong', '使用前置ICON')),
                         m(TextBox, {
                             theme: 'outline',
@@ -312,18 +420,70 @@ export default class {
                             }
                         })
                     ]),
-                    m('.col-3', [
-                        m('h6', m('strong', 'Disabled')),
-                        m(TextBox, {
-                            theme: 'outline',
-                            label: 'fly label',
-                            disabled: true,
-                        })
-                    ])
                 ]),
                 
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#c188bb','import'),` {`,cs('#96d8fb','TextBox'),`} `,cs('#c188bb','from'),` `,cs('#cb917b',`'miix-components'`),`\n
+`,cs('#dadbaf','m'),`(`,cs('#96d8fb','TextBox'),`,{
+    `,cs('#96d8fb','theme'),`: `,cs('#cb917b',`'outline'`),`,
+    `,cs('#96d8fb','options'),`: {
+        `,cs('#96d8fb','label'),`: `,cs('#cb917b',`'fly label'`),`
+    },
+})\n
+`
+                    ]),
+                ]),
+                m('.my-3',[
+                    m(CodeTemplate,[`
+`,cs('#d4bb85','.textbox-line'),`{
+    `,cs('#96d8fb','--status'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--primary'),`);
+    `,cs('#96d8fb','--danger'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--danger'),`);
+    `,cs('#96d8fb','--success'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--success'),`);
+    `,cs('#96d8fb','--textbox-line-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textbox-hover-line-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textbox-focus-line-color'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--status'),`);
+    `,cs('#96d8fb','--textbox-label-color'),`: `,cs('#cb917b','#000'),`;
+    `,cs('#96d8fb','--textbox-focus-label-color'),`: `,cs('#dadbaf','var'),`(`,cs('#96d8fb','--status'),`);
+    `,cs('#96d8fb','--textbox-disabled'),`: `,cs('#cb917b','#00000069'),`;
+    `,cs('#96d8fb','--textbox-bg-color'),`: `,cs('#cb917b','transparent'),`;
+    `,cs('#96d8fb','--textbox-color'),`: `,cs('#cb917b','currentColor'),`;
+    `,cs('#96d8fb','--textbox-placeholder-color'),`: `,cs('#cb917b','#888'),`;
+}\n
+`
+                    ]),
+                ]),
+                m('.h4','JS接口'),
+                    m(TableTemplate,{
+                        colgroup: ['20%','10%','16%','7%','auto']
+                    },[
+TableRow(['Attributes'           ,'Type'          ,'Default'        ,'Theme'        ,'Description'],'th'),
+TableRow(['基本屬性'              ,'string'        ,'default'        ,'all'          ,'可輸入屬性有 id、class、type、minlength、maxlength、max、min、disabled、readonly、required、tabindex、pattern、size、step、placeholder、autocomplete、autofocus、title、style、required']),
+TableRow(['theme'                ,'string'        ,'native'         ,'all'          ,'預設有四種樣式native、group、bottomline、outline']),
+TableRow(['value'                ,'object'        ,''               ,'all'          ,'要加入的傳遞值的model']),
+TableRow(['class'                ,'string'        ,'default'        ,'all'          ,'要加入組件的className']),
+TableRow(['success'              ,'boolen'        ,'false'          ,'all'          ,'組件是否為通過狀態']),
+TableRow(['error'                ,'boolen'        ,'false'          ,'all'          ,'組件是否為錯誤狀態']),
+TableRow(['disabled'             ,'boolen'        ,'false'          ,'all'          ,'組件是否為禁用狀態']),
+TableRow(['options.valueKey'     ,'string'        ,'value'          ,'all'          ,'value物件使用的參數Key名']),
+TableRow(['options.validate'     ,'function'      ,'default'        ,'all'          ,`驗證函式： error: return validateText<br>success: return false`]),
+TableRow(['options.validateText' ,'string'        ,'"輸入框不能空白"' ,'all'          ,'驗證回饋的文字']),
+TableRow(['options.groupPrepend' ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，文字框前置樣式']),
+TableRow(['options.groupAppend'  ,'string mithril','undefined'      ,'group'        ,'Bootstrap群組，文字框後置樣式']),
+TableRow(['options.groupPrepend' ,'string mithril','undefined'      ,'bottomline<br>outline','文字框外前置樣式']),
+TableRow(['options.groupAppend'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框外後置樣式']),
+TableRow(['options.panelPrefix'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框內前置樣式']),
+TableRow(['options.panelSuffix'  ,'string mithril','undefined'      ,'bottomline<br>outline','文字框內後置樣式']),
+TableRow(['options.label'        ,'string mithril','undefined'      ,'bottomline<br>outline','文字框上浮動的文字']),
+TableRow(['options.method'       ,'object'        ,''               ,'all'          ,'將內部方法引用出來']),
+TableRow(['events.onchange'      ,'function'      ,'undefined'      ,'all'          ,'文字輸入完成事件']),
+TableRow(['events.oninput'       ,'function'      ,'undefined'      ,'all'          ,'輸入文字事件']),
+TableRow(['events.onclick'       ,'function'      ,'undefined'      ,'all'          ,'點擊事件']),
+TableRow(['events.onfocus'       ,'function'      ,'undefined'      ,'all'          ,'聚焦事件']),
+TableRow(['events.onblur'        ,'function'      ,'undefined'      ,'all'          ,'失焦事件']),
+                ]),
             ]),
-            m('.py-5.my-5')
+            m('.py-5.my-5'),
         ])
     }
 }

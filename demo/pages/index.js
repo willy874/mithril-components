@@ -6,6 +6,9 @@ import AttachPage from './attach'
 import CarouselPage from './carousel'
 import SelectPage from './select'
 import DateTool from './date-tool'
+import CheckBox from './checkbox'
+import Radio from './radio'
+import Group from './group'
 
 export {
     SvgPage,
@@ -15,5 +18,8 @@ export {
     AttachPage,
     CarouselPage,
     SelectPage,
-    DateTool
+    DateTool,
+    CheckBox,
+    Radio,
+    Group
 }

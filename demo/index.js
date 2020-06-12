@@ -122,15 +122,35 @@ export default class Demo {
                             ])
                         ])
                     ]),
-
-                    
                     m('.col-3.py-3', [
                         m('.card', [
-                            m('.card-header', 'XXX'),
+                            m('.card-header', 'CheckBox'),
                             m('.card-body', [
                                 m('.card-text'),
                                 m('a.btn.btn-primary', {
-                                    href: '#!/svgPage'
+                                    href: '#!/checkbox'
+                                }, '看範例')
+                            ])
+                        ])
+                    ]),
+                    m('.col-3.py-3', [
+                        m('.card', [
+                            m('.card-header', 'Radio'),
+                            m('.card-body', [
+                                m('.card-text'),
+                                m('a.btn.btn-primary', {
+                                    href: '#!/radio'
+                                }, '看範例')
+                            ])
+                        ])
+                    ]),
+                    m('.col-3.py-3', [
+                        m('.card', [
+                            m('.card-header', 'Group'),
+                            m('.card-body', [
+                                m('.card-text'),
+                                m('a.btn.btn-primary', {
+                                    href: '#!/group'
                                 }, '看範例')
                             ])
                         ])
@@ -155,4 +175,7 @@ m.route(document.body, '/', {
     '/select': Page.SelectPage,
     '/carousel': Page.CarouselPage,
     '/datetool': Page.DateTool,
+    '/checkbox': Page.CheckBox,
+    '/radio': Page.Radio,
+    '/group': Page.Group,
 })

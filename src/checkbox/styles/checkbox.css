@@ -1,24 +1,65 @@
-.success {
-  --input-border-color: var()
-;
+:global(.checkbox) {
+  --status: var(--primary);
+  --checkbox-border-color: #000;
+  --checkbox-text-color: #000;
+  --checked-border-color: var(--status);
+  --checked-bg-color: var(--status);
 }
 
-.material.checkbox {
+:global(.checkbox).success {
+  --status: var(--success);
+  --checkbox-border-color: var(--success);
+}
+
+:global(.checkbox).error {
+  --status: var(--danger);
+  --checkbox-border-color: var(--danger);
+}
+
+.checkbox-group :global(.feeback) {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.checkbox-group .checkbox-list input:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: auto;
+}
+
+.checkbox-group .checkbox-list input:disabled + label {
+  --status: var(--secondary);
+  --checkbox-border-color: var(--secondary);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.checkbox-group.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.checkbox-group.disabled .checkbox-list input {
+  pointer-events: none;
+  cursor: auto;
+}
+
+.checkbox-list {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.material.checkbox-list {
   position: relative;
   display: inline-block;
   padding: 0;
-  margin: 0;
 }
 
-.material.checkbox.success, .material.checkbox .error {
-  --input-border-color: var(--status);
-}
-
-.material.checkbox.disabled {
+.material.checkbox-list.disabled {
   opacity: 0.6;
 }
 
-.material.checkbox input {
+.material.checkbox-list input {
   border: 0;
   opacity: 0;
   margin: -1px;
@@ -37,11 +78,7 @@
   -webkit-appearance: none;
 }
 
-.material.checkbox input:disabled, .material.checkbox input .disabled {
-  cursor: auto;
-}
-
-.material.checkbox label {
+.material.checkbox-list label {
   margin: 0;
   padding: 0;
   display: -webkit-box;
@@ -53,25 +90,21 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  color: var(--text-color);
+  color: var(--checkbox-text-color);
 }
 
-.material.checkbox label .select-option, .material.checkbox label .select-btn {
-  color: var(--text-color);
-}
-
-.material.checkbox label::after {
+.material.checkbox-list label::after {
   display: none;
 }
 
-.material.checkbox label::before {
+.material.checkbox-list label::before {
   display: none;
 }
 
-.material.checkbox label div {
+.material.checkbox-list label .checkbox-boxborder {
   position: relative;
   background-color: transparent;
-  border: 0.125rem solid var(--input-border-color);
+  border: 0.125rem solid var(--checkbox-border-color);
   width: 1rem;
   height: 1rem;
   margin-right: 0.5rem;
@@ -80,7 +113,7 @@
   transition: all 0.1s ease-out;
 }
 
-.material.checkbox label div::after {
+.material.checkbox-list label .checkbox-boxborder::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -99,8 +132,21 @@
   transition: all 0.2s ease-out;
 }
 
-.material.checkbox label div::before {
-  content: '';
+.material.checkbox-list label span {
+  color: var(--text-color);
+}
+
+.material.checkbox-list input:checked + label .checkbox-boxborder {
+  border: 0.125rem solid var(--checked-border-color);
+  background-color: var(--checked-bg-color);
+}
+
+.material.checkbox-list input:checked + label .checkbox-boxborder::after {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.checkbox-wave-effect {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -114,48 +160,31 @@
   transition: all 0.2s ease-out;
 }
 
-.material.checkbox input:active + label div::before {
-  background-color: var(--status);
-  opacity: 0.15;
-  -webkit-transform: translate(-50%, -50%) scale(2.5);
-          transform: translate(-50%, -50%) scale(2.5);
-}
-
-.material.checkbox input:checked + label div {
-  border: 0.125rem solid var(--status);
-  background-color: var(--status);
-}
-
-.material.checkbox input:checked + label div::after {
-  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-}
-
-.checkbox-wave-effect-on::before {
+.checkbox-wave-effect.on {
   -webkit-animation: checkbox-wave-effect-on 0.4s;
           animation: checkbox-wave-effect-on 0.4s;
 }
 
-.checkbox-wave-effect-off::before {
-  -webkit-animation: checkbox-wave-effect-off 0.3s;
-          animation: checkbox-wave-effect-off 0.3s;
+.checkbox-wave-effect.off {
+  -webkit-animation: checkbox-wave-effect-off 0.4s;
+          animation: checkbox-wave-effect-off 0.4s;
 }
 
 @-webkit-keyframes checkbox-wave-effect-on {
   0% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(0);
             transform: translate(-50%, -50%) scale(0);
   }
   50% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);
   }
   100% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);
@@ -164,19 +193,19 @@
 
 @keyframes checkbox-wave-effect-on {
   0% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(0);
             transform: translate(-50%, -50%) scale(0);
   }
   50% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);
   }
   100% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);
@@ -185,13 +214,13 @@
 
 @-webkit-keyframes checkbox-wave-effect-off {
   0% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(0);
             transform: translate(-50%, -50%) scale(0);
   }
   33% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);
@@ -212,13 +241,13 @@
 
 @keyframes checkbox-wave-effect-off {
   0% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(0);
             transform: translate(-50%, -50%) scale(0);
   }
   33% {
-    background-color: var(--status);
+    background-color: var(--checked-bg-color);
     opacity: 0.15;
     -webkit-transform: translate(-50%, -50%) scale(2.5);
             transform: translate(-50%, -50%) scale(2.5);

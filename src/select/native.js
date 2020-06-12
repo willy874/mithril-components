@@ -29,33 +29,28 @@ export default class NativeSelectComponent extends Component {
                     'is-invalid': error,
                     'is-valid': success
                 }),
-                ...state.getSelectAttrs().select,
-                value: state.getSelectValue()[state.valueKey] || '請選擇',
+                ...state.getAttrs().select,
             }, [
-                m('option',{
-                    disabled: true,
-                    selected: !state.getSelectValue()[state.valueKey]
-                },'請選擇'),
                 (state.panelPrefix)?
                 this.handleComponent(state.panelPrefix,'option',{
                     disabled: true,
                 }): null,
                 state.childrens.map((item,index) => {
-                    if(!item[state.valueKey]){
-                        item[state.valueKey] = index + 1
+                    if(!item.value){
+                        item.value = index + 1
                     }
                     return m('option', {
-                        ...state.getSelectOptionAttrs(item),
+                        ...state.getChildrensAttrs(item),
                         //判斷若沒有設定selected則帶入item.selected
-                        selected: (item.selected) ? !state.getSelectValue()[state.valueKey] || item.selected : null
-                    }, item[state.textKey])
+                        selected: (item.selected) ? !state.getComponentValue()[state.valueKey] || item.selected : null
+                    }, item.text)
                 }),
                 (state.panelSuffix)?
                 this.handleComponent(state.panelSuffix,'option',{
                     disabled: true,
                 }): null
             ]),
-                (state.hasError) ? m('small.invalid-feedback', state.hasError) : null
+                (state.hasError()) ? m('small.text-danger', state.hasError()) : null
         ])
         
         

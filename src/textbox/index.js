@@ -5,33 +5,17 @@ import {
 import classNames from 'classnames/bind'
 import styles from './styles/textbox.css'
 const cx = classNames.bind(styles)
-import TextField from '../textfield'
-import InputComponent from '../textfield/component'
+import TextField from './field'
+import createInput from './state'
 
 export default class TextBox extends Component {
     constructor(vnode) {
         super()
-        this.attrs = this.checkAttrs(vnode.attrs, ['events', 'options'])
-        this.inputAttrs = vnode.attrs.inputAttrs ||
-            this.filterAttrs(vnode.attrs, ['id', 'minlength', 'maxlength', 'max', 'min', 'disabled', 'readonly', 'required', 'tabindex', 'pattern', 'size', 'step', 'placeholder', 'autocomplete', 'autofocus', 'title', 'style', 'required'])
-        this.options = this.checkAttrs(vnode.attrs.options, ['validateText', 'validate'])
-        this.events = this.checkAttrs(vnode.attrs.events, ['onfocus', 'onblur'])
-
-        this.validate = this.options.validate
-        this.validateText = this.options.validateText
-        this.groupPrepend = this.options.groupPrepend
-        this.groupAppend = this.options.groupAppend
-        this.prefix = this.options.prefix
-        this.suffix = this.options.suffix
-        this.label = this.options.label
-        this.class = vnode.attrs.class
-        this.type = vnode.attrs.type
-        this.value = vnode.attrs.value
-        this.theme = vnode.attrs.theme
-        
-
         //生成state
-        this.state = new InputComponent(this)
+        this.state = new createInput({
+            state: this,
+            attrs: vnode.attrs
+        })
     }
     view(vnode) {
         //bootstrap
@@ -53,6 +37,7 @@ export default class TextBox extends Component {
                     class: 'input-group-text'
                 }),
                 m('div', {
+                    style: this.state.style,
                     class: classNames(this.state.class, 'input-group')
                 }, [
                     (this.state.groupPrepend) ?
@@ -81,7 +66,8 @@ export default class TextBox extends Component {
         //bottomline
         if (this.state.theme === 'bottomline') {
             return m('div', {
-                class: classNames('textbox-line', this.state.class,cx('textbox-bottomline',this.state.textboxValidCalss()))
+                style: this.state.style,
+                class: classNames('textbox-line', this.state.class,cx('textbox-bottomline',this.state.getValidCalss()))
             }, [
                 m('div', {
                     class: cx('bottomline-grid')
@@ -104,7 +90,6 @@ export default class TextBox extends Component {
                             })
                         }, this.state.label) : null,
                         m(TextField, {
-                            class: 'bottomline-form-control',
                             state: this.state
                         }),
                         (this.state.suffix) ? m('div', {
@@ -122,7 +107,8 @@ export default class TextBox extends Component {
         //outline
         if (this.state.theme === 'outline') {
             return m('div', {
-                class: classNames('textbox-line', this.state.class,cx('textbox-outline',this.state.textboxValidCalss()))
+                style: this.state.style,
+                class: classNames('textbox-line', this.state.class,cx('textbox-outline',this.state.getValidCalss()))
             }, [
                 m('div', {
                     class: cx('outline-grid')
@@ -145,7 +131,6 @@ export default class TextBox extends Component {
                             })
                         }, this.state.label) : null,
                         m(TextField, {
-                            class: 'bottomline-form-control',
                             state: this.state
                         }),
                         (this.state.suffix) ? m('div', {

@@ -35,6 +35,22 @@
           box-shadow: none;
 }
 
+.textbox-bottomline .bottomline-wrapper input::-webkit-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-bottomline .bottomline-wrapper input:-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-bottomline .bottomline-wrapper input::-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-bottomline .bottomline-wrapper input::placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
 .textbox-bottomline label {
   pointer-events: none;
 }
@@ -60,15 +76,15 @@
 }
 
 .textbox-bottomline .fly-label.flying {
-  -webkit-transform: translate(0, 1.5px) scale(0.75);
-          transform: translate(0, 1.5px) scale(0.75);
+  -webkit-transform: translate(0, 8px) scale(0.75);
+          transform: translate(0, 8px) scale(0.75);
   -webkit-transform-origin: top left;
           transform-origin: top left;
 }
 
 .textbox-bottomline:focus-within .fly-label {
-  -webkit-transform: translate(0, 1.5px) scale(0.75);
-          transform: translate(0, 1.5px) scale(0.75);
+  -webkit-transform: translate(0, 8px) scale(0.75);
+          transform: translate(0, 8px) scale(0.75);
   -webkit-transform-origin: top left;
           transform-origin: top left;
   color: var(--textbox-focus-label-color);
@@ -111,6 +127,7 @@
 }
 
 .bottomline-wrapper {
+  width: 100%;
   cursor: text;
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
@@ -123,7 +140,7 @@
       -ms-flex-align: center;
           align-items: center;
   line-height: 1.1875em;
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 .bottomline-wrapper::before {
@@ -200,6 +217,22 @@
   background: var(--textbox-bg-color);
   -webkit-box-shadow: none;
           box-shadow: none;
+}
+
+.textbox-outline .outline-wrapper input::-webkit-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-outline .outline-wrapper input:-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-outline .outline-wrapper input::-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+.textbox-outline .outline-wrapper input::placeholder {
+  color: var(--textbox-placeholder-color);
 }
 
 .textbox-outline .fly-label.flying {
@@ -289,6 +322,7 @@
 }
 
 .outline-wrapper {
+  width: 100%;
   position: relative;
   border-radius: 4px;
   color: rgba(0, 0, 0, 0.87);
@@ -314,7 +348,7 @@
   padding: 0;
   position: absolute;
   border-style: solid;
-  border-color: rgba(0, 0, 0, 0.23);
+  border-color: var(--textbox-line-color);
   border-width: 1px;
   padding-left: 8px;
   border-radius: inherit;
@@ -346,17 +380,15 @@
 }
 
 :global(.textbox-line) {
-  --status: #007bff;
-  --danger: #dc3545;
-  --success: #28a745;
+  --status: var(--primary);
   --textbox-line-color: #000;
   --textbox-hover-line-color: #000;
   --textbox-focus-line-color: var(--status);
   --textbox-label-color: #000;
   --textbox-focus-label-color: var(--status);
-  --textbox-disabled: rgba(0, 0, 0, 0.4);
+  --textbox-disabled: #00000069;
   --textbox-bg-color: transparent;
-  --textbox-input-color: currentColor;
+  --textbox-color: currentColor;
   --textbox-placeholder-color: #888;
 }
 
@@ -447,9 +479,36 @@ input.password-reveal:global(.is-valid) + button {
   fill: currentColor;
 }
 
-.d-flex {
+.field {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  width: 100%;
+}
+
+input.form-control {
+  color: var(--textbox-color);
+  width: 100%;
+  background: var(--textbox-bg-color);
+}
+
+input.form-control:focus {
+  background: var(--textbox-bg-color);
+}
+
+input.form-control::-webkit-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+input.form-control:-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+input.form-control::-ms-input-placeholder {
+  color: var(--textbox-placeholder-color);
+}
+
+input.form-control::placeholder {
+  color: var(--textbox-placeholder-color);
 }
 /*# sourceMappingURL=textbox.css.map */

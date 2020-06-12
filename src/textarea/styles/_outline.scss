@@ -8,6 +8,26 @@
     flex-direction: column;
     vertical-align: top;
 
+    .textarea-outline-wrapper textarea {
+        display: block;
+        color: var(--textarea-color);
+        width: 100%;
+        border: 0;
+        margin: 0;
+        min-width: 0;
+        background: var(--textarea-bg-color);
+        box-sizing: content-box;
+    
+        &:focus {
+            outline: 0;
+            background: var(--textarea-bg-color);
+            box-shadow: none;
+        }
+        &::placeholder{
+            color: var(--textarea-placeholder-color);
+        }
+    }
+
     .fly-label {
         &.flying {
             transform: translate(14px, -6px) scale(0.75);
@@ -36,7 +56,7 @@
             border: {
                 style: solid;
                 width: 2px;
-                color: var(--textarea-line-color);
+                color: var(--textarea-hover-line-color);
             }
         }
     }
@@ -44,11 +64,11 @@
     &:focus-within {
         .fly-label {
             transform: translate(14px, -6px) scale(0.75);
-            color: var(--textarea-line-focus-color);
+            color: var(--textarea-focus-label-color);
         }
 
         .outline-fieldset {
-            border-color: var(--textarea-line-focus-color);
+            border-color: var(--textarea-focus-line-color);
             border-width: 2px;
 
             legend {
@@ -58,27 +78,8 @@
         }
     }
 
-    &.is-invalid {
-
-        .fly-label {
-            color: var(--danger);
-        }
-
-        .outline-fieldset {
-            border-color: var(--danger);
-        }
-
-        :global(.invalid-feedback) {
-            display: block;
-        }
-
-        svg {
-            fill: var(--danger);
-        }
-    }
-
     &.disabled {
-        .outline-wrapper {
+        .textarea-outline-wrapper {
             color: var(--textarea-disabled);
 
             &::before,
@@ -99,10 +100,6 @@
 
 }
 
-.textarea-outline-grid {
-    display: flex;
-}
-
 .textarea-outline-wrapper {
     position: relative;
     border-radius: 4px;
@@ -113,6 +110,7 @@
     box-sizing: border-box;
     align-items: center;
     line-height: 1.1875em;
+    flex-grow: 1;
 
     &:focus-within{
         legend {
@@ -147,7 +145,7 @@
     padding: 0;
     position: absolute;
     border-style: solid;
-    border-color: rgba(0, 0, 0, 0.23);
+    border-color: var(--textarea-line-color);
     border-width: 1px;
     padding-left: 8px;
     border-radius: inherit;
@@ -187,13 +185,13 @@
     &:hover{
         .textarea-outline-fieldset {
             border-width: 2px;
-            border-color: var(--textarea-label-color);
+            border-color: var(--textarea-hover-line-color);
         }
     }
     &:focus-within{
         .textarea-outline-fieldset {
             border-width: 2px;
-            border-color: var(--textarea-line-focus-color);
+            border-color: var(--textarea-focus-label-color);
         }
     }
 }
