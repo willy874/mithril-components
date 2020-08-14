@@ -1,5 +1,10 @@
-# M2X mithriljs 公用函式庫
+# mithril componets 函式庫
 
-功能函式
-
-
+## util-components 共用式
+## select 下拉選擇
+## textbox 文字框
+## textarea 文字區塊
+## radio 單選框
+## checkbox 多選框
+## carousel 輪播滑塊
+## date-tool 時間計算式
