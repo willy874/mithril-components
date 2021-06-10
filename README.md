@@ -1,4 +1,4 @@
-# mithril componets 函式庫
+# mithril componets Mthril 函式庫
 
 ## util-components 共用式
 ## select 下拉選擇
